@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.agent.filesystem;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,7 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -24,7 +23,6 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
     private final Configuration configuration;
     private final Translator<Agent, String> translator;
     private final FileSystem fileSystem;
-    private final Map<String, String> nameToIdentifierMap = new ConcurrentHashMap<>();
     private final com.google.gson.Gson gson = new com.google.gson.GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()
@@ -38,17 +36,17 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
         this.fileSystem = fileSystem;
     }
 
-    private String getBaseDir() {
+    private String agentsSource() {
         return this.configuration.get("anticorruption.agents.source");
     }
 
     @Override
     public List<Agent> toInternal() {
-        String baseDir = this.getBaseDir();
-        if (!this.fileSystem.exists(baseDir)) {
+        String agentsSource = this.agentsSource();
+        if (!this.fileSystem.exists(agentsSource)) {
             return List.of();
         }
-        return this.fileSystem.walk(baseDir)
+        return this.fileSystem.walk(agentsSource)
                 .map(this::extractIdFromPath)
                 .map(this::toInternal)
                 .filter(Objects::nonNull)
@@ -57,22 +55,19 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
 
     @Override
     public Agent toInternal(String name) {
-        String baseDir = this.getBaseDir();
-        String path = Paths.get(baseDir, Util.toSnakeCase(name) + ".json").toString();
+        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(name) + ".json").toString();
         return this.translator.toInternal(name, this.fileSystem.read(path, StandardCharsets.UTF_8));
     }
 
     @Override
     public void toExternal(String name, Agent agent) {
-        String baseDir = this.getBaseDir();
-        String path = Paths.get(baseDir, Util.toSnakeCase(name) + ".json").toString();
+        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(name) + ".json").toString();
         this.fileSystem.write(path, this.gson.toJson(this.flatten(agent)), StandardCharsets.UTF_8);
     }
 
     @Override
     public void toExternal(String name, String json) {
-        String baseDir = this.getBaseDir();
-        String path = Paths.get(baseDir, Util.toSnakeCase(name) + ".json").toString();
+        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(name) + ".json").toString();
         this.fileSystem.write(path, json, StandardCharsets.UTF_8);
     }
 
@@ -104,7 +99,7 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
     }
 
     private String extractIdFromPath(String path) {
-        String baseDir = this.getBaseDir();
+        String baseDir = this.agentsSource();
         return path.replace(baseDir, "")
                 .replaceFirst("^[\\\\/]", "")
                 .replaceFirst("\\.json$", "");

@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.prompt;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

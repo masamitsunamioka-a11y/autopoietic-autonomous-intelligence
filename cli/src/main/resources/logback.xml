@@ -1,6 +1,9 @@
 <configuration>
     <timestamp key="bySecond" datePattern="yyyyMMddHHmmss"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %logger{20} - %msg%n</pattern>
         </encoder>
@@ -13,6 +16,7 @@
         </encoder>
     </appender>
     <logger name="xxxxx.yyyyy.zzzzz.self_evolving" level="DEBUG"/>
+    <logger name="xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.runtime.GeminiClient" level="TRACE"/>
     <logger name="org.apache.http" level="WARN"/>
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>

@@ -1,9 +1,8 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.topic;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Adapter;
-import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Translator;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.specification.Topic;
 
@@ -12,13 +11,10 @@ import java.util.List;
 @ApplicationScoped
 public class TopicRepository implements Repository<Topic> {
     private final Adapter<Topic, String> adapter;
-    private final Translator<Topic, String> translator;
 
     @Inject
-    public TopicRepository(Adapter<Topic, String> adapter,
-                           Translator<Topic, String> translator) {
+    public TopicRepository(Adapter<Topic, String> adapter) {
         this.adapter = adapter;
-        this.translator = translator;
     }
 
     @Override
@@ -31,7 +27,7 @@ public class TopicRepository implements Repository<Topic> {
         return this.findAll().stream()
                 .filter(x -> x.name().equalsIgnoreCase(name))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("Persistence Error: Topic not found: " + name));
     }
 
     @Override
@@ -46,6 +42,6 @@ public class TopicRepository implements Repository<Topic> {
 
     @Override
     public void store(String name, String json) {
-        this.store(this.translator.toInternal(name, json));
+        this.adapter.toExternal(name, json);
     }
 }

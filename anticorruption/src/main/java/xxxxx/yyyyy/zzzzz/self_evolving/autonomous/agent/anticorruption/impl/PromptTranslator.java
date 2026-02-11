@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.prompt;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Translator;
@@ -7,7 +7,7 @@ import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Translato
 public class PromptTranslator implements Translator<String, String> {
     @Override
     public String toInternal(String name, String text) {
-        return text;
+        throw new UnsupportedOperationException();
     }
 
     @Override

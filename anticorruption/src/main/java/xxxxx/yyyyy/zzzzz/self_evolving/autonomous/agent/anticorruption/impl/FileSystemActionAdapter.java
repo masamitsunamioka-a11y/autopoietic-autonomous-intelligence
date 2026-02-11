@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.action.filesystem;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -8,6 +8,7 @@ import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.specification.Action;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,27 +26,28 @@ public class FileSystemActionAdapter implements Adapter<Action<?>, String> {
         this.fileSystem = fileSystem;
     }
 
-    private String getActionSrcDir() {
+    private String actionsSource() {
         return this.configuration.get("anticorruption.actions.source");
     }
 
-    private String getActionPackage() {
+    private String actionsPackage() {
         return this.configuration.get("anticorruption.actions.package");
     }
 
     private String resolveFullSourcePath(String name) {
-        String packagePath = this.getActionPackage().replace(".", "/");
+        String packagePath = this.actionsPackage().replace(".", "/");
         String fileName = name.endsWith(".java") ? name : name + ".java";
-        return Paths.get(this.getActionSrcDir(), packagePath, fileName).toString();
+        return Paths.get(this.actionsSource(), packagePath, fileName).toString();
     }
 
     @Override
     public List<Action<?>> toInternal() {
-        String packagePath = this.getActionPackage().replace(".", "/");
-        Path searchPath = Paths.get(this.getActionSrcDir(), packagePath).normalize();
-        String searchDir = searchPath.toString();
+        String searchDir = Paths.get(
+                this.actionsSource(),
+                this.actionsPackage().replace(".", "/")
+        ).normalize().toString();
         if (!this.fileSystem.exists(searchDir)) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         return this.fileSystem.walk(searchDir)
                 .filter(path -> path.endsWith(".java"))

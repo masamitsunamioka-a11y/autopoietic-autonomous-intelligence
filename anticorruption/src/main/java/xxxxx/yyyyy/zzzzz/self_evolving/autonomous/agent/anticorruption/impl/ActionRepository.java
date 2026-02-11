@@ -1,9 +1,8 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.action;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Adapter;
-import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Translator;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.specification.Action;
 
@@ -11,24 +10,21 @@ import java.util.List;
 
 @ApplicationScoped
 public class ActionRepository implements Repository<Action<?>> {
-    private final Adapter<Action<?>, String> actionAdapter;
-    private final Translator<Action<?>, String> translator;
+    private final Adapter<Action<?>, String> adapter;
 
     @Inject
-    public ActionRepository(Adapter<Action<?>, String> adapter,
-                            Translator<Action<?>, String> translator) {
-        this.actionAdapter = adapter;
-        this.translator = translator;
+    public ActionRepository(Adapter<Action<?>, String> adapter) {
+        this.adapter = adapter;
     }
 
     @Override
     public List<Action<?>> findAll() {
-        return this.actionAdapter.toInternal();
+        return this.adapter.toInternal();
     }
 
     @Override
     public Action<?> findByName(String name) {
-        return this.actionAdapter.toInternal(name);
+        return this.adapter.toInternal(name);
     }
 
     @Override
@@ -38,11 +34,11 @@ public class ActionRepository implements Repository<Action<?>> {
 
     @Override
     public void store(String name, Action<?> action) {
-        this.actionAdapter.toExternal(name, action);
+        this.adapter.toExternal(name, action);
     }
 
     @Override
     public void store(String name, String code) {
-        this.actionAdapter.toExternal(name, code);
+        this.adapter.toExternal(name, code);
     }
 }

@@ -27,26 +27,26 @@ public class ThinkableRoutingEngine implements RoutingEngine {
 
     @Override
     public Agent route(String input, Conversation conversation, State state) {
-        logger.debug("[ROUTING_START] Input: {}, Conv: {}, State: {}", input, conversation.snapshot(), state.snapshot());
+        logger.debug("[ROUTING] >> Starting agent resolution.");
         String hint = String.class.cast(state.read("HANDOFF_HINT"));
         if (hint != null) {
             Agent agent = this.agentRepository.findByName(hint);
             if (agent != null) {
-                logger.debug("[ROUTING_STATIC] Hint matched: {}, Agent: {}", hint, agent.name());
+                logger.debug("[ROUTING] >> Static match: Hint '{}' -> Agent '{}'", hint, agent.name());
                 return agent;
             }
-            logger.debug("[ROUTING_STATIC_NOT_FOUND] Hint '{}' not found, resolving to StartAgent", hint);
+            logger.debug("[ROUTING] !! Static miss: Hint '{}' not found. Using StartAgent.", hint);
             return this.agentRepository.findByName(START_AGENT);
         }
         String prompt = this.buildPrompt(input, conversation, state);
         Direction direction = this.thinker.think(prompt, Direction.class);
-        logger.debug("[ROUTING_THINK] Decision: {}, Confidence: {}, Reasoning: {}", direction.agent(), direction.confidence(), direction.reasoning());
+        logger.debug("[ROUTING] >> Dynamic decision: '{}' (Confidence: {}, Reasoning: {})", direction.agent(), direction.confidence(), direction.reasoning());
         Agent agent = this.agentRepository.findByName(direction.agent());
         if (agent == null) {
-            logger.debug("[ROUTING_FALLBACK] Selected agent '{}' not found, resolving to StartAgent", direction.agent());
+            logger.debug("[ROUTING] !! Fallback: Target '{}' not found. Using StartAgent.", direction.agent());
             return this.agentRepository.findByName(START_AGENT);
         }
-        logger.debug("[ROUTING_COMPLETE] Final Target: {}", agent.name());
+        logger.debug("[ROUTING] << Resolved: '{}'", agent.name());
         return agent;
     }
 

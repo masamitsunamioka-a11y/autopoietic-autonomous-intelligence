@@ -35,34 +35,40 @@ public class ThinkableEvolutionEngine implements EvolutionEngine {
 
     @Override
     public void evolve(String input, Conversation conversation, State state, Agent agent) {
-        logger.debug("[EVOLUTION_START] Agent: {}, Conv: {}, State: {}", agent.name(), conversation.snapshot(), state.snapshot());
+        logger.debug("[EVOLUTION] >> Starting evolution for agent: '{}'", agent.name());
         String prompt = this.buildPrompt(input, conversation, state, agent);
         Upgrade upgrade = this.thinker.think(prompt, Upgrade.class);
-        logger.debug("[EVOLUTION_THOUGHT] Upgrade plan generated for: {}", agent.name());
+        logger.debug("[EVOLUTION] >> Thought complete. Plan: instruction_update={}, topics={}, agents={}, actions={}",
+                upgrade.newInstructions() != null && !upgrade.newInstructions().isBlank(),
+                upgrade.newTopics().size(),
+                upgrade.newAgents().size(),
+                upgrade.newTopics().stream().mapToLong(x -> x.actions().size()).sum());
         this.applyEvolution(agent, upgrade);
     }
 
     private void applyEvolution(Agent agent, Upgrade upgrade) {
+        upgrade.newTopics().forEach(x ->
+                x.actions().forEach(y -> {
+                    logger.debug("[EVOLUTION] >> Registering new action placeholder: '{}'", y);
+                    this.actionRepository.store(y, (Action<?>) null);
+                    this.linkNewActionToRelatedTopics(y, agent);
+                })
+        );
+        upgrade.newTopics().forEach(x -> {
+            logger.debug("[EVOLUTION] >> Spawning new topic: '{}'", x.name());
+            this.topicRepository.store(x.name(), x.rawJson());
+        });
+        upgrade.newAgents().forEach(x -> {
+            logger.debug("[EVOLUTION] >> Spawning new agent: '{}'", x.name());
+            this.agentRepository.store(x.name(), x.rawJson());
+        });
         if (!isEmpty(upgrade.newInstructions())) {
-            logger.debug("[EVOLUTION_UPDATE_INSTRUCTIONS] Agent: {}, New Instructions Length: {}",
+            logger.debug("[EVOLUTION] >> Updating instructions for agent: '{}' (Length: {})",
                     agent.name(), upgrade.newInstructions().length());
             agent.instructions(upgrade.newInstructions());
             this.agentRepository.store(agent.name(), agent);
         }
-        upgrade.newTopics().forEach(x -> {
-            logger.debug("[EVOLUTION_SPAWN_TOPIC] Name: {}", x.name());
-            this.topicRepository.store(x.name(), x.rawJson());
-        });
-        upgrade.newAgents().forEach(x -> {
-            logger.debug("[EVOLUTION_SPAWN_AGENT] Name: {}, Desc: {}", x.name(), x.description());
-            this.agentRepository.store(x.name(), x.rawJson());
-        });
-        upgrade.newActions().forEach(x -> {
-            logger.debug("[EVOLUTION_SPAWN_ACTION] Name: {}", x.name());
-            this.actionRepository.store(x.name(), (Action<?>) null);
-            this.linkNewActionToRelatedTopics(x.name(), agent);
-        });
-        logger.debug("[EVOLUTION_COMPLETE] Evolution applied for Agent: {}", agent.name());
+        logger.debug("[EVOLUTION] << Evolution successfully applied for agent: '{}'", agent.name());
     }
 
     private void linkNewActionToRelatedTopics(String name, Agent agent) {
@@ -75,12 +81,11 @@ public class ThinkableEvolutionEngine implements EvolutionEngine {
             throw new IllegalStateException("Agent [" + agent.name() + "] has no assigned topics to link the action.");
         }
         relatedTopics.forEach(topic -> {
-            logger.debug("[EVOLUTION_PROCESSING] Target Topic: '{}'", topic.name());
+            logger.debug("[EVOLUTION] >> Linking action '{}' to specialized topic '{}'", name, topic.name());
             List<String> actions = Stream.concat(
                     Optional.ofNullable(topic.actions()).stream().flatMap(List::stream),
                     Stream.of(name)
             ).distinct().toList();
-            logger.debug("[LINK_ACTION] Linking action '{}' to specialized topic '{}'", name, topic.name());
             this.topicRepository.store(topic.name(), new Topic() {
                 /// @formatter:off
                 @Override public String name() { return topic.name(); }

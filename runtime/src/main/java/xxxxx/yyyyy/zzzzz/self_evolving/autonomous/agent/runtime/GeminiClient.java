@@ -41,7 +41,7 @@ public class GeminiClient {
 
     private String executeWithRetry(String jsonPayload, int retryCount) {
         try {
-            logger.debug("[GEMINI_REQUEST] Payload: {}", jsonPayload);
+            logger.trace("[GEMINI_REQUEST] Payload: {}", jsonPayload);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(API_URL))
                     .header("Content-Type", "application/json")
@@ -50,7 +50,7 @@ public class GeminiClient {
             HttpResponse<String> response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             String body = response.body();
             int status = response.statusCode();
-            logger.debug("[GEMINI_RESPONSE] Status: {}, Body: {}", status, body);
+            logger.trace("[GEMINI_RESPONSE] Status: {}, Body: {}", status, body);
             if (status == 429 && retryCount < MAX_RETRIES) {
                 long backoff = INITIAL_BACKOFF_MS * (long) Math.pow(2, retryCount);
                 logger.warn("Gemini API 429 received. Retrying in {}ms... ({}/{})",

@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.topic.filesystem;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,17 +32,17 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
         this.fileSystem = fileSystem;
     }
 
-    private String sourceDir() {
+    private String topicsSource() {
         return this.configuration.get("anticorruption.topics.source");
     }
 
     @Override
     public List<Topic> toInternal() {
-        String sourceDir = this.sourceDir();
-        if (!this.fileSystem.exists(sourceDir)) {
-            throw new IllegalStateException("Base directory not found: " + sourceDir);
+        String topicsSource = this.topicsSource();
+        if (!this.fileSystem.exists(topicsSource)) {
+            throw new IllegalStateException("Base directory not found: " + topicsSource);
         }
-        return this.fileSystem.walk(sourceDir)
+        return this.fileSystem.walk(topicsSource)
                 .map(this::extractIdFromPath)
                 .map(this::toInternal)
                 .filter(java.util.Objects::nonNull)
@@ -51,22 +51,19 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
 
     @Override
     public Topic toInternal(String name) {
-        String sourceDir = this.sourceDir();
-        String path = Paths.get(sourceDir, Util.toSnakeCase(name) + ".json").toString();
+        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(name) + ".json").toString();
         return this.translator.toInternal(name, this.fileSystem.read(path, StandardCharsets.UTF_8));
     }
 
     @Override
     public void toExternal(String name, Topic topic) {
-        String sourceDir = this.sourceDir();
-        String path = Paths.get(sourceDir, Util.toSnakeCase(name) + ".json").toString();
+        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(name) + ".json").toString();
         this.fileSystem.write(path, this.gson.toJson(this.flatten(topic)), StandardCharsets.UTF_8);
     }
 
     @Override
     public void toExternal(String name, String json) {
-        String sourceDir = this.sourceDir();
-        String path = Paths.get(sourceDir, Util.toSnakeCase(name) + ".json").toString();
+        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(name) + ".json").toString();
         this.fileSystem.write(path, json, StandardCharsets.UTF_8);
     }
 
@@ -88,7 +85,7 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
     }
 
     private String extractIdFromPath(String path) {
-        String baseDir = this.sourceDir();
+        String baseDir = this.topicsSource();
         return path.replace(baseDir, "")
                 .replaceFirst("^[\\\\/]", "")
                 .replaceFirst("\\.json$", "");

@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.prompt.filesystem;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Adapter;
@@ -20,7 +20,7 @@ public class FileSystemPromptAdapter implements Adapter<String, String> {
         this.fileSystem = fileSystem;
     }
 
-    private String sourceDir() {
+    private String promptsSource() {
         return this.configuration.get("anticorruption.prompts.source");
     }
 
@@ -31,7 +31,7 @@ public class FileSystemPromptAdapter implements Adapter<String, String> {
 
     @Override
     public String toInternal(String name) {
-        String path = Paths.get(this.sourceDir(), name).toString();
+        String path = Paths.get(this.promptsSource(), name).toString();
         return this.fileSystem.read(path, StandardCharsets.UTF_8);
     }
 

@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.topic;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -7,8 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.DynamicProxyFactory;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Translator;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.runtime.Util;
-import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.specification.Action;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.specification.Topic;
 
 import java.util.Map;
@@ -18,25 +16,21 @@ public class TopicTranslator implements Translator<Topic, String> {
     private final DynamicProxyFactory dynamicProxyFactory;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public TopicTranslator(Repository<Action<?>> actionRepository) {
-        this.dynamicProxyFactory = new DynamicProxyFactory(actionRepository);
+    public TopicTranslator(Repository<Topic> topicRepository) {
+        this.dynamicProxyFactory = new DynamicProxyFactory(topicRepository);
     }
 
     @Override
     public Topic toInternal(String name, String json) {
         try {
-            String cleaned = Util.cleanJson(json);
-            Map<String, Object> data = this.gson.fromJson(
-                    cleaned,
+            Map<String, Object> topic = this.gson.fromJson(
+                    json,
                     new TypeToken<Map<String, Object>>() {
                     }.getType()
             );
-            if (data == null || !data.containsKey("name")) {
-                throw new RuntimeException("Topic definition error: 'name' missing in " + name);
-            }
-            return this.dynamicProxyFactory.create(Topic.class, data);
+            return this.dynamicProxyFactory.create(Topic.class, topic);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse Topic JSON: " + name, e);
+            throw new RuntimeException("[Translation Error] Failed to parse Topic JSON: " + name, e);
         }
     }
 

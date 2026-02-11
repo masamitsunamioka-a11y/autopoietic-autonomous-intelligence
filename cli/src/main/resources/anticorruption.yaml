@@ -1,8 +1,12 @@
 anticorruption:
   actions:
+    package: "xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.actions"
     source: "actions/src/main/java"
     target: "actions/target"
-    package: "xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.actions"
+    compiler:
+      classpath:
+        strategy: "manual"
+        value: "actions/target/classes:specification/target/classes:anticorruption/target/classes"
   prompts:
     source: "filesystem/prompts"
   agents:

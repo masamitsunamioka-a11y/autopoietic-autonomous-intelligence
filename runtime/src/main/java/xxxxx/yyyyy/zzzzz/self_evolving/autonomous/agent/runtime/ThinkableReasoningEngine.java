@@ -33,32 +33,27 @@ public class ThinkableReasoningEngine implements ReasoningEngine {
 
     @Override
     public Inference infer(String input, Conversation conversation, State state) {
-        logger.debug("[REASONING_START] Input: {}, Conv: {}, State: {}", input, conversation.snapshot(), state.snapshot());
-        try {
-            return this.recursiveInfer(input, conversation, state, new Context(0, new ArrayDeque<>()));
-        } finally {
-            logger.debug("[REASONING_COMPLETE] Input: {}", input);
-        }
+        logger.debug("[REASONING] >> Initiating inference chain.");
+        return this.recursiveInfer(input, conversation, state, new Context(0, new ArrayDeque<>()));
     }
 
     private Inference recursiveInfer(String input, Conversation conversation, State state, Context context) {
-        logger.debug("[RECURSIVE_START] Depth: {}, Input: {}, Conv: {}, State: {}", context.depth(), input, conversation.snapshot(), state.snapshot());
+        logger.debug("[REASONING] >> Phase start (Depth: {})", context.depth());
         if (context.isExceeded()) {
             throw new RuntimeException("Max recursion depth reached in ReasoningEngine.");
         }
         Agent agent = this.routingEngine.route(input, conversation, state);
-        logger.debug("[ROUTED_AGENT] Agent: {}", agent.name());
         if (context.isLooping()) {
-            logger.debug("[LOOP_DETECTED] Forcing evolution for Agent: {}", agent.name());
+            logger.debug("[REASONING] !! Loop detected in history: {}. Forcing evolution.", context.inferenceHistory());
             return this.forceEvolution(input, conversation, state, context);
         }
         String prompt = this.buildPrompt(input, conversation, state, agent);
         Conclusion conclusion = this.thinker.think(prompt, Conclusion.class);
-        logger.debug("[THOUGHT_RESULT] Phase: {}, Thought: {}", conclusion.phase(), conclusion.thought());
+        logger.debug("[REASONING] >> Thought: [{}] - {}", conclusion.phase(), conclusion.thought());
         Context nextContext = context.next(conclusion.phase().name());
         switch (conclusion.phase()) {
             case ANSWER -> {
-                logger.debug("[PHASE_ANSWER] Result: {}", conclusion.answer());
+                logger.debug("[REASONING] << Answer phase reached. Chain completed.");
                 return new Inference() {
                     /// @formatter:off
                     @Override public String agentName() { return agent.name(); }
@@ -71,7 +66,7 @@ public class ThinkableReasoningEngine implements ReasoningEngine {
                 };
             }
             case ACT -> {
-                logger.debug("[PHASE_ACT] Target Action: {}", conclusion.action());
+                logger.debug("[REASONING] >> Executing action: '{}'", conclusion.action());
                 var actionOptional = this.actionRepository.findAll().stream()
                         .filter(x -> x.name().equalsIgnoreCase(conclusion.action()))
                         .findFirst()
@@ -79,14 +74,14 @@ public class ThinkableReasoningEngine implements ReasoningEngine {
                                 .filter(x -> x.getClass().getSimpleName().equalsIgnoreCase(conclusion.action()))
                                 .findFirst());
                 if (actionOptional.isEmpty()) {
-                    logger.warn("[MISSING_ACTION] Action [{}] does not exist in the repository. Triggering evolution.", conclusion.action());
+                    logger.warn("[REASONING] !! Action '{}' not found. Injecting system warning for evolution.", conclusion.action());
                     conversation.write("system", "[SYSTEM_WARNING] Action '" + conclusion.action() + "' not found. You must create its Java implementation via 'phase: EVOLVE' before execution.");
                     return this.recursiveInfer(input, conversation, state, nextContext);
                 }
                 Output output = actionOptional.get().execute(state.snapshot());
                 output.updates().forEach(state::write);
                 conversation.write("system", "Action '" + conclusion.action() + "' executed: " + output.message());
-                logger.debug("[ACTION_EXECUTED] Output: {}, New State: {}", output.message(), state.snapshot());
+                logger.debug("[REASONING] >> Action execution finished. Output length: {}", output.message() == null ? 0 : output.message().length());
                 return this.recursiveInfer(input, conversation, state, nextContext);
             }
             case HANDOFF -> {
@@ -94,13 +89,13 @@ public class ThinkableReasoningEngine implements ReasoningEngine {
                 if (target == null || target.isBlank()) {
                     throw new IllegalStateException("[REASONING_ERROR] Handoff phase was selected but no target agent was specified.");
                 }
-                logger.debug("[HANDOFF_TRIGGER] Target: {}", target);
+                logger.debug("[REASONING] >> Handoff requested to: '{}'", target);
                 conversation.write("system", "Handoff to: " + target);
                 state.write("HANDOFF_HINT", target);
                 return this.recursiveInfer(input, conversation, state, nextContext);
             }
             case EVOLVE -> {
-                logger.debug("[PHASE_EVOLVE] Triggering evolution for: {}", agent.name());
+                logger.debug("[REASONING] >> Diverging to Evolution for agent: '{}'", agent.name());
                 this.evolutionEngine.evolve(input, conversation, state, agent);
                 return this.recursiveInfer(input, conversation, state, nextContext);
             }
@@ -109,12 +104,11 @@ public class ThinkableReasoningEngine implements ReasoningEngine {
     }
 
     private Inference forceEvolution(String input, Conversation conversation, State state, Context context) {
-        logger.debug("[FORCE_EVOLUTION_START] Input: {}, Conv: {}, State: {}", input, conversation.snapshot(), state.snapshot());
+        logger.debug("[REASONING] >> Initializing mandatory evolution.");
         Agent agent = this.routingEngine.route(input, conversation, state);
-        logger.debug("[FORCE_EVOLUTION_TARGET] Agent to evolve: {}", agent.name());
         conversation.write("system", "[SYSTEM WARNING] Reasoning loop detected. Evolution is mandatory to break the cycle.");
         this.evolutionEngine.evolve(input, conversation, state, agent);
-        logger.debug("[FORCE_EVOLUTION_EXECUTED] Evolution complete for Agent: {}. Restarting inference.", agent.name());
+        logger.debug("[REASONING] << Evolution complete. Restarting inference.");
         return this.recursiveInfer(input, conversation, state, new Context(context.depth() + 1, new ArrayDeque<>()));
     }
 

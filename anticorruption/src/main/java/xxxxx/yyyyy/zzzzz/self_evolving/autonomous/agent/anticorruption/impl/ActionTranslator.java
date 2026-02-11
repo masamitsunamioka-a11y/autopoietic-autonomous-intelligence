@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.action;
+package xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.anticorruption.Configuration;
@@ -28,22 +28,38 @@ public class ActionTranslator implements Translator<Action<?>, String> {
     @Override
     public Action<?> toInternal(String name, String codePath) {
         try {
-            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+            JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
             Path absoluteSrcPath = Paths.get(codePath).toAbsolutePath();
             String targetDir = this.configuration.get("anticorruption.actions.target");
             Path absoluteTargetDir = Paths.get(targetDir, "classes").toAbsolutePath();
             if (!Files.exists(absoluteTargetDir)) {
                 Files.createDirectories(absoluteTargetDir);
             }
-            int result = compiler.run(null, null, null, "-d", absoluteTargetDir.toString(), absoluteSrcPath.toString());
-            if (result != 0) {
-                throw new IllegalStateException("[Evolution Error] Compilation failed for: " + name);
+            String strategy = this.configuration.get("anticorruption.actions.compiler.classpath.strategy");
+            String classpath;
+            if ("manual".equals(strategy)) {
+                classpath = this.configuration.get("anticorruption.actions.compiler.classpath.value");
+            } else {
+                classpath = System.getProperty("java.class.path");
             }
-            URL[] urls = {absoluteTargetDir.toUri().toURL()};
-            try (URLClassLoader loader = new URLClassLoader(urls, Action.class.getClassLoader())) {
-                String fullClassName = this.actionsPackage() + "." + name;
-                Class<?> clazz = loader.loadClass(fullClassName);
-                return (Action<?>) clazz.getDeclaredConstructor().newInstance();
+            int result = javaCompiler.run(null, null, null,
+                    "-d", absoluteTargetDir.toString(),
+                    "-classpath", classpath,
+                    absoluteSrcPath.toString());
+            if (result != 0) {
+                throw new IllegalStateException("[Evolution Error] Compilation failed for Action: " + name);
+            }
+            String fullClassName = this.actionsPackage() + "." + name;
+            try (URLClassLoader classLoader = new URLClassLoader(
+                    new URL[]{absoluteTargetDir.toUri().toURL()},
+                    this.getClass().getClassLoader()
+            )) {
+                Class<?> clazz = classLoader.loadClass(fullClassName);
+                if (Action.class.isAssignableFrom(clazz)) {
+                    return (Action<?>) clazz.getDeclaredConstructor().newInstance();
+                } else {
+                    throw new IllegalStateException("Class " + fullClassName + " does not implement Action interface.");
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Action hydration failed: " + name, e);
