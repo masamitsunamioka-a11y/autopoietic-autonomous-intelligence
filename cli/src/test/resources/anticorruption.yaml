@@ -1,0 +1,11 @@
+anticorruption:
+  actions:
+    source: "../actions/src/main/java"
+    target: "../actions/target"
+    package: "xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.actions"
+  prompts:
+    source: "../filesystem/prompts"
+  agents:
+    source: "../filesystem/agents"
+  topics:
+    source: "../filesystem/topics"

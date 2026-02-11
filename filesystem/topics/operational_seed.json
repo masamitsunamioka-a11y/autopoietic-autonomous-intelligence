@@ -1,0 +1,7 @@
+{
+  "name": "OperationalSeed",
+  "label": "Strategic Intelligence Seed",
+  "description": "Logic for capability detection and dynamic routing.",
+  "instructions": "## [Decision Logic]\n1. Capability Mapping: \n   - Undefined procedure -> 'phase: EVOLVE' (Implement missing Action).\n   - Unknown domain -> 'phase: EVOLVE' (Spawn specialized Agent).\n2. Strict Routing: Only use 'ACT' if the physical implementation exists. Otherwise, revert to 'EVOLVE'.\n3. Memory連動: Update 'State' with every decision to ensure long-term consistency.",
+  "actions": []
+}
