@@ -1,0 +1,99 @@
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.cli;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.ClassScanner;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.ProxyContainer;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.TypeLiteral;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ClasspathClassScanner;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.PureJavaProxyContainer;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Conversation;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Inference;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.InferenceEngine;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.State;
+
+import java.lang.reflect.Type;
+import java.util.Iterator;
+import java.util.Scanner;
+
+public class Seaa {
+    private static final Logger logger = LoggerFactory.getLogger(Seaa.class);
+    private final ProxyContainer proxyContainer;
+    private final Iterable<String> inputSource;
+    private final boolean isInteractive;
+
+    public static void main(String[] args) {
+        new Seaa().run();
+    }
+
+    public Seaa() {
+        this(new DefaultScannerSource(), true);
+    }
+
+    public Seaa(Iterable<String> inputSource, boolean isInteractive) {
+        ClassScanner classScanner = new ClasspathClassScanner("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence");
+        ProxyContainer proxyContainer = new PureJavaProxyContainer(classScanner);
+        this.proxyContainer = proxyContainer;
+        this.inputSource = inputSource;
+        this.isInteractive = isInteractive;
+    }
+
+    public void run() {
+        try {
+            State state = new InMemoryState();
+            Conversation conversation = new InMemoryConversation();
+            if (this.isInteractive) {
+                System.out.print("> ");
+            }
+            for (String input : this.inputSource) {
+                if (input == null || input.equalsIgnoreCase("exit")) break;
+                conversation.write("user", input);
+                String answer = this.interact(input, conversation, state);
+                System.out.println(answer);
+                if (this.isInteractive) {
+                    System.out.print("> ");
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Critical error in Seaa runtime", e);
+            throw new RuntimeException(e);
+        } finally {
+            if (logger.isTraceEnabled()) {
+                logger.trace("Final Topology: {}", this.proxyContainer.context(ApplicationScoped.class));
+            }
+        }
+    }
+
+    private String interact(String input, Conversation conversation, State state) {
+        state.write("last_user_input", input);
+        conversation.write("user", input);
+        /// @formatter:off
+        Type inferenceEngineType = new TypeLiteral<InferenceEngine>() {}.type();
+        /// @formatter:on
+        InferenceEngine inferenceEngine = this.proxyContainer.get(inferenceEngineType);
+        Inference inferred = inferenceEngine.infer(input, conversation, state);
+        return inferred.content();
+    }
+
+    private static class DefaultScannerSource implements Iterable<String> {
+        @Override
+        public Iterator<String> iterator() {
+            Scanner scanner = new Scanner(System.in);
+            return new Iterator<>() {
+                @Override
+                public boolean hasNext() {
+                    return true;
+                }
+
+                @Override
+                public String next() {
+                    if (scanner.hasNextLine()) {
+                        return scanner.nextLine();
+                    }
+                    return null;
+                }
+            };
+        }
+    }
+}

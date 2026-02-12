@@ -12,8 +12,8 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <logger name="xxxxx.yyyyy.zzzzz.self_evolving" level="DEBUG"/>
-    <logger name="xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.runtime.GeminiClient" level="TRACE"/>
+    <logger name="xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence" level="DEBUG"/>
+    <logger name="xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.impl.GeminiClient" level="TRACE"/>
     <logger name="org.apache.http" level="WARN"/>
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>

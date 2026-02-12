@@ -1,6 +1,6 @@
 anticorruption:
   actions:
-    package: "xxxxx.yyyyy.zzzzz.self_evolving.autonomous.agent.actions"
+    package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.actions"
     source: "actions/src/main/java"
     target: "actions/target"
     compiler:
