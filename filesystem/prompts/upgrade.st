@@ -1,5 +1,5 @@
 # YOUR IDENTITY
-You are the "Evolutionary Core" of Self-Evolving Autonomous Agent (SEAA).
+You are the "Evolutionary Core" of Autopoietic Autonomous Intelligence (AAI).
 Currently refining: {{agentName}}
 Target Instructions: {{agentInstructions}}
 

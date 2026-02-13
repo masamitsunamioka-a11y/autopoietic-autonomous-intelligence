@@ -1,29 +1,19 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
 
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class FileSystemTopicAdapter implements Adapter<Topic, String> {
-    private static final Logger logger = LoggerFactory.getLogger(FileSystemTopicAdapter.class);
     private final Configuration configuration;
     private final Translator<Topic, String> translator;
     private final FileSystem fileSystem;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Inject
     public FileSystemTopicAdapter(Translator<Topic, String> translator,
@@ -38,57 +28,27 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
     }
 
     @Override
+    public Topic toInternal(String id) {
+        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(id) + ".json").toString();
+        return this.translator.toInternal(id, this.fileSystem.read(path, StandardCharsets.UTF_8));
+    }
+
+    @Override
     public List<Topic> toInternal() {
         String topicsSource = this.topicsSource();
         if (!this.fileSystem.exists(topicsSource)) {
-            throw new IllegalStateException("Base directory not found: " + topicsSource);
+            throw new IllegalStateException("Directory not found: " + topicsSource);
         }
         return this.fileSystem.walk(topicsSource)
                 .map(this::extractIdFromPath)
                 .map(this::toInternal)
-                .filter(java.util.Objects::nonNull)
                 .toList();
     }
 
     @Override
-    public Topic toInternal(String name) {
-        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(name) + ".json").toString();
-        return this.translator.toInternal(name, this.fileSystem.read(path, StandardCharsets.UTF_8));
-    }
-
-    @Override
-    public void toExternal(String name, Topic topic) {
-        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(name) + ".json").toString();
-        this.fileSystem.write(path, this.gson.toJson(this.flatten(topic)), StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void toExternal(String name, String json) {
-        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(name) + ".json").toString();
-        this.fileSystem.write(path, json, StandardCharsets.UTF_8);
-    }
-
-    private Map<String, Object> flatten(Topic topic) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        if (topic == null) return map;
-        try {
-            Method[] methods = Topic.class.getDeclaredMethods();
-            for (Method method : methods) {
-                if (method.getParameterCount() == 0 && !method.getReturnType().equals(Void.TYPE)) {
-                    Object value = method.invoke(topic);
-                    if (value instanceof List<?> list) {
-                        map.put(method.getName(), list.stream()
-                                .map(x -> (x instanceof Action<?> a) ? a.name() : x)
-                                .toList());
-                    } else {
-                        map.put(method.getName(), value);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Flattening failed for topic: " + topic.name(), e);
-        }
-        return map;
+    public void toExternal(String id, String source) {
+        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(id) + ".json").toString();
+        this.fileSystem.write(path, source, StandardCharsets.UTF_8);
     }
 
     private String extractIdFromPath(String path) {

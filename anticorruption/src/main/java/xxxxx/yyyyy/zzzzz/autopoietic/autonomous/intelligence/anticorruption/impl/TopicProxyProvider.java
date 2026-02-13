@@ -46,7 +46,7 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
                         case "actions" -> {
                             yield ((List<?>) attributes.get("actions")).stream()
                                     .map(x -> (String) x)
-                                    .map(this.actionRepository::findByName)
+                                    .map(this.actionRepository::find)
                                     .toList();
                         }
                         default -> attributes.get(method.getName());

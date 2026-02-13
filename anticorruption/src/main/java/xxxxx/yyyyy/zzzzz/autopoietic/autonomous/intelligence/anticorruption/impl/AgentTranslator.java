@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Translator;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
@@ -17,7 +15,6 @@ import java.util.Objects;
 
 @ApplicationScoped
 public class AgentTranslator implements Translator<Agent, String> {
-    private static final Logger logger = LoggerFactory.getLogger(AgentTranslator.class);
     private final ProxyProvider<Agent> proxyProvider;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -27,12 +24,12 @@ public class AgentTranslator implements Translator<Agent, String> {
     }
 
     @Override
-    public Agent toInternal(String name, String json) {
-        return this.proxyProvider.provide(json);
+    public Agent toInternal(String id, String source) {
+        return this.proxyProvider.provide(source);
     }
 
     @Override
-    public String toExternal(String name, Agent agent) {
+    public String toExternal(String id, Agent agent) {
         if (agent == null) {
             throw new IllegalArgumentException("Translation Error: Cannot translate a null Agent.");
         }

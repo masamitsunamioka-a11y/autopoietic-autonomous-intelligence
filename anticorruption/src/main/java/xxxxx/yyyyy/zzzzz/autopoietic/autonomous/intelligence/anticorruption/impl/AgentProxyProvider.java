@@ -46,7 +46,7 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
                         case "topics" -> {
                             yield ((List<?>) attributes.get("topics")).stream()
                                     .map(x -> (String) x)
-                                    .map(this.topicRepository::findByName)
+                                    .map(this.topicRepository::find)
                                     .toList();
                         }
                         default -> attributes.get(method.getName());

@@ -13,4 +13,6 @@ public interface FileSystem {
     Stream<String> list(String directoryPath);
 
     Stream<String> walk(String directoryPath);
+
+    void delete(String path);
 }

@@ -2,31 +2,18 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.imp
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
 
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class FileSystemAgentAdapter implements Adapter<Agent, String> {
-    private static final Logger logger = LoggerFactory.getLogger(FileSystemAgentAdapter.class);
     private final Configuration configuration;
     private final Translator<Agent, String> translator;
     private final FileSystem fileSystem;
-    private final com.google.gson.Gson gson = new com.google.gson.GsonBuilder()
-            .setPrettyPrinting()
-            .disableHtmlEscaping()
-            .create();
 
     @Inject
     public FileSystemAgentAdapter(Translator<Agent, String> translator,
@@ -41,61 +28,27 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
     }
 
     @Override
+    public Agent toInternal(String id) {
+        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(id) + ".json").toString();
+        return this.translator.toInternal(id, this.fileSystem.read(path, StandardCharsets.UTF_8));
+    }
+
+    @Override
     public List<Agent> toInternal() {
         String agentsSource = this.agentsSource();
         if (!this.fileSystem.exists(agentsSource)) {
-            return List.of();
+            throw new IllegalStateException("Directory not found: " + agentsSource);
         }
         return this.fileSystem.walk(agentsSource)
                 .map(this::extractIdFromPath)
                 .map(this::toInternal)
-                .filter(Objects::nonNull)
                 .toList();
     }
 
     @Override
-    public Agent toInternal(String name) {
-        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(name) + ".json").toString();
-        return this.translator.toInternal(name, this.fileSystem.read(path, StandardCharsets.UTF_8));
-    }
-
-    @Override
-    public void toExternal(String name, Agent agent) {
-        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(name) + ".json").toString();
-        this.fileSystem.write(path, this.gson.toJson(this.flatten(agent)), StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void toExternal(String name, String json) {
-        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(name) + ".json").toString();
-        this.fileSystem.write(path, json, StandardCharsets.UTF_8);
-    }
-
-    private Map<String, Object> flatten(Agent agent) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        if (agent == null) {
-            return map;
-        }
-        try {
-            Method[] methods = Agent.class.getDeclaredMethods();
-            for (Method method : methods) {
-                if (method.getParameterCount() == 0 && !method.getReturnType().equals(Void.TYPE)) {
-                    Object value = method.invoke(agent);
-                    if (value instanceof List<?> list) {
-                        map.put(method.getName(), list.stream()
-                                .map(x -> (x instanceof Topic t) ? t.name() : x)
-                                .collect(Collectors.toList()));
-                    } else if (value instanceof Topic topic) {
-                        map.put(method.getName(), topic.name());
-                    } else {
-                        map.put(method.getName(), value);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Flattening failed for agent: " + agent.name(), e);
-        }
-        return map;
+    public void toExternal(String id, String source) {
+        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(id) + ".json").toString();
+        this.fileSystem.write(path, source, StandardCharsets.UTF_8);
     }
 
     private String extractIdFromPath(String path) {

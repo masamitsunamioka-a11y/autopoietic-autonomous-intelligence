@@ -6,12 +6,12 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Tran
 @ApplicationScoped
 public class PromptTranslator implements Translator<String, String> {
     @Override
-    public String toInternal(String name, String text) {
+    public String toInternal(String id, String source) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String toExternal(String name, String prompt) {
+    public String toExternal(String id, String st) {
         throw new UnsupportedOperationException();
     }
 }

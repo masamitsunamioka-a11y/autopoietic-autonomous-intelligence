@@ -18,27 +18,22 @@ public class ActionRepository implements Repository<Action<?>> {
     }
 
     @Override
+    public Action<?> find(String id) {
+        return this.adapter.toInternal(id);
+    }
+
+    @Override
     public List<Action<?>> findAll() {
         return this.adapter.toInternal();
     }
 
     @Override
-    public Action<?> findByName(String name) {
-        return this.adapter.toInternal(name);
+    public void store(String id, String source) {
+        this.adapter.toExternal(id, source);
     }
 
     @Override
-    public void store(Action<?> action) {
-        this.store(action.getClass().getSimpleName(), action);
-    }
-
-    @Override
-    public void store(String name, Action<?> action) {
-        this.adapter.toExternal(name, action);
-    }
-
-    @Override
-    public void store(String name, String code) {
-        this.adapter.toExternal(name, code);
+    public void remove(String id) {
+        throw new UnsupportedOperationException();
     }
 }

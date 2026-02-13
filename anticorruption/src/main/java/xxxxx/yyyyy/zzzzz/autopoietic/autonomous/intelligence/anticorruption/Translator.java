@@ -1,7 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
 public interface Translator<I, E> {
-    I toInternal(String identifier, E external);
+    I toInternal(String id, E source);
 
-    E toExternal(String identifier, I internal);
+    E toExternal(String id, I object);
 }

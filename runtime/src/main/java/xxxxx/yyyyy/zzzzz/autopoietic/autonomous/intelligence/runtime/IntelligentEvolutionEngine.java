@@ -11,6 +11,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Util.isEmpty;
@@ -59,13 +61,29 @@ public class IntelligentEvolutionEngine implements EvolutionEngine {
                 .render();
         Consolidation consolidation = this.intelligence.reason(prompt, Consolidation.class);
         logger.debug("[CONSOLIDATION] >> Thought complete. {}}", consolidation.toString());
+        Set<String> agentsToPurge = consolidation.consolidatedAgents().stream()
+                .flatMap(x -> x.consolidants().stream())
+                .collect(Collectors.toSet());
+        agentsToPurge.forEach(this.agentRepository::remove);
+        consolidation.consolidatedAgents().stream()
+                .map(Consolidation.ConsolidatedAgent::consolidated)
+                .forEach(x -> this.agentRepository.store(x.name(), x.rawJson()));
+        Set<String> topicsToPurge = consolidation.consolidatedTopics().stream()
+                .flatMap(x -> x.consolidants().stream())
+                .collect(Collectors.toSet());
+        topicsToPurge.forEach(this.topicRepository::remove);
+        consolidation.consolidatedTopics().stream()
+                .map(Consolidation.ConsolidatedTopic::consolidated)
+                .forEach(x -> this.topicRepository.store(x.name(), x.rawJson()));
+        logger.info("[CONSOLIDATION] >> Refined intelligence. Purged {} agents and {} topics.",
+                agentsToPurge.size(), topicsToPurge.size());
     }
 
     private void applyEvolution(Agent agent, Upgrade upgrade) {
         upgrade.newTopics().forEach(x ->
                 x.actions().forEach(y -> {
                     logger.debug("[EVOLUTION] >> Registering new action placeholder: '{}'", y);
-                    this.actionRepository.store(y, (Action<?>) null);
+                    this.actionRepository.store(y, null);
                     this.linkNewActionToRelatedTopics(y, agent);
                 })
         );
@@ -87,7 +105,7 @@ public class IntelligentEvolutionEngine implements EvolutionEngine {
     }
 
     private void linkNewActionToRelatedTopics(String name, Agent agent) {
-        Action<?> newAction = this.actionRepository.findByName(name);
+        Action<?> newAction = this.actionRepository.find(name);
         if (newAction == null) {
             throw new UnsupportedOperationException("[EVOLUTION_STOPPED] Action [" + name + "] has no Java implementation.");
         }

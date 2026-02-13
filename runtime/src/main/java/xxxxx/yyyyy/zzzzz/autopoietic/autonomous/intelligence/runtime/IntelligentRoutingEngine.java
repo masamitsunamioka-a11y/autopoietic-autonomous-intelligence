@@ -31,21 +31,21 @@ public class IntelligentRoutingEngine implements RoutingEngine {
         logger.debug("[ROUTING] >> Starting agent resolution.");
         String hint = String.class.cast(state.read("HANDOFF_HINT"));
         if (hint != null) {
-            Agent agent = this.agentRepository.findByName(hint);
+            Agent agent = this.agentRepository.find(hint);
             if (agent != null) {
                 logger.debug("[ROUTING] >> Static match: Hint '{}' -> Agent '{}'", hint, agent.name());
                 return agent;
             }
             logger.debug("[ROUTING] !! Static miss: Hint '{}' not found. Using StartAgent.", hint);
-            return this.agentRepository.findByName(START_AGENT);
+            return this.agentRepository.find(START_AGENT);
         }
         String prompt = this.buildPrompt(input, conversation, state);
         Direction direction = this.intelligence.reason(prompt, Direction.class);
         logger.debug("[ROUTING] >> Dynamic decision: '{}' (Confidence: {}, Reasoning: {})", direction.agent(), direction.confidence(), direction.reasoning());
-        Agent agent = this.agentRepository.findByName(direction.agent());
+        Agent agent = this.agentRepository.find(direction.agent());
         if (agent == null) {
             logger.debug("[ROUTING] !! Fallback: Target '{}' not found. Using StartAgent.", direction.agent());
-            return this.agentRepository.findByName(START_AGENT);
+            return this.agentRepository.find(START_AGENT);
         }
         logger.debug("[ROUTING] << Resolved: '{}'", agent.name());
         return agent;

@@ -26,7 +26,7 @@ public class ActionTranslator implements Translator<Action<?>, String> {
     }
 
     @Override
-    public Action<?> toInternal(String name, String codePath) {
+    public Action<?> toInternal(String id, String codePath) {
         try {
             JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
             Path absoluteSrcPath = Paths.get(codePath).toAbsolutePath();
@@ -47,9 +47,9 @@ public class ActionTranslator implements Translator<Action<?>, String> {
                     "-classpath", classpath,
                     absoluteSrcPath.toString());
             if (result != 0) {
-                throw new IllegalStateException("[Evolution Error] Compilation failed for Action: " + name);
+                throw new IllegalStateException("[Evolution Error] Compilation failed for Action: " + id);
             }
-            String fullClassName = this.actionsPackage() + "." + name;
+            String fullClassName = this.actionsPackage() + "." + id;
             try (URLClassLoader classLoader = new URLClassLoader(
                     new URL[]{absoluteTargetDir.toUri().toURL()},
                     this.getClass().getClassLoader()
@@ -62,14 +62,14 @@ public class ActionTranslator implements Translator<Action<?>, String> {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Action hydration failed: " + name, e);
+            throw new RuntimeException("Action hydration failed: " + id, e);
         }
     }
 
     @Override
-    public String toExternal(String name, Action<?> action) {
+    public String toExternal(String id, Action<?> action) {
         String packageName = this.actionsPackage();
-        String evidenceKey = "evidence." + name;
+        String evidenceKey = "evidence." + id;
         return """
                 package %s;
                 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
@@ -88,6 +88,6 @@ public class ActionTranslator implements Translator<Action<?>, String> {
                         };
                     }
                 }
-                """.formatted(packageName, name, name, name, evidenceKey);
+                """.formatted(packageName, id, id, id, evidenceKey);
     }
 }

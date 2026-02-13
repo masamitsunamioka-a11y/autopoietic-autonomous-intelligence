@@ -17,22 +17,22 @@ public class PromptRepository implements Repository<String> {
     }
 
     @Override
+    public String find(String id) {
+        return this.adapter.toInternal(id);
+    }
+
+    @Override
     public List<String> findAll() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String findByName(String name) {
-        return this.adapter.toInternal(name);
-    }
-
-    @Override
-    public void store(String internal) {
+    public void store(String id, String source) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void store(String filePath, String internal) {
+    public void remove(String id) {
         throw new UnsupportedOperationException();
     }
 }

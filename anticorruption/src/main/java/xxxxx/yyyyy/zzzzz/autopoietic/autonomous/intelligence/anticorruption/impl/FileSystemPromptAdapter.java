@@ -25,18 +25,18 @@ public class FileSystemPromptAdapter implements Adapter<String, String> {
     }
 
     @Override
+    public String toInternal(String id) {
+        String path = Paths.get(this.promptsSource(), id).toString();
+        return this.fileSystem.read(path, StandardCharsets.UTF_8);
+    }
+
+    @Override
     public List<String> toInternal() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String toInternal(String name) {
-        String path = Paths.get(this.promptsSource(), name).toString();
-        return this.fileSystem.read(path, StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void toExternal(String name, String prompt) {
+    public void toExternal(String id, String source) {
         throw new UnsupportedOperationException();
     }
 }

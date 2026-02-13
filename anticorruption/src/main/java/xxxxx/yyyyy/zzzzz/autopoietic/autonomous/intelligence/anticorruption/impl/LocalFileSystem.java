@@ -1,6 +1,8 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.FileSystem;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Localic;
 
@@ -17,6 +19,8 @@ import java.util.stream.Stream;
 @ApplicationScoped
 @Localic
 public class LocalFileSystem implements FileSystem {
+    private static final Logger logger = LoggerFactory.getLogger(LocalFileSystem.class);
+
     @Override
     public String read(String path, Charset charset) {
         Path target = Paths.get(path).normalize();
@@ -89,6 +93,16 @@ public class LocalFileSystem implements FileSystem {
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Walk failed: " + target, e);
+        }
+    }
+
+    @Override
+    public void delete(String path) {
+        Path target = Paths.get(path).normalize();
+        try {
+            Files.deleteIfExists(target);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }

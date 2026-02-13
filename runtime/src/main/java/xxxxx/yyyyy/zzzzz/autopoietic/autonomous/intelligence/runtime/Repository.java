@@ -2,14 +2,12 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
 import java.util.List;
 
-public interface Repository<I> {
-    List<I> findAll();
+public interface Repository<T> {
+    T find(String id);
 
-    I findByName(String name);
+    List<T> findAll();
 
-    void store(I internal);
+    void store(String id, String source);
 
-    void store(String identifier, I internal);
-
-    void store(String identifier, String internal);
+    void remove(String id);
 }

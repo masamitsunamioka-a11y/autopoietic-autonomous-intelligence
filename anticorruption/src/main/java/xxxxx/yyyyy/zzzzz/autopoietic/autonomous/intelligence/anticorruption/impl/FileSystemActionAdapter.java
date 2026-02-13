@@ -8,9 +8,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Actio
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class FileSystemActionAdapter implements Adapter<Action<?>, String> {
@@ -26,6 +24,33 @@ public class FileSystemActionAdapter implements Adapter<Action<?>, String> {
         this.fileSystem = fileSystem;
     }
 
+    @Override
+    public Action<?> toInternal(String id) {
+        String path = (id.contains("/") || id.contains("\\")) ? id : this.resolveFullSourcePath(id);
+        return this.translator.toInternal(id, path);
+    }
+
+    @Override
+    public List<Action<?>> toInternal() {
+        String actionsFullSource = Paths.get(
+                this.actionsSource(),
+                this.actionsPackage().replace(".", "/")).normalize().toString();
+        if (!this.fileSystem.exists(actionsFullSource)) {
+            throw new IllegalStateException("Directory not found: " + actionsFullSource);
+        }
+        return this.fileSystem.walk(actionsFullSource)
+                .filter(path -> path.endsWith(".java"))
+                .map(this::extractIdFromPath)
+                .<Action<?>>map(this::toInternal)
+                .toList();
+    }
+
+    @Override
+    public void toExternal(String id, String source) {
+        String fullPath = this.resolveFullSourcePath(id);
+        this.fileSystem.write(fullPath, source, StandardCharsets.UTF_8);
+    }
+
     private String actionsSource() {
         return this.configuration.get("anticorruption.actions.source");
     }
@@ -34,44 +59,10 @@ public class FileSystemActionAdapter implements Adapter<Action<?>, String> {
         return this.configuration.get("anticorruption.actions.package");
     }
 
-    private String resolveFullSourcePath(String name) {
+    private String resolveFullSourcePath(String id) {
         String packagePath = this.actionsPackage().replace(".", "/");
-        String fileName = name.endsWith(".java") ? name : name + ".java";
+        String fileName = id.endsWith(".java") ? id : id + ".java";
         return Paths.get(this.actionsSource(), packagePath, fileName).toString();
-    }
-
-    @Override
-    public List<Action<?>> toInternal() {
-        String searchDir = Paths.get(
-                this.actionsSource(),
-                this.actionsPackage().replace(".", "/")
-        ).normalize().toString();
-        if (!this.fileSystem.exists(searchDir)) {
-            return Collections.emptyList();
-        }
-        return this.fileSystem.walk(searchDir)
-                .filter(path -> path.endsWith(".java"))
-                .map(this::extractIdFromPath)
-                .<Action<?>>map(this::toInternal)
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    @Override
-    public Action<?> toInternal(String name) {
-        String path = (name.contains("/") || name.contains("\\")) ? name : this.resolveFullSourcePath(name);
-        return this.translator.toInternal(name, path);
-    }
-
-    @Override
-    public void toExternal(String name, Action<?> action) {
-        this.toExternal(name, this.translator.toExternal(name, action));
-    }
-
-    @Override
-    public void toExternal(String name, String code) {
-        String fullPath = this.resolveFullSourcePath(name);
-        this.fileSystem.write(fullPath, code, StandardCharsets.UTF_8);
     }
 
     private String extractIdFromPath(String path) {
