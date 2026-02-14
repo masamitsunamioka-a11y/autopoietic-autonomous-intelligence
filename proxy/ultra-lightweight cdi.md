@@ -5,7 +5,6 @@
 Espresso is an Ultra-Light CDI (ULCDI) implementation designed for high-performance Java applications. It extracts the
 essence of components (Beans) under "high pressure" by stripping away legacy complexity. It strictly adheres to the
 Single Interface Principle (SIP) to ensure total decoupling and high-speed execution.
-
 ---
 
 ## 1. Technical Framework Comparison
@@ -68,7 +67,6 @@ Physical blocking of failed code from contaminating the record of evolution (Git
 
 The next phase involves a total migration from **Type + Name** to **Qualifiers (Type-Safe)** to eliminate String-based
 identification.
-
 ---
 
 ## The Etymology: Why "Espresso"?

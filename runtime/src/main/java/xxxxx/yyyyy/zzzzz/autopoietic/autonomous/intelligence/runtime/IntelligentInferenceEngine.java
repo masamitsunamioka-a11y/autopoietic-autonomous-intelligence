@@ -48,14 +48,14 @@ public class IntelligentInferenceEngine implements InferenceEngine {
         String prompt = this.buildPrompt(input, conversation, state, agent);
         Conclusion conclusion = this.intelligence.reason(prompt, Conclusion.class);
         logger.debug("[INFERENCE] >> Thought: [{}] - {}", conclusion.phase(), conclusion.thought());
-        Context nextContext = context.next(conclusion.phase().name());
+        Context nextContext = context.next(conclusion.phase());
         switch (conclusion.phase()) {
-            case ANSWER -> {
+            case "ANSWER" -> {
                 logger.debug("[INFERENCE] << Answer phase reached. Chain completed.");
                 return new Inference() {
                     /// @formatter:off
                     @Override public String agent() { return agent.name(); }
-                    @Override public String phase() { return conclusion.phase().name(); }
+                    @Override public String phase() { return conclusion.phase(); }
                     @Override public String thought() { return conclusion.thought(); }
                     @Override public String content() { return conclusion.answer(); }
                     @Override public String action() { return conclusion.action(); }
@@ -63,7 +63,7 @@ public class IntelligentInferenceEngine implements InferenceEngine {
                     /// @formatter:on
                 };
             }
-            case ACT -> {
+            case "ACT" -> {
                 logger.debug("[INFERENCE] >> Executing action: '{}'", conclusion.action());
                 var action = agent.topics().stream()
                         .flatMap(x -> x.actions().stream())
@@ -80,7 +80,7 @@ public class IntelligentInferenceEngine implements InferenceEngine {
                 logger.debug("[INFERENCE] >> Action execution finished. Output length: {}", output.message() == null ? 0 : output.message().length());
                 return this.recursiveInfer(input, conversation, state, nextContext);
             }
-            case HANDOFF -> {
+            case "HANDOFF" -> {
                 String target = conclusion.handoffTo();
                 if (target == null || target.isBlank()) {
                     throw new IllegalStateException("[INFERENCE_ERROR] Handoff phase was selected but no target agent was specified.");
@@ -90,7 +90,7 @@ public class IntelligentInferenceEngine implements InferenceEngine {
                 state.write("HANDOFF_HINT", target);
                 return this.recursiveInfer(input, conversation, state, nextContext);
             }
-            case EVOLVE -> {
+            case "EVOLVE" -> {
                 logger.debug("[INFERENCE] >> Diverging to Evolution for agent: '{}'", agent.name());
                 this.evolutionEngine.upgrade(input, conversation, state, agent);
                 this.evolutionEngine.consolidate();
@@ -123,7 +123,7 @@ public class IntelligentInferenceEngine implements InferenceEngine {
 
     /// @formatter:off
     private static record Context(int depth, Deque<String> inferenceHistory) {
-        private static final int MAX_DEPTH = 50;
+        private static final int MAX_DEPTH = 100;
         private static final int LOOP_THRESHOLD = 5;
         public Context {
             Objects.requireNonNull(inferenceHistory, "inferenceHistory must not be null.");

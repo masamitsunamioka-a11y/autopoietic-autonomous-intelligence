@@ -47,8 +47,10 @@ public class FileSystemActionAdapter implements Adapter<Action<?>, String> {
 
     @Override
     public void toExternal(String id, String source) {
-        String fullPath = this.resolveFullSourcePath(id);
-        this.fileSystem.write(fullPath, source, StandardCharsets.UTF_8);
+        this.fileSystem.write(
+                this.resolveFullSourcePath(id),
+                this.translator.toExternal(id, null),
+                StandardCharsets.UTF_8);
     }
 
     private String actionsSource() {

@@ -32,25 +32,25 @@ public class RegexPromptBuilder implements PromptBuilder {
 
     @Override
     public Session inference() {
-        String template = this.promptRepository.find("inference.st");
+        String template = this.promptRepository.find("inference.md");
         return new InnerSession(template);
     }
 
     @Override
     public Session routing() {
-        String template = this.promptRepository.find("routing.st");
+        String template = this.promptRepository.find("routing.md");
         return new InnerSession(template);
     }
 
     @Override
     public Session upgrade() {
-        String template = this.promptRepository.find("upgrade.st");
+        String template = this.promptRepository.find("upgrade.md");
         return new InnerSession(template);
     }
 
     @Override
     public Session consolidation() {
-        String template = this.promptRepository.find("consolidation.st");
+        String template = this.promptRepository.find("consolidation.md");
         return new InnerSession(template);
     }
 
@@ -70,7 +70,7 @@ public class RegexPromptBuilder implements PromptBuilder {
 
         @Override
         public Session guardrails() {
-            return this.bind("guardrails", promptRepository.find("guardrails.st"));
+            return this.bind("guardrails", promptRepository.find("guardrails.md"));
         }
 
         @Override
