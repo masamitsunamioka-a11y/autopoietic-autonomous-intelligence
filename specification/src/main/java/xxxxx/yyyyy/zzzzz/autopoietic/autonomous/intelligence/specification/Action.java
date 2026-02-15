@@ -2,14 +2,12 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification;
 
 import java.util.Map;
 
-public interface Action<T extends Output> {
-    default String name() {
-        return this.getClass().getSimpleName();
-    }
+public interface Action {
+    String name();
 
     String label();
 
     String description();
 
-    T execute(Map<String, Object> input);
+    Map<String, Object> execute(Map<String, Object> input);
 }

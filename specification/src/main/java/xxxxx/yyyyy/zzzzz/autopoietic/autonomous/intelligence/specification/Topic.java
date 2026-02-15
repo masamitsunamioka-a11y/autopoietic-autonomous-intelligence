@@ -15,5 +15,5 @@ public interface Topic {
     @Evolvable
     void instructions(String instructions);
 
-    List<Action<?>> actions();
+    List<Action> actions();
 }

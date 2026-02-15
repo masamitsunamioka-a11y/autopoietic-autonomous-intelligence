@@ -24,14 +24,14 @@ public class IntelligentEvolutionEngine implements EvolutionEngine {
     private final PromptBuilder promptBuilder;
     private final Repository<Agent> agentRepository;
     private final Repository<Topic> topicRepository;
-    private final Repository<Action<?>> actionRepository;
+    private final Repository<Action> actionRepository;
 
     @Inject
     public IntelligentEvolutionEngine(Intelligence intelligence,
                                       PromptBuilder promptBuilder,
                                       Repository<Agent> agentRepository,
                                       Repository<Topic> topicRepository,
-                                      Repository<Action<?>> actionRepository) {
+                                      Repository<Action> actionRepository) {
         this.intelligence = intelligence;
         this.promptBuilder = promptBuilder;
         this.agentRepository = agentRepository;
@@ -41,106 +41,75 @@ public class IntelligentEvolutionEngine implements EvolutionEngine {
 
     @Override
     public void upgrade(String input, Conversation conversation, State state, Agent agent) {
-        logger.debug("[EVOLUTION] >> Starting evolution for agent: '{}'", agent.name());
-        String prompt = this.buildPrompt(input, conversation, state, agent);
+        logger.debug("[UPGRADE] >> Starting evolution for agent: '{}'", agent.name());
+        String prompt = this.promptBuilder.upgrade(input, conversation, state, agent);
         Upgrade upgrade = this.intelligence.reason(prompt, Upgrade.class);
-        logger.debug("[EVOLUTION] >> Thought complete. Plan: instruction_update={}, topics={}, agents={}",
+        logger.debug("[UPGRADE] >> Thought complete. Plan: instruction_update={}, topics={}, agents={}",
                 !isEmpty(upgrade.newInstructions()),
                 upgrade.newTopics().size(),
                 upgrade.newAgents().size());
-        this.applyEvolution(agent, upgrade);
-    }
-
-    @Override
-    public void consolidate() {
-        String prompt = this.promptBuilder.consolidation()
-                .guardrails()
-                .agents()
-                .topics()
-                .actions()
-                .render();
-        Consolidation consolidation = this.intelligence.reason(prompt, Consolidation.class);
-        logger.debug("[CONSOLIDATION] >> Thought complete. {}}", consolidation.toString());
-        Set<String> agentsToPurge = consolidation.consolidatedAgents().stream()
-                .flatMap(x -> x.consolidants().stream())
-                .collect(Collectors.toSet());
-        agentsToPurge.forEach(this.agentRepository::remove);
-        consolidation.consolidatedAgents().stream()
-                .map(Consolidation.ConsolidatedAgent::consolidated)
-                .forEach(x -> this.agentRepository.store(x.name(), x.rawJson()));
-        Set<String> topicsToPurge = consolidation.consolidatedTopics().stream()
-                .flatMap(x -> x.consolidants().stream())
-                .collect(Collectors.toSet());
-        topicsToPurge.forEach(this.topicRepository::remove);
-        consolidation.consolidatedTopics().stream()
-                .map(Consolidation.ConsolidatedTopic::consolidated)
-                .forEach(x -> this.topicRepository.store(x.name(), x.rawJson()));
-        logger.info("[CONSOLIDATION] >> Refined intelligence. Purged {} agents and {} topics.",
-                agentsToPurge.size(), topicsToPurge.size());
-    }
-
-    private void applyEvolution(Agent agent, Upgrade upgrade) {
-        upgrade.newTopics().forEach(x ->
-                x.actions().forEach(y -> {
-                    logger.debug("[EVOLUTION] >> Registering new action placeholder: '{}'", y);
-                    this.actionRepository.store(y, null);
-                    this.linkNewActionToRelatedTopics(y, agent);
-                })
-        );
+        upgrade.newActions().forEach(x -> {
+            logger.debug("[UPGRADE] >> Spawning new action: '{}'", x.name());
+            this.actionRepository.store(x.name(), x.rawJson());
+        });
         upgrade.newTopics().forEach(x -> {
-            logger.debug("[EVOLUTION] >> Spawning new topic: '{}'", x.name());
+            logger.debug("[UPGRADE] >> Spawning new topic: '{}'", x.name());
             this.topicRepository.store(x.name(), x.rawJson());
+            upgrade.newActions().stream()
+                    .filter(y -> y.relatedTopics().contains(x.name()))
+                    .forEach(y -> this.linkActionToTopic(y.name(), x.name()));
         });
         upgrade.newAgents().forEach(x -> {
-            logger.debug("[EVOLUTION] >> Spawning new agent: '{}'", x.name());
+            logger.debug("[UPGRADE] >> Spawning new agent: '{}'", x.name());
             this.agentRepository.store(x.name(), x.rawJson());
         });
         if (!isEmpty(upgrade.newInstructions())) {
-            logger.debug("[EVOLUTION] >> Updating instructions for agent: '{}' (Length: {})",
+            logger.debug("[UPGRADE] >> Updating instructions for agent: '{}' (Length: {})",
                     agent.name(), upgrade.newInstructions().length());
             agent.instructions(upgrade.newInstructions());
             this.agentRepository.store(agent.name(), agent.toString());
         }
-        logger.debug("[EVOLUTION] << Evolution successfully applied for agent: '{}'", agent.name());
+        logger.debug("[UPGRADE] << Evolution successfully applied for agent: '{}'", agent.name());
     }
 
-    private void linkNewActionToRelatedTopics(String name, Agent agent) {
-        Action<?> newAction = this.actionRepository.find(name);
-        if (newAction == null) {
-            throw new UnsupportedOperationException("[EVOLUTION_STOPPED] Action [" + name + "] has no Java implementation.");
-        }
-        List<Topic> relatedTopics = agent.topics();
-        if (relatedTopics == null || relatedTopics.isEmpty()) {
-            throw new IllegalStateException("Agent [" + agent.name() + "] has no assigned topics to link the action.");
-        }
-        relatedTopics.forEach(x -> {
-            logger.debug("[EVOLUTION] >> Linking action '{}' to topic '{}'", name, x.name());
-            List<String> actionNames = Stream.concat(
-                    x.actions().stream().map(Action::name),
-                    Stream.of(name)
-            ).distinct().toList();
-            Gson gson = new GsonBuilder().create();
-            Map<String, Object> attributes = gson.fromJson(
-                    x.toString(),
-                    new TypeToken<Map<String, Object>>() {
-                    }.getType()
-            );
-            attributes.put("actions", actionNames);
-            this.topicRepository.store(x.name(), gson.toJson(attributes));
-        });
+    @Override
+    public void consolidate() {
+        String prompt = this.promptBuilder.consolidation();
+        Consolidation consolidation = this.intelligence.reason(prompt, Consolidation.class);
+        logger.debug("[CONSOLIDATION] >> Thought complete. {}}", consolidation.toString());
+        /// Purge
+        Set<String> agentsToPurge = consolidation.consolidatedAgents().stream()
+                .flatMap(x -> x.consolidants().stream())
+                .collect(Collectors.toSet());
+        agentsToPurge.forEach(this.agentRepository::remove);
+        Set<String> topicsToPurge = consolidation.consolidatedTopics().stream()
+                .flatMap(x -> x.consolidants().stream())
+                .collect(Collectors.toSet());
+        topicsToPurge.forEach(this.topicRepository::remove);
+        /// Merge
+        consolidation.consolidatedTopics().stream()
+                .map(Consolidation.ConsolidatedTopic::consolidated)
+                .forEach(x -> this.topicRepository.store(x.name(), x.rawJson()));
+        consolidation.consolidatedAgents().stream()
+                .map(Consolidation.ConsolidatedAgent::consolidated)
+                .forEach(x -> this.agentRepository.store(x.name(), x.rawJson()));
+        logger.info("[CONSOLIDATION] >> Refined intelligence. Purged {} agents and {} topics.",
+                agentsToPurge.size(), topicsToPurge.size());
     }
 
-    private String buildPrompt(String input, Conversation conversation, State state, Agent agent) {
-        return this.promptBuilder.upgrade()
-                .guardrails()
-                .input(input)
-                .conversation(conversation)
-                .state(state)
-                .agents()
-                .topics()
-                .actions()
-                .bind("agentName", agent.name())
-                .bind("agentInstructions", agent.instructions())
-                .render();
+    private void linkActionToTopic(String actionName, String topicName) {
+        Topic topic = this.topicRepository.find(topicName);
+        List<String> actionNames = Stream.concat(
+                topic.actions().stream().map(Action::name),
+                Stream.of(actionName)
+        ).distinct().toList();
+        logger.debug("[UPGRADE] >> Syncing action '{}' to topic '{}'", actionName, topicName);
+        Gson gson = new GsonBuilder().create();
+        Map<String, Object> attributes =
+                /// @formatter:off
+                gson.fromJson(topic.toString(), new TypeToken<Map<String, Object>>() {}.getType());
+        /// @formatter:on
+        attributes.put("actions", actionNames);
+        this.topicRepository.store(topicName, gson.toJson(attributes));
     }
 }

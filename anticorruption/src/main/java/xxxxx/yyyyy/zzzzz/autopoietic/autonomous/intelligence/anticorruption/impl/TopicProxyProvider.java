@@ -19,10 +19,10 @@ import java.util.Map;
 public class TopicProxyProvider implements ProxyProvider<Topic> {
     private static final Gson GSON =
             new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-    private final Repository<Action<?>> actionRepository;
+    private final Repository<Action> actionRepository;
 
     @Inject
-    public TopicProxyProvider(Repository<Action<?>> actionRepository) {
+    public TopicProxyProvider(Repository<Action> actionRepository) {
         this.actionRepository = actionRepository;
     }
 

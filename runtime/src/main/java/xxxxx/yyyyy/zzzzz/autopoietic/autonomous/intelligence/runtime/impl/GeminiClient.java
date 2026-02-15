@@ -21,7 +21,11 @@ import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Util
 public class GeminiClient {
     private static final Logger logger = LoggerFactory.getLogger(GeminiClient.class);
     private static final String API_KEY = System.getenv("GEMINI_API_KEY");
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
+    private static final String API_BASE_URL = "https://generativelanguage.googleapis.com";
+    private static final String API_VERSION = "v1";
+    private static final String MODEL_NAME = "gemini-2.0-flash";
+    private static final String API_URL = String.format("%s/%s/models/%s:generateContent?key=%s",
+            API_BASE_URL, API_VERSION, MODEL_NAME, API_KEY);
     private static final int MAX_RETRIES = 3;
     private static final long INITIAL_BACKOFF_MS = 2000L;
     private final HttpClient httpClient = HttpClient.newHttpClient();

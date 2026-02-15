@@ -9,21 +9,21 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Actio
 import java.util.List;
 
 @ApplicationScoped
-public class ActionRepository implements Repository<Action<?>> {
-    private final Adapter<Action<?>, String> adapter;
+public class ActionRepository implements Repository<Action> {
+    private final Adapter<Action, String> adapter;
 
     @Inject
-    public ActionRepository(Adapter<Action<?>, String> adapter) {
+    public ActionRepository(Adapter<Action, String> adapter) {
         this.adapter = adapter;
     }
 
     @Override
-    public Action<?> find(String id) {
+    public Action find(String id) {
         return this.adapter.toInternal(id);
     }
 
     @Override
-    public List<Action<?>> findAll() {
+    public List<Action> findAll() {
         return this.adapter.toInternal();
     }
 

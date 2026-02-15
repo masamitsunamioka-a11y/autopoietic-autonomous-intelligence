@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @ApplicationScoped
-public class ActionTranslator implements Translator<Action<?>, String> {
+public class ActionTranslator implements Translator<Action, String> {
     private final Configuration configuration;
 
     public ActionTranslator() {
@@ -26,7 +26,7 @@ public class ActionTranslator implements Translator<Action<?>, String> {
     }
 
     @Override
-    public Action<?> toInternal(String id, String codePath) {
+    public Action toInternal(String id, String codePath) {
         try {
             JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
             Path absoluteSrcPath = Paths.get(codePath).toAbsolutePath();
@@ -56,7 +56,7 @@ public class ActionTranslator implements Translator<Action<?>, String> {
             )) {
                 Class<?> clazz = classLoader.loadClass(fullClassName);
                 if (Action.class.isAssignableFrom(clazz)) {
-                    return (Action<?>) clazz.getDeclaredConstructor().newInstance();
+                    return (Action) clazz.getDeclaredConstructor().newInstance();
                 } else {
                     throw new IllegalStateException("Class " + fullClassName + " does not implement Action interface.");
                 }
@@ -67,27 +67,24 @@ public class ActionTranslator implements Translator<Action<?>, String> {
     }
 
     @Override
-    public String toExternal(String id, Action<?> action) {
+    public String toExternal(String id, Action action) {
         String packageName = this.actionsPackage();
         String evidenceKey = "evidence." + id;
         return """
                 package %s;
                 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
-                import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Output;
                 import java.util.Map;
-                public class %s implements Action<Output> {
+                public class %s implements Action {
+                    @Override public String name() { return "%s"; }
                     @Override public String label() { return "%s"; }
-                    @Override public String description() { return "System-guaranteed evolutionary action with evidence marking."; }
+                    @Override public String description() { return "%s"; }
                     @Override
-                    public Output execute(Map<String, Object> input) {
-                        return new Output() {
-                            @Override public String message() { return "Action [%s] successfully executed."; }
-                            @Override public Map<String, Object> updates() {
-                                return Map.of("%s", "SUCCESS_AT_" + System.currentTimeMillis());
-                            }
-                        };
+                    public Map<String, Object> execute(Map<String, Object> input) {
+                        return Map.of(
+                                "message", "Action [%s] successfully executed."
+                        );
                     }
                 }
-                """.formatted(packageName, id, id, id, evidenceKey);
+                """.formatted(packageName, id, id, action.label(), action.description(), evidenceKey);
     }
 }

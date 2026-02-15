@@ -17,21 +17,21 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.Scanner;
 
-public class Seaa {
-    private static final Logger logger = LoggerFactory.getLogger(Seaa.class);
+public class Cli {
+    private static final Logger logger = LoggerFactory.getLogger(Cli.class);
     private final ProxyContainer proxyContainer;
     private final Iterable<String> inputSource;
     private final boolean isInteractive;
 
     public static void main(String[] args) {
-        new Seaa().run();
+        new Cli().run();
     }
 
-    public Seaa() {
+    public Cli() {
         this(new DefaultScannerSource(), true);
     }
 
-    public Seaa(Iterable<String> inputSource, boolean isInteractive) {
+    public Cli(Iterable<String> inputSource, boolean isInteractive) {
         ClassScanner classScanner = new ClasspathClassScanner("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence");
         ProxyContainer proxyContainer = new PureJavaProxyContainer(classScanner);
         this.proxyContainer = proxyContainer;
@@ -56,7 +56,7 @@ public class Seaa {
                 }
             }
         } catch (Exception e) {
-            logger.error("Critical error in Seaa runtime", e);
+            logger.error("Critical error in Cli runtime", e);
             throw new RuntimeException(e);
         } finally {
             if (logger.isTraceEnabled()) {
@@ -73,7 +73,7 @@ public class Seaa {
         /// @formatter:on
         InferenceEngine inferenceEngine = this.proxyContainer.get(inferenceEngineType);
         Inference inferred = inferenceEngine.infer(input, conversation, state);
-        return inferred.content();
+        return inferred.answer();
     }
 
     private static class DefaultScannerSource implements Iterable<String> {

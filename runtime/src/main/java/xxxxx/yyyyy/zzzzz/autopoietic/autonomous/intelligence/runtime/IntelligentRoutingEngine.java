@@ -4,10 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Conversation;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.RoutingEngine;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.State;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
 
 @ApplicationScoped
 public class IntelligentRoutingEngine implements RoutingEngine {
@@ -39,7 +36,7 @@ public class IntelligentRoutingEngine implements RoutingEngine {
             logger.debug("[ROUTING] !! Static miss: Hint '{}' not found. Using StartAgent.", hint);
             return this.agentRepository.find(START_AGENT);
         }
-        String prompt = this.buildPrompt(input, conversation, state);
+        String prompt = this.promptBuilder.routing(input, conversation, state);
         Direction direction = this.intelligence.reason(prompt, Direction.class);
         logger.debug("[ROUTING] >> Dynamic decision: '{}' (Confidence: {}, Reasoning: {})", direction.agent(), direction.confidence(), direction.reasoning());
         Agent agent = this.agentRepository.find(direction.agent());
@@ -49,15 +46,5 @@ public class IntelligentRoutingEngine implements RoutingEngine {
         }
         logger.debug("[ROUTING] << Resolved: '{}'", agent.name());
         return agent;
-    }
-
-    private String buildPrompt(String input, Conversation conversation, State state) {
-        return this.promptBuilder.routing()
-                .guardrails()
-                .input(input)
-                .conversation(conversation)
-                .state(state)
-                .agents()
-                .render();
     }
 }

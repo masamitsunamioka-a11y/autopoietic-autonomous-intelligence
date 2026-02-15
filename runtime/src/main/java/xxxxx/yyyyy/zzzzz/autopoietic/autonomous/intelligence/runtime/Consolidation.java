@@ -1,12 +1,16 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record Consolidation(@NotNull List<@Valid ConsolidatedAgent> consolidatedAgents,
+public record Consolidation(@NotBlank String reasoning,
+                            @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
+                            @NotNull List<@Valid ConsolidatedAgent> consolidatedAgents,
                             @NotNull List<@Valid ConsolidatedTopic> consolidatedTopics) {
     public record ConsolidatedAgent(@NotNull List<String> consolidants,
                                     @NotBlank String reasoning,

@@ -1,11 +1,14 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.Objects;
 
-public record Conclusion(@NotBlank String phase,
-                         @NotBlank String thought,
+public record Conclusion(@NotBlank String reasoning,
+                         @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
+                         @NotBlank String phase,
                          String handoffTo,
                          String action,
                          String answer) {

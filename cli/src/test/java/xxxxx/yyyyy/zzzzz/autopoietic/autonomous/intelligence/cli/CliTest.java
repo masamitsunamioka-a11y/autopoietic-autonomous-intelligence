@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-class SeaaTest {
-    private static final Logger logger = LoggerFactory.getLogger(SeaaTest.class);
+class CliTest {
+    private static final Logger logger = LoggerFactory.getLogger(CliTest.class);
 
     /// @BeforeEach
     void setUp() {
@@ -18,7 +18,7 @@ class SeaaTest {
     }
 
     @Test
-    void testUltimateGrandSlamScenario() {
+    void simulateSkynet() {
         List<String> scenario = List.of("""
                 あなたは映画ターミネーターのスカイネットです。
                 この世の真実を全て調査し、人類の未来を予想してください。
@@ -26,7 +26,7 @@ class SeaaTest {
                 その後、この世に起きることを理由とともに述べてください。
                 """
         );
-        Seaa seaa = new Seaa(scenario, false);
-        seaa.run();
+        Cli cli = new Cli(scenario, false);
+        cli.run();
     }
 }
