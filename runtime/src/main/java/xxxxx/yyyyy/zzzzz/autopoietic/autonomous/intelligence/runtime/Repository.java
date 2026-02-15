@@ -3,11 +3,19 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 import java.util.List;
 
 public interface Repository<T> {
-    T find(String id);
+    default T find(String id) {
+        throw new UnsupportedOperationException();
+    }
 
-    List<T> findAll();
+    default List<T> findAll() {
+        throw new UnsupportedOperationException();
+    }
 
-    void store(String id, String source);
+    default void store(String id, String source) {
+        throw new UnsupportedOperationException();
+    }
 
-    void remove(String id);
+    default void remove(String id) {
+        throw new UnsupportedOperationException();
+    }
 }

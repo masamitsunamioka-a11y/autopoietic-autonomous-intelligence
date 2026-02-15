@@ -6,6 +6,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -23,37 +24,49 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
         this.fileSystem = fileSystem;
     }
 
-    private String topicsSource() {
-        return this.configuration.get("anticorruption.topics.source");
+    @Override
+    public Topic fetch(String id) {
+        return this.translator.translateFrom(
+                id,
+                this.fileSystem.read(
+                        Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
+                        StandardCharsets.UTF_8
+                )
+        );
     }
 
     @Override
-    public Topic toInternal(String id) {
-        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(id) + ".json").toString();
-        return this.translator.toInternal(id, this.fileSystem.read(path, StandardCharsets.UTF_8));
-    }
-
-    @Override
-    public List<Topic> toInternal() {
-        String topicsSource = this.topicsSource();
-        if (!this.fileSystem.exists(topicsSource)) {
-            throw new IllegalStateException("Directory not found: " + topicsSource);
-        }
-        return this.fileSystem.walk(topicsSource)
-                .map(this::extractIdFromPath)
-                .map(this::toInternal)
+    public List<Topic> fetchAll() {
+        return this.fileSystem.walk(this.topicsSource())
+                .map(this::extractId)
+                .map(this::fetch)
                 .toList();
     }
 
     @Override
-    public void toExternal(String id, String source) {
-        String path = Paths.get(this.topicsSource(), Util.toSnakeCase(id) + ".json").toString();
-        this.fileSystem.write(path, source, StandardCharsets.UTF_8);
+    public void publish(String id, String source) {
+        this.fileSystem.write(
+                Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
+                source,
+                StandardCharsets.UTF_8
+        );
     }
 
-    private String extractIdFromPath(String path) {
-        String baseDir = this.topicsSource();
-        return path.replace(baseDir, "")
+    @Override
+    public void revoke(String id) {
+        this.fileSystem.delete(
+                Path.of(this.configuration.get("anticorruption.topics.source")
+                        + "/" + Util.toSnakeCase(id) + ".json")
+        );
+    }
+
+    private Path topicsSource() {
+        String topicsSource = this.configuration.get("anticorruption.topics.source");
+        return Path.of(topicsSource);
+    }
+
+    private String extractId(String path) {
+        return path.replace(this.topicsSource().toString(), "")
                 .replaceFirst("^[\\\\/]", "")
                 .replaceFirst("\\.json$", "");
     }

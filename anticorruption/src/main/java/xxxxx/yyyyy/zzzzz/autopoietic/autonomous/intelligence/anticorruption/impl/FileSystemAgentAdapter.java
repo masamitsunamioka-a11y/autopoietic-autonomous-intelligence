@@ -6,6 +6,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -23,37 +24,49 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
         this.fileSystem = fileSystem;
     }
 
-    private String agentsSource() {
-        return this.configuration.get("anticorruption.agents.source");
+    @Override
+    public Agent fetch(String id) {
+        return this.translator.translateFrom(
+                id,
+                this.fileSystem.read(
+                        Paths.get(this.agentsSource().toString(), Util.toSnakeCase(id) + ".json"),
+                        StandardCharsets.UTF_8
+                )
+        );
     }
 
     @Override
-    public Agent toInternal(String id) {
-        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(id) + ".json").toString();
-        return this.translator.toInternal(id, this.fileSystem.read(path, StandardCharsets.UTF_8));
-    }
-
-    @Override
-    public List<Agent> toInternal() {
-        String agentsSource = this.agentsSource();
-        if (!this.fileSystem.exists(agentsSource)) {
-            throw new IllegalStateException("Directory not found: " + agentsSource);
-        }
-        return this.fileSystem.walk(agentsSource)
-                .map(this::extractIdFromPath)
-                .map(this::toInternal)
+    public List<Agent> fetchAll() {
+        return this.fileSystem.walk(this.agentsSource())
+                .map(this::extractId)
+                .map(this::fetch)
                 .toList();
     }
 
     @Override
-    public void toExternal(String id, String source) {
-        String path = Paths.get(this.agentsSource(), Util.toSnakeCase(id) + ".json").toString();
-        this.fileSystem.write(path, source, StandardCharsets.UTF_8);
+    public void publish(String id, String source) {
+        this.fileSystem.write(
+                Paths.get(this.agentsSource().toString(), Util.toSnakeCase(id) + ".json"),
+                source,
+                StandardCharsets.UTF_8
+        );
     }
 
-    private String extractIdFromPath(String path) {
-        String baseDir = this.agentsSource();
-        return path.replace(baseDir, "")
+    @Override
+    public void revoke(String id) {
+        this.fileSystem.delete(
+                Path.of(this.agentsSource().toString()
+                        + "/" + Util.toSnakeCase(id) + ".json")
+        );
+    }
+
+    private Path agentsSource() {
+        String agentsSource = this.configuration.get("anticorruption.agents.source");
+        return Path.of(agentsSource);
+    }
+
+    private String extractId(String path) {
+        return path.replace(this.agentsSource().toString(), "")
                 .replaceFirst("^[\\\\/]", "")
                 .replaceFirst("\\.json$", "");
     }

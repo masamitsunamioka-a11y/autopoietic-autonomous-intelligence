@@ -4,7 +4,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Conversation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.State;
 
-public interface PromptBuilder {
+public interface PromptAssembler {
     String inference(String input, Conversation conversation, State state, Agent self);
 
     String routing(String input, Conversation conversation, State state);

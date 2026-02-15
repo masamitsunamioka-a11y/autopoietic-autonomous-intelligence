@@ -16,12 +16,7 @@ public class AgentTranslator implements Translator<Agent, String> {
     }
 
     @Override
-    public Agent toInternal(String id, String source) {
+    public Agent translateFrom(String id, String source) {
         return this.proxyProvider.provide(source);
-    }
-
-    @Override
-    public String toExternal(String id, Agent agent) {
-        throw new UnsupportedOperationException();
     }
 }

@@ -13,7 +13,7 @@
         </encoder>
     </appender>
     <logger name="xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence" level="DEBUG"/>
-    <logger name="xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.impl.GeminiClient" level="TRACE"/>
+    <logger name="xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.impl.Gemini" level="TRACE"/>
     <logger name="org.apache.http" level="WARN"/>
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>

@@ -16,12 +16,7 @@ public class TopicTranslator implements Translator<Topic, String> {
     }
 
     @Override
-    public Topic toInternal(String id, String source) {
+    public Topic translateFrom(String id, String source) {
         return this.proxyProvider.provide(source);
-    }
-
-    @Override
-    public String toExternal(String id, Topic topic) {
-        throw new UnsupportedOperationException();
     }
 }

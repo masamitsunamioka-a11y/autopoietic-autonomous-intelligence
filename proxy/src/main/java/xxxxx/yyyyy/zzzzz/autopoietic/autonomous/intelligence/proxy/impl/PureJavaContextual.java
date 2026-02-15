@@ -77,8 +77,8 @@ public class PureJavaContextual<T> implements Contextual<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PureJavaContextual<?> that)) return false;
-        return Objects.equals(this.type(), that.type()) &&
-                Objects.equals(this.qualifiers, that.qualifiers());
+        return Objects.equals(this.type(), that.type())
+                && Objects.equals(this.qualifiers, that.qualifiers());
     }
 
     @Override

@@ -1,7 +1,11 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
 public interface Translator<I, E> {
-    I toInternal(String id, E source);
+    default I translateFrom(String id, E source) {
+        throw new UnsupportedOperationException();
+    }
 
-    E toExternal(String id, I object);
+    default E translateTo(String id, I object) {
+        throw new UnsupportedOperationException();
+    }
 }

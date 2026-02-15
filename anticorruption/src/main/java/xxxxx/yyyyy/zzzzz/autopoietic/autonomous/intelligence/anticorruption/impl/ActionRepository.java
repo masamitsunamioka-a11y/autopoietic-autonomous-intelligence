@@ -19,21 +19,16 @@ public class ActionRepository implements Repository<Action> {
 
     @Override
     public Action find(String id) {
-        return this.adapter.toInternal(id);
+        return this.adapter.fetch(id);
     }
 
     @Override
     public List<Action> findAll() {
-        return this.adapter.toInternal();
+        return this.adapter.fetchAll();
     }
 
     @Override
     public void store(String id, String source) {
-        this.adapter.toExternal(id, source);
-    }
-
-    @Override
-    public void remove(String id) {
-        throw new UnsupportedOperationException();
+        this.adapter.publish(id, source);
     }
 }

@@ -5,8 +5,6 @@ import jakarta.inject.Inject;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adapter;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 
-import java.util.List;
-
 @ApplicationScoped
 public class PromptRepository implements Repository<String> {
     private final Adapter<String, String> adapter;
@@ -18,21 +16,6 @@ public class PromptRepository implements Repository<String> {
 
     @Override
     public String find(String id) {
-        return this.adapter.toInternal(id);
-    }
-
-    @Override
-    public List<String> findAll() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void store(String id, String source) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void remove(String id) {
-        throw new UnsupportedOperationException();
+        return this.adapter.fetch(id);
     }
 }

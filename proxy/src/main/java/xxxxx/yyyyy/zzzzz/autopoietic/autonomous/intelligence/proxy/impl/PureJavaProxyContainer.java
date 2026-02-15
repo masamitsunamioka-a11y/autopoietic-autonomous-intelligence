@@ -26,6 +26,7 @@ public class PureJavaProxyContainer implements ProxyContainer {
         this.contextCache = new ConcurrentHashMap<>();
         this.contextualCache = new ConcurrentHashMap<>();
         this.proxyCache = new ConcurrentHashMap<>();
+        ///
         this.classScanner.scan().stream()
                 .map(ClassWrapper::new)
                 .filter(ClassWrapper::isInjectable)
@@ -37,10 +38,14 @@ public class PureJavaProxyContainer implements ProxyContainer {
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(Map.Entry::getValue, Collectors.toList())))
+                ///
                 .forEach((scopeType, contextuals) -> {
                     switch (scopeType.getSimpleName()) {
                         case "ApplicationScoped" -> {
-                            this.contextCache.put(scopeType, new PureJavaContextApplicationScoped());
+                            this.contextCache.put(
+                                    scopeType,
+                                    new PureJavaContextApplicationScoped()
+                            );
                             contextuals.forEach(this::register);
                         }
                         default -> throw new IllegalStateException(
@@ -73,15 +78,17 @@ public class PureJavaProxyContainer implements ProxyContainer {
                 ? Set.of(Default.Literal.INSTANCE)
                 : Arrays.stream(qualifiers).collect(Collectors.toSet());
         return (T) Objects.requireNonNull(this.proxyCache.get(
+                /// @formatter:off
                 candidates.stream()
-                        .map(x -> (PureJavaContextual<?>) x)
-                        .filter(x -> x.qualifiers().equals(requiredQualifiers))
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalStateException("""
-                                CRITICAL: No match for type with qualifiers.
-                                Type: %s
-                                Qualifiers: %s
-                                """.formatted(type, requiredQualifiers)))
+                    .map(x -> (PureJavaContextual<?>) x)
+                    .filter(x -> x.qualifiers().equals(requiredQualifiers))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("""
+                        CRITICAL: No match for type with qualifiers.
+                        Type: %s
+                        Qualifiers: %s
+                        """.formatted(type, requiredQualifiers)))
+                /// @formatter:on
         ));
     }
 

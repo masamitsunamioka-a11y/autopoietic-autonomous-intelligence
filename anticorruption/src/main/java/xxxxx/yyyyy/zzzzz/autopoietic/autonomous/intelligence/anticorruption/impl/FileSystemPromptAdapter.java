@@ -7,8 +7,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.File
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Localic;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 @ApplicationScoped
 public class FileSystemPromptAdapter implements Adapter<String, String> {
@@ -20,23 +20,16 @@ public class FileSystemPromptAdapter implements Adapter<String, String> {
         this.fileSystem = fileSystem;
     }
 
-    private String promptsSource() {
-        return this.configuration.get("anticorruption.prompts.source");
+    @Override
+    public String fetch(String id) {
+        return this.fileSystem.read(
+                Paths.get(this.promptsSource().toString(), id),
+                StandardCharsets.UTF_8
+        );
     }
 
-    @Override
-    public String toInternal(String id) {
-        String path = Paths.get(this.promptsSource(), id).toString();
-        return this.fileSystem.read(path, StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public List<String> toInternal() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void toExternal(String id, String source) {
-        throw new UnsupportedOperationException();
+    private Path promptsSource() {
+        String promptsSource = this.configuration.get("anticorruption.prompts.source");
+        return Path.of(promptsSource);
     }
 }

@@ -2,6 +2,7 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification;
 
 import java.util.List;
 
+/// Role
 public interface Agent {
     String name();
 
@@ -9,10 +10,8 @@ public interface Agent {
 
     String description();
 
-    @Evolvable
     String instructions();
 
-    @Evolvable
     void instructions(String instructions);
 
     List<Topic> topics();

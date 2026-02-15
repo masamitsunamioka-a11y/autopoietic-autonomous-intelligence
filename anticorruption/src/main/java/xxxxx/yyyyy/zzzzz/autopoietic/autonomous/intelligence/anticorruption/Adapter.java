@@ -3,9 +3,19 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 import java.util.List;
 
 public interface Adapter<I, E> {
-    I toInternal(String id);
+    default I fetch(String id) {
+        throw new UnsupportedOperationException();
+    }
 
-    List<I> toInternal();
+    default List<I> fetchAll() {
+        throw new UnsupportedOperationException();
+    }
 
-    void toExternal(String id, E source);
+    default void publish(String id, E source) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void revoke(String id) {
+        throw new UnsupportedOperationException();
+    }
 }

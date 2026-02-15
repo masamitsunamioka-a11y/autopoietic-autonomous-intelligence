@@ -1,10 +1,9 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.JsonParser;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
 
 import java.nio.charset.StandardCharsets;
@@ -18,42 +17,35 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
     private final Configuration configuration;
     private final Translator<Action, String> translator;
     private final FileSystem fileSystem;
+    private final JsonParser jsonParser;
 
     @Inject
     public FileSystemActionAdapter(Translator<Action, String> translator,
-                                   @Localic FileSystem fileSystem) {
+                                   @Localic FileSystem fileSystem,
+                                   JsonParser jsonParser) {
         this.configuration = new Configuration("anticorruption.yaml");
         this.translator = translator;
         this.fileSystem = fileSystem;
+        this.jsonParser = jsonParser;
     }
 
     @Override
-    public Action toInternal(String id) {
-        String path = (id.contains("/") || id.contains("\\")) ? id : this.resolveFullSourcePath(id);
-        return this.translator.toInternal(id, path);
+    public Action fetch(String id) {
+        return this.translator.translateFrom(id, this.javaPath(id).toString());
     }
 
     @Override
-    public List<Action> toInternal() {
-        String fullActionsSource = Paths.get(
-                this.actionsSource(),
-                this.actionsPackage().replace(".", "/")).normalize().toString();
-        if (!this.fileSystem.exists(fullActionsSource)) {
-            throw new IllegalStateException("Directory not found: " + fullActionsSource);
-        }
-        return this.fileSystem.walk(fullActionsSource)
+    public List<Action> fetchAll() {
+        return this.fileSystem.walk(this.actionsSource())
                 .filter(path -> path.endsWith(".java"))
-                .map(this::extractIdFromPath)
-                .map(this::toInternal)
+                .map(this::extractId)
+                .map(this::fetch)
                 .toList();
     }
 
     @Override
-    public void toExternal(String id, String source) {
-        /// @formatter:off
-        Map<String, Object> meta =
-                new Gson().fromJson(source, new TypeToken<Map<String, Object>>() {}.getType());
-        /// @formatter:on
+    public void publish(String id, String source) {
+        Map<String, Object> meta = this.jsonParser.from(source);
         String label = (String) meta.getOrDefault("label", id);
         String description = (String) meta.getOrDefault("description", "Autopoietic evolution generated action.");
         Action action = new Action() {
@@ -68,28 +60,35 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
             }
         };
         this.fileSystem.write(
-                this.resolveFullSourcePath(id),
-                this.translator.toExternal(id, action),
-                StandardCharsets.UTF_8);
+                this.javaPath(id),
+                this.translator.translateTo(id, action),
+                StandardCharsets.UTF_8
+        );
     }
 
-    private String actionsSource() {
-        return this.configuration.get("anticorruption.actions.source");
+    private Path actionsSource() {
+        String actionsSource = this.configuration.get("anticorruption.actions.source");
+        return Path.of(actionsSource);
     }
 
     private String actionsPackage() {
         return this.configuration.get("anticorruption.actions.package");
     }
 
-    private String resolveFullSourcePath(String id) {
-        String packagePath = this.actionsPackage().replace(".", "/");
-        String fileName = id.endsWith(".java") ? id : id + ".java";
-        return Paths.get(this.actionsSource(), packagePath, fileName).toString();
+    private Path javaPath(String id) {
+        return Paths.get(
+                this.actionsSource().toString(),
+                this.actionsPackage().replace(".", "/"),
+                id.endsWith(".java")
+                        ? id
+                        : id + ".java"
+        );
     }
 
-    private String extractIdFromPath(String path) {
-        Path p = Paths.get(path);
-        String fileName = p.getFileName().toString();
-        return fileName.replace(".java", "");
+    private String extractId(String path) {
+        return Paths.get(path)
+                .getFileName()
+                .toString()
+                .replace(".java", "");
     }
 }

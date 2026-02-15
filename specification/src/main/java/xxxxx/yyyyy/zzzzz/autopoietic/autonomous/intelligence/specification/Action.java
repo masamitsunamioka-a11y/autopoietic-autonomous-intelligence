@@ -2,6 +2,7 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification;
 
 import java.util.Map;
 
+/// Actuation
 public interface Action {
     String name();
 

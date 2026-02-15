@@ -33,16 +33,15 @@ public class Cli {
 
     public Cli(Iterable<String> inputSource, boolean isInteractive) {
         ClassScanner classScanner = new ClasspathClassScanner("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence");
-        ProxyContainer proxyContainer = new PureJavaProxyContainer(classScanner);
-        this.proxyContainer = proxyContainer;
+        this.proxyContainer = new PureJavaProxyContainer(classScanner);
         this.inputSource = inputSource;
         this.isInteractive = isInteractive;
     }
 
     public void run() {
         try {
-            State state = new InMemoryState();
             Conversation conversation = new InMemoryConversation();
+            State state = new InMemoryState();
             if (this.isInteractive) {
                 System.out.print("> ");
             }
@@ -50,9 +49,11 @@ public class Cli {
                 if (input == null || input.equalsIgnoreCase("exit")) break;
                 conversation.write("user", input);
                 String answer = this.interact(input, conversation, state);
-                System.out.println(answer);
                 if (this.isInteractive) {
+                    System.out.println(answer);
                     System.out.print("> ");
+                } else {
+                    logger.info("Input: {}, Answer: {}", input, answer);
                 }
             }
         } catch (Exception e) {

@@ -1,11 +1,9 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.JsonParser;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
@@ -17,21 +15,20 @@ import java.util.Map;
 
 @ApplicationScoped
 public class AgentProxyProvider implements ProxyProvider<Agent> {
-    private static final Gson GSON =
-            new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final Repository<Topic> topicRepository;
+    private final JsonParser jsonParser;
 
     @Inject
-    public AgentProxyProvider(Repository<Topic> topicRepository) {
+    public AgentProxyProvider(Repository<Topic> topicRepository,
+                              JsonParser jsonParser) {
         this.topicRepository = topicRepository;
+        this.jsonParser = jsonParser;
     }
 
     /// @SuppressWarnings("unchecked")
     @Override
     public Agent provide(String json) {
-        Map<String, Object> attributes =
-                GSON.fromJson(json, new TypeToken<Map<String, Object>>() {
-                }.getType());
+        Map<String, Object> attributes = this.jsonParser.from(json);
         Class<Agent> agentClass =
                 (Class<Agent>) ((ParameterizedType)
                         getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
@@ -40,7 +37,7 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
                 new Class<?>[]{agentClass},
                 (proxy, method, arguments) -> {
                     return switch (method.getName()) {
-                        case "toString" -> GSON.toJson(attributes);
+                        case "toString" -> this.jsonParser.to(attributes);
                         case "hashCode" -> System.identityHashCode(proxy);
                         case "equals" -> arguments != null && arguments.length == 1 && proxy == arguments[0];
                         case "topics" -> {

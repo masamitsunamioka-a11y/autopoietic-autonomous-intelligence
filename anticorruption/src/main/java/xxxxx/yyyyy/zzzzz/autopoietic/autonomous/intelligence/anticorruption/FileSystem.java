@@ -1,18 +1,19 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public interface FileSystem {
-    String read(String path, Charset charset);
+    String read(Path path, Charset charset);
 
-    void write(String path, String content, Charset charset);
+    void write(Path path, String content, Charset charset);
 
-    boolean exists(String path);
+    boolean exists(Path path);
 
-    Stream<String> list(String directoryPath);
+    Stream<String> list(Path path);
 
-    Stream<String> walk(String directoryPath);
+    Stream<String> walk(Path path);
 
-    void delete(String path);
+    void delete(Path path);
 }

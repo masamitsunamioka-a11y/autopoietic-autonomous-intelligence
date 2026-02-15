@@ -5,15 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.FileSystem;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Localic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.SpinLock;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -22,87 +20,64 @@ public class LocalFileSystem implements FileSystem {
     private static final Logger logger = LoggerFactory.getLogger(LocalFileSystem.class);
 
     @Override
-    public String read(String path, Charset charset) {
-        Path target = Paths.get(path).normalize();
+    public String read(Path path, Charset charset) {
         try {
-            return Files.readString(target, charset);
+            return Files.readString(path, charset);
         } catch (IOException e) {
-            throw new UncheckedIOException("Read failed: " + target, e);
+            throw new UncheckedIOException("Read failed: " + path, e);
         }
     }
 
     @Override
-    public void write(String path, String content, Charset charset) {
-        Path target = Paths.get(path).normalize();
+    public void write(Path path, String content, Charset charset) {
         try {
-            Optional.ofNullable(target.getParent()).ifPresent(p -> {
-                try {
-                    Files.createDirectories(p);
-                } catch (IOException e) {
-                    throw new UncheckedIOException("Directory creation failed: " + p, e);
-                }
-            });
-            Files.writeString(target, content, charset);
-            for (int i = 0; i < 10; i++) {
-                if (Files.exists(target)) {
-                    break;
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new UncheckedIOException(
-                            "Interrupted while waiting for file: " + target, new IOException(e));
-                }
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
             }
+            Files.writeString(path, content, charset);
+            new SpinLock().await(() -> Files.exists(path), 10, 100);
         } catch (IOException e) {
-            throw new UncheckedIOException("Write failed: " + target, e);
+            throw new UncheckedIOException("Write failed: " + path, e);
         }
     }
 
     @Override
-    public boolean exists(String path) {
-        return Files.exists(Paths.get(path).normalize());
+    public boolean exists(Path path) {
+        return Files.exists(path);
     }
 
     @Override
-    public Stream<String> list(String path) {
-        Path target = Paths.get(path).normalize();
-        try {
-            try (Stream<Path> stream = Files.list(target)) {
-                List<String> result = stream
-                        .map(Path::toString)
-                        .toList();
-                return result.stream();
-            }
+    public Stream<String> list(Path path) {
+        try (Stream<Path> stream = Files.list(path)) {
+            return stream
+                    .map(Path::toString)
+                    .toList()
+                    .stream();
         } catch (IOException e) {
-            throw new UncheckedIOException("List failed: " + target, e);
+            throw new UncheckedIOException("List failed: " + path, e);
         }
     }
 
     @Override
-    public Stream<String> walk(String path) {
-        Path target = Paths.get(path).normalize();
-        try {
-            try (Stream<Path> stream = Files.walk(target)) {
-                List<String> result = stream
-                        .filter(Files::isRegularFile)
-                        .map(Path::toString)
-                        .toList();
-                return result.stream();
-            }
+    public Stream<String> walk(Path path) {
+        try (Stream<Path> stream = Files.walk(path)) {
+            return stream
+                    .filter(Files::isRegularFile)
+                    .map(Path::toString)
+                    .toList()
+                    .stream();
         } catch (IOException e) {
-            throw new UncheckedIOException("Walk failed: " + target, e);
+            throw new UncheckedIOException("Walk failed: " + path, e);
         }
     }
 
     @Override
-    public void delete(String path) {
-        Path target = Paths.get(path).normalize();
+    public void delete(Path path) {
         try {
-            Files.deleteIfExists(target);
+            Files.deleteIfExists(path);
+            new SpinLock().await(() -> !Files.exists(path), 10, 100);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new UncheckedIOException("Delete failed: " + path, e);
         }
     }
 }

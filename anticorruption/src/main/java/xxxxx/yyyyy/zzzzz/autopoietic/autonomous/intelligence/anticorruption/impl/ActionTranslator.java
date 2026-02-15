@@ -1,73 +1,64 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Compiler;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Translator;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
 
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ActionTranslator implements Translator<Action, String> {
     private final Configuration configuration;
+    private final Compiler compiler;
 
-    public ActionTranslator() {
+    public ActionTranslator(Compiler compiler) {
         this.configuration = new Configuration("anticorruption.yaml");
-    }
-
-    private String actionsPackage() {
-        return this.configuration.get("anticorruption.actions.package");
+        this.compiler = compiler;
     }
 
     @Override
-    public Action toInternal(String id, String codePath) {
-        try {
-            JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
-            Path absoluteSrcPath = Paths.get(codePath).toAbsolutePath();
-            String targetDir = this.configuration.get("anticorruption.actions.target");
-            Path absoluteTargetDir = Paths.get(targetDir, "classes").toAbsolutePath();
-            if (!Files.exists(absoluteTargetDir)) {
-                Files.createDirectories(absoluteTargetDir);
-            }
-            String strategy = this.configuration.get("anticorruption.actions.compiler.classpath.strategy");
-            String classpath;
-            if ("manual".equals(strategy)) {
-                classpath = this.configuration.get("anticorruption.actions.compiler.classpath.value");
-            } else {
-                classpath = System.getProperty("java.class.path");
-            }
-            int result = javaCompiler.run(null, null, null,
-                    "-d", absoluteTargetDir.toString(),
-                    "-classpath", classpath,
-                    absoluteSrcPath.toString());
-            if (result != 0) {
-                throw new IllegalStateException("[Evolution Error] Compilation failed for Action: " + id);
-            }
-            String fullClassName = this.actionsPackage() + "." + id;
-            try (URLClassLoader classLoader = new URLClassLoader(
-                    new URL[]{absoluteTargetDir.toUri().toURL()},
-                    this.getClass().getClassLoader()
-            )) {
-                Class<?> clazz = classLoader.loadClass(fullClassName);
-                if (Action.class.isAssignableFrom(clazz)) {
-                    return (Action) clazz.getDeclaredConstructor().newInstance();
-                } else {
-                    throw new IllegalStateException("Class " + fullClassName + " does not implement Action interface.");
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Action hydration failed: " + id, e);
+    public Action translateFrom(String id, String source) {
+        Path target = Paths.get(
+                        this.configuration.get("anticorruption.actions.target"),
+                        "classes"
+                )
+                .toAbsolutePath();
+        if (this.compiler.compile(Paths.get(source), target) != 0) {
+            throw new IllegalStateException("Failed to compile: " + id);
+        }
+        return this.instantiate(target, id);
+    }
+
+    private Action instantiate(Path directory, String id) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        try (var x = new URLClassLoader(new URL[]{directory.toUri().toURL()}, classLoader)) {
+            return Optional.of(x.loadClass(this.actionsPackage() + "." + id))
+                    ///.filter(Action.class::isAssignableFrom)
+                    .map(y -> {
+                        try {
+                            return (Action) y.getDeclaredConstructor().newInstance();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .orElseThrow(() -> new IllegalStateException("Not an Action: " + id));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public String toExternal(String id, Action action) {
+    public String translateTo(String id, Action action) {
         String packageName = this.actionsPackage();
         String evidenceKey = "evidence." + id;
         return """
@@ -86,5 +77,9 @@ public class ActionTranslator implements Translator<Action, String> {
                     }
                 }
                 """.formatted(packageName, id, id, action.label(), action.description(), evidenceKey);
+    }
+
+    private String actionsPackage() {
+        return this.configuration.get("anticorruption.actions.package");
     }
 }
