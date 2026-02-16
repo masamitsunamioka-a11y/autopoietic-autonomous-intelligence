@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
 import org.yaml.snakeyaml.Yaml;
 

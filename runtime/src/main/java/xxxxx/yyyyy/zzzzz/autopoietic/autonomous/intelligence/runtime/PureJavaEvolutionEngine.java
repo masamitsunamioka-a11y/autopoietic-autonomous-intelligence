@@ -6,10 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
 @ApplicationScoped
 public class PureJavaEvolutionEngine implements EvolutionEngine {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaEvolutionEngine.class);
@@ -18,21 +14,18 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
     private final Repository<Agent> agentRepository;
     private final Repository<Topic> topicRepository;
     private final Repository<Action> actionRepository;
-    private final JsonParser jsonParser;
 
     @Inject
     public PureJavaEvolutionEngine(Intelligence intelligence,
                                    PromptAssembler promptAssembler,
                                    Repository<Agent> agentRepository,
                                    Repository<Topic> topicRepository,
-                                   Repository<Action> actionRepository,
-                                   JsonParser jsonParser) {
+                                   Repository<Action> actionRepository) {
         this.intelligence = intelligence;
         this.promptAssembler = promptAssembler;
         this.agentRepository = agentRepository;
         this.topicRepository = topicRepository;
         this.actionRepository = actionRepository;
-        this.jsonParser = jsonParser;
     }
 
     @Override
@@ -55,14 +48,18 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
             this.topicRepository.store(x.name(), x.rawJson());
             upgrade.newActions().stream()
                     .filter(y -> y.relatedTopics().contains(x.name()))
-                    .forEach(y -> this.linkActionToTopic(y.name(), x.name()));
+                    .forEach(y -> {
+                        Topic topic = this.topicRepository.find(x.name());
+                        topic.actions(actionRepository.find(y.name()));
+                        this.topicRepository.store(x.name(), topic);
+                    });
         });
         upgrade.newAgents().forEach(x -> {
             this.agentRepository.store(x.name(), x.rawJson());
         });
         if (!upgrade.newInstructions().isEmpty()) {
             agent.instructions(upgrade.newInstructions());
-            this.agentRepository.store(agent.name(), agent.toString());
+            this.agentRepository.store(agent.name(), agent);
         }
     }
 
@@ -87,20 +84,13 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
         /// Merge
         consolidation.consolidatedTopics().stream()
                 .map(Consolidation.ConsolidatedTopic::consolidated)
-                .forEach(x -> this.topicRepository.store(x.name(), x.rawJson()));
+                .forEach(x -> this.topicRepository.store(
+                        x.name(),
+                        x.rawJson()));
         consolidation.consolidatedAgents().stream()
                 .map(Consolidation.ConsolidatedAgent::consolidated)
-                .forEach(x -> this.agentRepository.store(x.name(), x.rawJson()));
-    }
-
-    private void linkActionToTopic(String actionName, String topicName) {
-        Topic topic = this.topicRepository.find(topicName);
-        List<String> actionNames = Stream.concat(
-                topic.actions().stream().map(Action::name),
-                Stream.of(actionName)
-        ).distinct().toList();
-        Map<String, Object> attributes = this.jsonParser.from(topic.toString());
-        attributes.put("actions", actionNames);
-        this.topicRepository.store(topicName, this.jsonParser.to(attributes));
+                .forEach(x -> this.agentRepository.store(
+                        x.name(),
+                        x.rawJson()));
     }
 }

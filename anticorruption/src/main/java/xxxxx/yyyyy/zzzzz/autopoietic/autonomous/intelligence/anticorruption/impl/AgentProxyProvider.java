@@ -2,19 +2,24 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.imp
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonParser;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.JsonParser;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
+
+import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Util.actualTypeArguments;
 
 @ApplicationScoped
 public class AgentProxyProvider implements ProxyProvider<Agent> {
+    private static final Logger logger = LoggerFactory.getLogger(AgentProxyProvider.class);
     private final Repository<Topic> topicRepository;
     private final JsonParser jsonParser;
 
@@ -25,30 +30,54 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
         this.jsonParser = jsonParser;
     }
 
-    /// @SuppressWarnings("unchecked")
+    private static record InternalAgent(String name,
+                                        String label,
+                                        String description,
+                                        String instructions,
+                                        List<String> topics) {
+    }
+
     @Override
     public Agent provide(String json) {
-        Map<String, Object> attributes = this.jsonParser.from(json);
-        Class<Agent> agentClass =
-                (Class<Agent>) ((ParameterizedType)
-                        getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
+        var reference = new AtomicReference<InternalAgent>(this.jsonParser.toObject(json, InternalAgent.class));
         return (Agent) Proxy.newProxyInstance(
                 Thread.currentThread().getContextClassLoader(),
-                new Class<?>[]{agentClass},
-                (proxy, method, arguments) -> {
+                new Class<?>[]{actualTypeArguments(this.getClass())},
+                (proxy, method, args) -> {
+                    InternalAgent agent = reference.get();
                     return switch (method.getName()) {
-                        case "toString" -> this.jsonParser.to(attributes);
+                        case "toString" -> this.jsonParser.toString(agent);
                         case "hashCode" -> System.identityHashCode(proxy);
-                        case "equals" -> arguments != null && arguments.length == 1 && proxy == arguments[0];
+                        case "equals" -> this.equals(proxy, args);
                         case "topics" -> {
-                            yield ((List<?>) attributes.get("topics")).stream()
-                                    .map(x -> (String) x)
-                                    .map(this.topicRepository::find)
-                                    .toList();
+                            if (args == null || args.length == 0) {
+                                yield agent.topics().stream()
+                                        .map(this.topicRepository::find)
+                                        .distinct()
+                                        .toList();
+                            } else {
+                                String name = ((Topic) args[0]).name();
+                                /// @formatter:off
+                                reference.set(new InternalAgent(
+                                    agent.name(),
+                                    agent.label(),
+                                    agent.description(),
+                                    agent.instructions(),
+                                    Stream.concat(agent.topics().stream(), Stream.of(name))
+                                        .distinct()
+                                        .toList()
+                                ));
+                                /// @formatter:on
+                                yield null;
+                            }
                         }
-                        default -> attributes.get(method.getName());
+                        default -> InternalAgent.class.getMethod(method.getName()).invoke(agent);
                     };
                 }
         );
+    }
+
+    private boolean equals(Object proxy, Object[] args) {
+        return args != null && args.length == 1 && proxy == args[0];
     }
 }

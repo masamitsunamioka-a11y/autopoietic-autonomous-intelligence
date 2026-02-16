@@ -47,13 +47,16 @@ public class Cli {
             }
             for (String input : this.inputSource) {
                 if (input == null || input.equalsIgnoreCase("exit")) break;
-                conversation.write("user", input);
-                String answer = this.interact(input, conversation, state);
+                Inference inference = this.interact(input, conversation, state);
                 if (this.isInteractive) {
-                    System.out.println(answer);
+                    System.out.printf("%s> %s\n[confidence %s, reasoning %s]\n\n",
+                            inference.agent(),
+                            inference.answer(),
+                            inference.confidence(),
+                            inference.reasoning());
                     System.out.print("> ");
                 } else {
-                    logger.info("Input: {}, Answer: {}", input, answer);
+                    logger.info("Input: {}, Answer: {}", input, inference.answer());
                 }
             }
         } catch (Exception e) {
@@ -66,15 +69,14 @@ public class Cli {
         }
     }
 
-    private String interact(String input, Conversation conversation, State state) {
+    private Inference interact(String input, Conversation conversation, State state) {
         state.write("last_user_input", input);
         conversation.write("user", input);
         /// @formatter:off
         Type inferenceEngineType = new TypeLiteral<InferenceEngine>() {}.type();
         /// @formatter:on
         InferenceEngine inferenceEngine = this.proxyContainer.get(inferenceEngineType);
-        Inference inferred = inferenceEngine.infer(input, conversation, state);
-        return inferred.answer();
+        return inferenceEngine.infer(input, conversation, state);
     }
 
     private static class DefaultScannerSource implements Iterable<String> {

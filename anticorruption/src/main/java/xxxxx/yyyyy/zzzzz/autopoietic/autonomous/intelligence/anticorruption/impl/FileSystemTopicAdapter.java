@@ -2,7 +2,10 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.imp
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
 
 import java.nio.charset.StandardCharsets;
@@ -12,6 +15,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class FileSystemTopicAdapter implements Adapter<Topic, String> {
+    private static final Logger logger = LoggerFactory.getLogger(FileSystemTopicAdapter.class);
     private final Configuration configuration;
     private final Translator<Topic, String> translator;
     private final FileSystem fileSystem;

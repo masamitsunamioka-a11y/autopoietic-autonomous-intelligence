@@ -1,10 +1,10 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.impl;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.experimental;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonParser;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.ExternalService;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.JsonParser;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @ApplicationScoped
-public class Gemini implements ExternalService<String> {
+public class Gemini implements ExternalService {
     private static final Logger logger = LoggerFactory.getLogger(Gemini.class);
     private static final String API_KEY = System.getenv("GEMINI_API_KEY");
     private static final String API_BASE_URL = "https://generativelanguage.googleapis.com";
@@ -36,6 +36,10 @@ public class Gemini implements ExternalService<String> {
     }
 
     @Override
+    public <I, T> I call(String prompt, Class<T> type) {
+        return this.jsonParser.toObject(this.call(prompt), type);
+    }
+
     public String call(String text) {
         if (API_KEY.isEmpty()) {
             throw new IllegalStateException("Environment variable 'GEMINI_API_KEY' is not set.");
@@ -44,7 +48,7 @@ public class Gemini implements ExternalService<String> {
                 List.of(new Content(List.of(new Part(text)))),
                 Map.of("temperature", 0.7)
         );
-        String payload = this.jsonParser.to(request);
+        String payload = this.jsonParser.toString(request);
         return this.executeWithRetry(payload, 0);
     }
 
@@ -72,7 +76,7 @@ public class Gemini implements ExternalService<String> {
             if (status != 200) {
                 throw new RuntimeException("PureJavaIntelligence API Error: " + status + " - Body: " + body);
             }
-            GeminiResponse responseObj = this.jsonParser.from(body, GeminiResponse.class);
+            GeminiResponse responseObj = this.jsonParser.toObject(body, GeminiResponse.class);
             return Optional.ofNullable(responseObj.text())
                     .orElseThrow(() -> new RuntimeException(
                             "Response text extraction failed. Raw Body: " + body));

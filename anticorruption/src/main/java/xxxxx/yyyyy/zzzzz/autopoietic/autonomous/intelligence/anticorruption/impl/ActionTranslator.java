@@ -1,21 +1,24 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Compiler;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Configuration;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.SpinLock;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Translator;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
 @ApplicationScoped
 public class ActionTranslator implements Translator<Action, String> {
+    private static final Logger logger = LoggerFactory.getLogger(ActionTranslator.class);
     private final Configuration configuration;
     private final Compiler compiler;
 
@@ -32,28 +35,21 @@ public class ActionTranslator implements Translator<Action, String> {
                 )
                 .toAbsolutePath();
         if (this.compiler.compile(Paths.get(source), target) != 0) {
-            throw new IllegalStateException("Failed to compile: " + id);
+            throw new RuntimeException("Compilation failed for Evolution ID: " + id);
         }
-        return this.instantiate(target, id);
-    }
-
-    private Action instantiate(Path directory, String id) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        try (var x = new URLClassLoader(new URL[]{directory.toUri().toURL()}, classLoader)) {
-            return Optional.of(x.loadClass(this.actionsPackage() + "." + id))
-                    ///.filter(Action.class::isAssignableFrom)
-                    .map(y -> {
-                        try {
-                            return (Action) y.getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .orElseThrow(() -> new IllegalStateException("Not an Action: " + id));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        Path classFilePath = target.resolve(this.actionsPackage().replace('.', '/') + "/" + id + ".class");
+        new SpinLock().await(() -> Files.exists(classFilePath), 20, 100);
+        try (URLClassLoader loader = new URLClassLoader(
+                new URL[]{target.toUri().toURL()},
+                Thread.currentThread().getContextClassLoader())) {
+            Class<?> clazz = loader.loadClass(this.actionsPackage() + "." + id);
+            return Optional.ofNullable(clazz.getDeclaredConstructor().newInstance())
+                    .filter(Action.class::isInstance)
+                    .map(Action.class::cast)
+                    .orElseThrow(() -> new IllegalStateException("Class mismatch: " + id + " is not an Action."));
+        } catch (Exception e) {
+            logger.error("Architectural failure during Action incarnation for ID: {}", id, e);
+            throw new RuntimeException("Evolutionary transition failed: " + id, e);
         }
     }
 

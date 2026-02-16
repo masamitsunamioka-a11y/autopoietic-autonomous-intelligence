@@ -15,6 +15,10 @@ public interface Repository<T> {
         throw new UnsupportedOperationException();
     }
 
+    default void store(String id, T source) {
+        throw new UnsupportedOperationException();
+    }
+
     default void remove(String id) {
         throw new UnsupportedOperationException();
     }

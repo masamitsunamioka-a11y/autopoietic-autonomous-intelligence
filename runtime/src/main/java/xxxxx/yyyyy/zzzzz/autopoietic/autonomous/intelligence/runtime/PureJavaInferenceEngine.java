@@ -48,6 +48,7 @@ public class PureJavaInferenceEngine implements InferenceEngine {
         );
         switch (conclusion.phase()) {
             case "ANSWER" -> {
+                conversation.write(agent.name(), conclusion.answer());
                 return new Inference() {
                     /// @formatter:off
                     @Override public String agent() { return agent.name(); }
@@ -60,25 +61,16 @@ public class PureJavaInferenceEngine implements InferenceEngine {
             case "ACT" -> {
                 var action = agent.topics().stream()
                         .flatMap(x -> x.actions().stream())
-                        .filter(x -> x.name().equalsIgnoreCase(conclusion.action()))
-                        .findFirst();
-                if (action.isEmpty()) {
-                    /// log?
-                    conversation.write("system", "[SYSTEM_WARNING] Action '" + conclusion.action() + "' not found in your current topics.");
-                    return this.recursiveInfer(input, conversation, state, ++depth);
-                }
-                Map<String, Object> output = action.get().execute(state.snapshot());
-                /// state.write("message", output.get("message"));
-                conversation.write("system", "Action '" + conclusion.action() + "' executed: " + output.get("message"));
+                        .filter(x -> x.name().equals(conclusion.action()))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException(conclusion.action()));
+                Map<String, Object> output = action.execute(state.snapshot());
+                output.forEach((key, value) -> state.write("action_results." + conclusion.action() + "." + key, value));
                 return this.recursiveInfer(input, conversation, state, ++depth);
             }
             case "HANDOFF" -> {
-                String target = conclusion.handoffTo();
-                if (target == null || target.isBlank()) {
-                    throw new IllegalStateException(
-                            "Handoff phase was selected but no target agent was specified.");
-                }
-                conversation.write("system", "Handoff to: " + target);
+                state.write("last_handoff_from", agent.name());
+                state.write("last_handoff_to", conclusion.handoffTo());
                 return this.recursiveInfer(input, conversation, state, ++depth);
             }
             case "EVOLVE" -> {
@@ -86,8 +78,7 @@ public class PureJavaInferenceEngine implements InferenceEngine {
                 this.evolutionEngine.consolidate();
                 return this.recursiveInfer(input, conversation, state, ++depth);
             }
-            default -> throw new IllegalStateException(
-                    "Unexpected phase: " + conclusion.phase());
+            default -> throw new IllegalStateException(conclusion.phase());
         }
     }
 }

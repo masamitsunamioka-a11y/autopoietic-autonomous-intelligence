@@ -2,8 +2,10 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.imp
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.JsonParser;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
 
 import java.nio.charset.StandardCharsets;
@@ -14,6 +16,7 @@ import java.util.Map;
 
 @ApplicationScoped
 public class FileSystemActionAdapter implements Adapter<Action, String> {
+    private static final Logger logger = LoggerFactory.getLogger(FileSystemActionAdapter.class);
     private final Configuration configuration;
     private final Translator<Action, String> translator;
     private final FileSystem fileSystem;
@@ -45,7 +48,7 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
 
     @Override
     public void publish(String id, String source) {
-        Map<String, Object> meta = this.jsonParser.from(source);
+        Map<String, Object> meta = this.jsonParser.toObject(source);
         String label = (String) meta.getOrDefault("label", id);
         String description = (String) meta.getOrDefault("description", "Autopoietic evolution generated action.");
         Action action = new Action() {

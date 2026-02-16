@@ -1,10 +1,10 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.impl;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.experimental;
 
 import com.google.gson.GsonBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.JsonParser;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonParser;
 
 import java.lang.reflect.Type;
 
@@ -22,12 +22,12 @@ public class Gson implements JsonParser {
     }
 
     @Override
-    public <T> T from(String json, Type type) {
+    public <T> T toObject(String json, Type type) {
         return this.gson.fromJson(this.clean(json), type);
     }
 
     @Override
-    public String to(Object object) {
+    public String toString(Object object) {
         return this.gson.toJson(object);
     }
 

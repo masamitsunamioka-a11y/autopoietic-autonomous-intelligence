@@ -2,6 +2,8 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.imp
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adapter;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
@@ -10,6 +12,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class TopicRepository implements Repository<Topic> {
+    private static final Logger logger = LoggerFactory.getLogger(TopicRepository.class);
     private final Adapter<Topic, String> adapter;
 
     @Inject
@@ -30,6 +33,11 @@ public class TopicRepository implements Repository<Topic> {
     @Override
     public void store(String id, String source) {
         this.adapter.publish(id, source);
+    }
+
+    @Override
+    public void store(String id, Topic topic) {
+        this.adapter.publish(id, topic.toString());
     }
 
     @Override

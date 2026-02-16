@@ -1,6 +1,14 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
+import java.lang.reflect.ParameterizedType;
+
 public class Util {
+    /// @SuppressWarnings("unchecked")
+    public static <T> Class<T> actualTypeArguments(Class<?> c) {
+        return (Class<T>) ((ParameterizedType)
+                c.getGenericInterfaces()[0]).getActualTypeArguments()[0];
+    }
+
     public static String toSnakeCase(String input) {
         if (input == null || input.isBlank()) return input;
         StringBuilder result = new StringBuilder();
@@ -15,6 +23,8 @@ public class Util {
                 result.append(c);
             }
         }
-        return result.toString().replaceAll("_+", "_").replaceAll("^_+|_+$", "");
+        return result.toString()
+                .replaceAll("_+", "_")
+                .replaceAll("^_+|_+$", "");
     }
 }

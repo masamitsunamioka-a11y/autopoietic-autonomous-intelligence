@@ -1,8 +1,10 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Compiler;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Configuration;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 
 import javax.tools.ToolProvider;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import java.util.stream.Stream;
 
 @ApplicationScoped
 public class ActionCompiler implements Compiler {
+    private static final Logger logger = LoggerFactory.getLogger(ActionCompiler.class);
     private final Configuration configuration;
 
     public ActionCompiler() {

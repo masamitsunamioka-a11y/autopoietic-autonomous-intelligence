@@ -15,23 +15,19 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class PureJavaIntelligence implements Intelligence {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaIntelligence.class);
-    private final ExternalService<String> externalService;
+    private final ExternalService externalService;
     private final Validator validator;
-    private final JsonParser jsonParser;
 
-    public PureJavaIntelligence(ExternalService<String> externalService,
-                                JsonParser jsonParser) {
+    public PureJavaIntelligence(ExternalService externalService) {
         this.externalService = externalService;
         try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
             this.validator = validatorFactory.getValidator();
         }
-        this.jsonParser = jsonParser;
     }
 
     @Override
     public <T> T reason(String prompt, Class<T> type) {
-        String payload = this.externalService.call(prompt);
-        T result = this.jsonParser.from(payload, type);
+        T result = this.externalService.call(prompt, type);
         Set<ConstraintViolation<T>> violations = this.validator.validate(result);
         if (!violations.isEmpty()) {
             String reasons = violations.stream()
