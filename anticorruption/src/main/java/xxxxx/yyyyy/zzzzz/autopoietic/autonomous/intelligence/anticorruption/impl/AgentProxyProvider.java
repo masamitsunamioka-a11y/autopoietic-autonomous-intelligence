@@ -31,17 +31,16 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
     }
 
     private static record InternalAgent(
-            String name,
-            String label,
-            String description,
-            String instructions,
-            List<String> topics) {
+        String name,
+        String label,
+        String description,
+        String instructions,
+        List<String> topics) {
     }
 
     @Override
     public Agent provide(String json) {
         var reference = new AtomicReference<InternalAgent>(this.jsonCodec.unmarshal(json, InternalAgent.class));
-        /// @formatter:off
         return (Agent) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
             new Class<?>[]{actualTypeArguments(this.getClass())},
@@ -75,7 +74,6 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
                 };
             }
         );
-        /// @formatter:on
     }
 
     private boolean equals(Object proxy, Object[] args) {

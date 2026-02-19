@@ -28,12 +28,12 @@ public class ClasspathClassScanner implements ClassScanner {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             String resourcePath = this.basePackage.replace('.', '/');
             return Collections.list(classLoader.getResources(resourcePath)).stream()
-                    .flatMap(this::toPath)
-                    .map(this::toClassName)
-                    .filter(name -> !name.isEmpty())
-                    .<Class<?>>map(this::toClass)
-                    .distinct()
-                    .toList();
+                .flatMap(this::toPath)
+                .map(this::toClassName)
+                .filter(name -> !name.isEmpty())
+                .<Class<?>>map(this::toClass)
+                .distinct()
+                .toList();
         } catch (IOException e) {
             throw new UncheckedIOException("Unified scan failed", e);
         }
@@ -48,15 +48,15 @@ public class ClasspathClassScanner implements ClassScanner {
                     Path jarPath = fileSystem.getPath(parts[1]);
                     try (Stream<Path> walk = Files.walk(jarPath)) {
                         return walk.filter(p -> p.toString().endsWith(".class"))
-                                .toList()
-                                .stream();
+                            .toList()
+                            .stream();
                     }
                 }
             }
             try (Stream<Path> walk = Files.walk(Paths.get(uri))) {
                 return walk.filter(p -> p.toString().endsWith(".class"))
-                        .toList()
-                        .stream();
+                    .toList()
+                    .stream();
             }
         } catch (Exception e) {
             logger.warn("[SCAN_SKIP] Could not process URL: {}", url, e);
@@ -78,11 +78,11 @@ public class ClasspathClassScanner implements ClassScanner {
         int index = pathStr.replace('/', '.').indexOf(this.basePackage);
         if (index == -1) return "";
         String className = pathStr.substring(index)
-                .replace(File.separatorChar, '.')
-                .replace('/', '.');
+            .replace(File.separatorChar, '.')
+            .replace('/', '.');
         return className.endsWith(".class")
-                ? className.substring(0, className.length() - 6)
-                : className;
+            ? className.substring(0, className.length() - 6)
+            : className;
     }
 
     private Class<?> toClass(String className) {

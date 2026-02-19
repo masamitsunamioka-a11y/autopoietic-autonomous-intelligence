@@ -52,9 +52,9 @@ public class ClassWrapper<T> implements AnnotatedType<T> {
             return false;
         }
         long scopeCount = this.filterMetaAnnotationType(
-                        this.javaClass.getAnnotations(), NormalScope.class)
-                .stream()
-                .count();
+                this.javaClass.getAnnotations(), NormalScope.class)
+            .stream()
+            .count();
         if (scopeCount != 1) {
             return false;
         }
@@ -68,9 +68,9 @@ public class ClassWrapper<T> implements AnnotatedType<T> {
     public Constructor<T> annotatedConstructor() {
         var constructors = this.javaClass.getConstructors();
         return (Constructor<T>) Arrays.stream(constructors)
-                .filter(x -> x.isAnnotationPresent(Inject.class))
-                .findFirst()
-                .orElse(constructors[0]);
+            .filter(x -> x.isAnnotationPresent(Inject.class))
+            .findFirst()
+            .orElse(constructors[0]);
     }
 
     public List<Parameter> constructorParameters() {
@@ -79,16 +79,16 @@ public class ClassWrapper<T> implements AnnotatedType<T> {
 
     public Annotation parameterQualifiers(Parameter parameter) {
         return Arrays.stream(parameter.getAnnotations())
-                .filter(x -> x.annotationType().isAnnotationPresent(Qualifier.class))
-                .findFirst()
-                .orElse(Default.Literal.INSTANCE);
+            .filter(x -> x.annotationType().isAnnotationPresent(Qualifier.class))
+            .findFirst()
+            .orElse(Default.Literal.INSTANCE);
     }
 
     private Set<Class<? extends Annotation>> filterMetaAnnotationType(
-            Annotation[] annotations, Class<? extends Annotation> metaAnnotationType) {
+        Annotation[] annotations, Class<? extends Annotation> metaAnnotationType) {
         return Arrays.stream(annotations)
-                .map(Annotation::annotationType)
-                .filter(xyz -> xyz.isAnnotationPresent(metaAnnotationType))
-                .collect(Collectors.toSet());
+            .map(Annotation::annotationType)
+            .filter(xyz -> xyz.isAnnotationPresent(metaAnnotationType))
+            .collect(Collectors.toSet());
     }
 }

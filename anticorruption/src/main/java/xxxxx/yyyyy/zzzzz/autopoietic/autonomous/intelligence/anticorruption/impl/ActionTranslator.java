@@ -34,8 +34,8 @@ public class ActionTranslator implements Translator<Action, String> {
     private URLClassLoader urlClassLoader() {
         try {
             return new URLClassLoader(
-                    new URL[]{this.actionsTarget().toUri().toURL()},
-                    Thread.currentThread().getContextClassLoader());
+                new URL[]{this.actionsTarget().toUri().toURL()},
+                Thread.currentThread().getContextClassLoader());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -44,22 +44,22 @@ public class ActionTranslator implements Translator<Action, String> {
     @Override
     public String translateTo(String id, Action action) {
         return """
-                package %s;
-                import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
-                import java.util.Map;
-                public class %s implements Action {
-                    @Override public String name() { return "%s"; }
-                    @Override public String label() { return "%s"; }
-                    @Override public String description() { return "%s"; }
-                    @Override
-                    public Map<String, Object> execute(Map<String, Object> input) {
-                        return Map.of(
-                                "message", "Action [%s] successfully executed."
-                        );
-                    }
+            package %s;
+            import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
+            import java.util.Map;
+            public class %s implements Action {
+                @Override public String name() { return "%s"; }
+                @Override public String label() { return "%s"; }
+                @Override public String description() { return "%s"; }
+                @Override
+                public Map<String, Object> execute(Map<String, Object> input) {
+                    return Map.of(
+                            "message", "Action [%s] successfully executed."
+                    );
                 }
-                """
-                .formatted(this.actionsPackage(), id, id, action.label(), action.description(), id);
+            }
+            """
+            .formatted(this.actionsPackage(), id, id, action.label(), action.description(), id);
     }
 
     private String actionsPackage() {

@@ -30,8 +30,8 @@ public class ActionCompiler implements Compiler {
                 Files.createDirectories(target);
             }
             int result = ToolProvider.getSystemJavaCompiler().run(
-                    null, null, null,
-                    this.arguments(this.options(target), this.sources(source)));
+                null, null, null,
+                this.arguments(this.options(target), this.sources(source)));
             if (result != 0) {
                 throw new IllegalStateException();
             }
@@ -43,32 +43,32 @@ public class ActionCompiler implements Compiler {
 
     private String[] arguments(List<String> options, List<String> sources) {
         return Stream.of(options, sources)
-                .flatMap(List::stream)
-                .toArray(String[]::new);
+            .flatMap(List::stream)
+            .toArray(String[]::new);
     }
 
     private List<String> options(Path target) {
         return List.of(
-                "-d", target.toString(),
-                "-classpath", this.classpath(),
-                "-Xlint:none");
+            "-d", target.toString(),
+            "-classpath", this.classpath(),
+            "-Xlint:none");
     }
 
     private String classpath() {
         var strategy = this.configuration.get("anticorruption.actions.compiler.classpath.strategy");
         return "manual".equals(strategy)
-                ? this.configuration.get("anticorruption.actions.compiler.classpath.value")
-                : System.getProperty("java.class.path");
+            ? this.configuration.get("anticorruption.actions.compiler.classpath.value")
+            : System.getProperty("java.class.path");
     }
 
     private List<String> sources(Path source) {
         try (var stream = Files.walk(source)) {
             return stream
-                    .filter(Files::isRegularFile)
-                    .map(Path::toString)
-                    .filter(x -> x.endsWith(".java"))
-                    .peek(x -> logger.trace("java: {}", x))
-                    .toList();
+                .filter(Files::isRegularFile)
+                .map(Path::toString)
+                .filter(x -> x.endsWith(".java"))
+                .peek(x -> logger.trace("java: {}", x))
+                .toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

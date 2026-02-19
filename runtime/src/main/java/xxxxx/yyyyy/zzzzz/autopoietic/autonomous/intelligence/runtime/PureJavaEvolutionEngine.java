@@ -33,20 +33,19 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
         String prompt = this.promptAssembler.upgrade(context, agent);
         Upgrade upgrade = this.intelligence.reason(prompt, Upgrade.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], " +
-                        "NewInstructions: {} chars, NewAgents: {}, NewTopics: {}, NewActions: {}",
-                upgrade.confidence(),
-                upgrade.reasoning(),
-                upgrade.newInstructions().length(),
-                upgrade.newAgents().size(),
-                upgrade.newTopics().size(),
-                upgrade.newActions().size()
+                "NewInstructions: {} chars, NewAgents: {}, NewTopics: {}, NewActions: {}",
+            upgrade.confidence(),
+            upgrade.reasoning(),
+            upgrade.newInstructions().length(),
+            upgrade.newAgents().size(),
+            upgrade.newTopics().size(),
+            upgrade.newActions().size()
         );
         upgrade.newActions().forEach(x -> {
             this.actionRepository.store(x.name(), x.rawJson());
         });
         upgrade.newTopics().forEach(x -> {
             this.topicRepository.store(x.name(), x.rawJson());
-            /// @formatter:off
             upgrade.newActions().stream()
                 .filter(y -> y.relatedTopics().contains(x.name()))
                 .forEach(y -> {
@@ -54,7 +53,6 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
                     topic.actions(actionRepository.find(y.name()));
                     this.topicRepository.store(x.name(), topic);
                 });
-            /// @formatter:on
         });
         upgrade.newAgents().forEach(x -> {
             this.agentRepository.store(x.name(), x.rawJson());
@@ -70,13 +68,12 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
         String prompt = this.promptAssembler.consolidation();
         Consolidation consolidation = this.intelligence.reason(prompt, Consolidation.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], " +
-                        "ConsolidatedAgents: {}, ConsolidatedTopics: {}",
-                consolidation.confidence(),
-                consolidation.reasoning(),
-                consolidation.consolidatedAgents().size(),
-                consolidation.consolidatedTopics().size()
+                "ConsolidatedAgents: {}, ConsolidatedTopics: {}",
+            consolidation.confidence(),
+            consolidation.reasoning(),
+            consolidation.consolidatedAgents().size(),
+            consolidation.consolidatedTopics().size()
         );
-        /// @formatter:off
         consolidation.consolidatedAgents().stream()
             .flatMap(x -> x.consolidants().stream())
             .forEach(this.agentRepository::remove);
@@ -89,6 +86,5 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
         consolidation.consolidatedAgents().stream()
             .map(Consolidation.ConsolidatedAgent::consolidated)
             .forEach(x -> this.agentRepository.store(x.name(), x.rawJson()));
-        /// @formatter:on
     }
 }

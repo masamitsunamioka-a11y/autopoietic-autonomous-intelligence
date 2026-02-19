@@ -31,10 +31,10 @@ public class PureJavaClientProxyHandler implements InvocationHandler {
             return method.invoke(this, arguments);
         }
         Object instance = this.proxyContainer
-                .context(this.reveal(this.contextual).scope())
-                .get(this.contextual);
+            .context(this.reveal(this.contextual).scope())
+            .get(this.contextual);
         InvocationContext invocationContext =
-                new InvocationContext(proxy, method, arguments, instance);
+            new InvocationContext(proxy, method, arguments, instance);
         return this.invoke(invocationContext, x -> {
             try {
                 return method.invoke(x, arguments);
@@ -49,25 +49,25 @@ public class PureJavaClientProxyHandler implements InvocationHandler {
     }
 
     private static record InvocationContext(
-            Object proxy,
-            Method method,
-            Object[] arguments,
-            Object instance) {
+        Object proxy,
+        Method method,
+        Object[] arguments,
+        Object instance) {
     }
 
     private Object invoke(InvocationContext ic, Function<Object, Object> f) {
         String qualifiers = this.reveal(contextual).qualifiers().stream()
-                .map(Annotation::annotationType)
-                .map(this::name)
-                .collect(Collectors.joining(" "));
+            .map(Annotation::annotationType)
+            .map(this::name)
+            .collect(Collectors.joining(" "));
         logger.trace(String.format(
-                "[%-17s] [Proxy:%08x] -> [Instance:%08x] [%-7s] %s#%s",
-                this.name(this.reveal(contextual).scope()),
-                identityHashCode(ic.proxy()),
-                identityHashCode(ic.instance()),
-                qualifiers,
-                this.name(this.reveal(contextual).type()),
-                ic.method().getName()));
+            "[%-17s] [Proxy:%08x] -> [Instance:%08x] [%-7s] %s#%s",
+            this.name(this.reveal(contextual).scope()),
+            identityHashCode(ic.proxy()),
+            identityHashCode(ic.instance()),
+            qualifiers,
+            this.name(this.reveal(contextual).type()),
+            ic.method().getName()));
         return f.apply(ic.instance());
     }
 

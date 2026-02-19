@@ -31,11 +31,11 @@ public class PureJavaContextApplicationScoped extends PureJavaContext {
     @Override
     public <T> T get(Contextual<T> contextual) {
         return (T) this.instances.computeIfAbsent(
-                        this.reveal(contextual).type(),
-                        x -> new ConcurrentHashMap<>())
-                .computeIfAbsent(
-                        this.reveal(contextual).qualifiers(),
-                        x -> contextual.create(null));
+                this.reveal(contextual).type(),
+                x -> new ConcurrentHashMap<>())
+            .computeIfAbsent(
+                this.reveal(contextual).qualifiers(),
+                x -> contextual.create(null));
     }
 
     @Override
@@ -50,7 +50,6 @@ public class PureJavaContextApplicationScoped extends PureJavaContext {
     @Override
     public String toString() {
         try {
-            /// @formatter:off
             Map<String, String> instanceIdMap =
                 this.instances.entrySet().stream()
                     .flatMap(x -> x.getValue().entrySet().stream()
@@ -67,18 +66,17 @@ public class PureJavaContextApplicationScoped extends PureJavaContext {
                         Map.Entry::getValue,
                         (k, v) -> k,
                         LinkedHashMap::new));
-            /// @formatter:on
             JsonObject root = new JsonObject();
             root.add(this.scope().toString(), new Gson().toJsonTree(instanceIdMap));
             return new GsonBuilder()
-                    .setPrettyPrinting()
-                    .disableHtmlEscaping()
-                    .create()
-                    .toJson(root);
+                .setPrettyPrinting()
+                .disableHtmlEscaping()
+                .create()
+                .toJson(root);
         } catch (Exception e) {
             return """
-                    {"instanceMap_error": "%s"}
-                    """.formatted(e.getMessage());
+                {"instanceMap_error": "%s"}
+                """.formatted(e.getMessage());
         }
     }
 }

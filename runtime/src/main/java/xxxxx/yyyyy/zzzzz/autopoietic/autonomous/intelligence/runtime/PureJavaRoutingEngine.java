@@ -31,9 +31,9 @@ public class PureJavaRoutingEngine implements RoutingEngine {
         String prompt = this.promptAssembler.routing(context);
         Direction direction = this.intelligence.reason(prompt, Direction.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], SelectedAgent: {}",
-                direction.confidence(),
-                direction.reasoning(),
-                direction.agent()
+            direction.confidence(),
+            direction.reasoning(),
+            direction.agent()
         );
         Agent agent = this.agentRepository.find(direction.agent());
         if (agent == null) {

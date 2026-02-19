@@ -23,11 +23,11 @@ public class PureJavaClientProxyProvider implements ClientProxyProvider {
     public <T> T provide(Contextual<T> contextual) {
         Type type = ((PureJavaContextual<T>) contextual).type();
         Class<?> rawType = (type instanceof ParameterizedType parameterizedType)
-                ? (Class<?>) parameterizedType.getRawType()
-                : (Class<?>) type;
+            ? (Class<?>) parameterizedType.getRawType()
+            : (Class<?>) type;
         return (T) Proxy.newProxyInstance(
-                Thread.currentThread().getContextClassLoader(),
-                new Class<?>[]{rawType},
-                new PureJavaClientProxyHandler(contextual, this.proxyContainer));
+            Thread.currentThread().getContextClassLoader(),
+            new Class<?>[]{rawType},
+            new PureJavaClientProxyHandler(contextual, this.proxyContainer));
     }
 }

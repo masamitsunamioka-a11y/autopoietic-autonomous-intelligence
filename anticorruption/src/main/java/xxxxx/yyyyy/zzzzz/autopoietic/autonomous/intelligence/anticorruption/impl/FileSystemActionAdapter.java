@@ -43,10 +43,10 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
     @Override
     public List<Action> fetchAll() {
         return this.fileSystem.walk(this.actionsTarget())
-                .filter(path -> path.endsWith(".class"))
-                .map(x -> x.replaceAll(".*/|\\.class$", ""))
-                .map(this::fetch)
-                .toList();
+            .filter(path -> path.endsWith(".class"))
+            .map(x -> x.replaceAll(".*/|\\.class$", ""))
+            .map(this::fetch)
+            .toList();
     }
 
     @Override
@@ -66,9 +66,9 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
             }
         };
         this.fileSystem.write(
-                Paths.get(this.actionsSource().toString(), this.actionsPackage().replace(".", "/"), id + ".java"),
-                this.translator.translateTo(id, action),
-                StandardCharsets.UTF_8);
+            Paths.get(this.actionsSource().toString(), this.actionsPackage().replace(".", "/"), id + ".java"),
+            this.translator.translateTo(id, action),
+            StandardCharsets.UTF_8);
         this.compiler.compile(this.actionsSource(), this.actionsTarget());
     }
 

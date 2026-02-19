@@ -14,7 +14,7 @@ public abstract class TypeLiteral<T> {
             this.type = parameterizedType.getActualTypeArguments()[0];
         } else {
             throw new RuntimeException(
-                    "Invalid TypeLiteral usage. Must be anonymous.");
+                "Invalid TypeLiteral usage. Must be anonymous.");
         }
     }
 

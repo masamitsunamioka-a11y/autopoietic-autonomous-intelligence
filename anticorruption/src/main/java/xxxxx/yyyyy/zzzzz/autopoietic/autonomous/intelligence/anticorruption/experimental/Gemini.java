@@ -64,13 +64,13 @@ public class Gemini implements Intelligence {
         Set<ConstraintViolation<T>> violations = this.validator.validate(result);
         if (!violations.isEmpty()) {
             String reasons = violations.stream()
-                    .map(x -> String.format("[%s] %s",
-                            x.getPropertyPath(),
-                            x.getMessage()))
-                    .collect(Collectors.joining(", "));
+                .map(x -> String.format("[%s] %s",
+                    x.getPropertyPath(),
+                    x.getMessage()))
+                .collect(Collectors.joining(", "));
             throw new IllegalStateException(
-                    String.format("[Integrity Violation] %s: %s",
-                            result.getClass().getSimpleName(), reasons));
+                String.format("[Integrity Violation] %s: %s",
+                    result.getClass().getSimpleName(), reasons));
         }
     }
 
@@ -81,13 +81,13 @@ public class Gemini implements Intelligence {
                 Files.createDirectories(dump);
             }
             String now = LocalDateTime
-                    .now()
-                    .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+                .now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
             String name = String.format("%s_%s_%s.txt", now, mode, phase);
             Files.writeString(
-                    dump.resolve(name),
-                    content,
-                    StandardCharsets.UTF_8
+                dump.resolve(name),
+                content,
+                StandardCharsets.UTF_8
             );
         } catch (IOException e) {
             throw new UncheckedIOException(e);

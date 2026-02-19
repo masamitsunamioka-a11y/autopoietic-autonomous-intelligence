@@ -44,11 +44,11 @@ public class PureJavaInferenceEngine implements InferenceEngine {
         String prompt = this.promptAssembler.inference(context, agent);
         Conclusion conclusion = this.intelligence.reason(prompt, Conclusion.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], Phase: {}, Action: {}, Handoff: {}",
-                conclusion.confidence(),
-                conclusion.reasoning(),
-                conclusion.phase(),
-                conclusion.action(),
-                conclusion.handoffTo()
+            conclusion.confidence(),
+            conclusion.reasoning(),
+            conclusion.phase(),
+            conclusion.action(),
+            conclusion.handoffTo()
         );
         Conversation conversation = context.conversation();
         State state = context.state();
@@ -67,22 +67,22 @@ public class PureJavaInferenceEngine implements InferenceEngine {
             case "ACT" -> {
                 /// FIXME
                 List<String> allActions = this.actionRepository.findAll().stream()
-                        .map(Action::name)
-                        .toList();
+                    .map(Action::name)
+                    .toList();
                 List<String> availables = agent.topics().stream()
-                        .flatMap(x -> x.actions().stream())
-                        .map(Action::name)
-                        .toList();
+                    .flatMap(x -> x.actions().stream())
+                    .map(Action::name)
+                    .toList();
                 logger.trace("""
-                        Conclusion : [{}]
-                        Availables : {} in {}
-                        AllActions : {}
-                        """, conclusion.action(), availables, agent.name(), allActions);
+                    Conclusion : [{}]
+                    Availables : {} in {}
+                    AllActions : {}
+                    """, conclusion.action(), availables, agent.name(), allActions);
                 Action action = agent.topics().stream()
-                        .flatMap(x -> x.actions().stream())
-                        .filter(x -> x.name().equals(conclusion.action()))
-                        .findFirst()
-                        .orElseThrow();
+                    .flatMap(x -> x.actions().stream())
+                    .filter(x -> x.name().equals(conclusion.action()))
+                    .findFirst()
+                    .orElseThrow();
                 logger.info("Executing Action: [{}]", action.name());
                 Map<String, Object> output = action.execute(state.snapshot());
                 output.forEach((k, v) -> {

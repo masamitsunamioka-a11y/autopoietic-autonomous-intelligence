@@ -31,34 +31,34 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
     @Override
     public Topic fetch(String id) {
         return this.translator.translateFrom(
-                id,
-                this.fileSystem.read(
-                        Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
-                        StandardCharsets.UTF_8
-                ));
+            id,
+            this.fileSystem.read(
+                Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
+                StandardCharsets.UTF_8
+            ));
     }
 
     @Override
     public List<Topic> fetchAll() {
         return this.fileSystem.walk(this.topicsSource())
-                .map(x -> x.replaceAll(".*/|\\.json$", ""))
-                .map(this::fetch)
-                .toList();
+            .map(x -> x.replaceAll(".*/|\\.json$", ""))
+            .map(this::fetch)
+            .toList();
     }
 
     @Override
     public void publish(String id, String source) {
         this.fileSystem.write(
-                Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
-                source,
-                StandardCharsets.UTF_8);
+            Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
+            source,
+            StandardCharsets.UTF_8);
     }
 
     @Override
     public void revoke(String id) {
         this.fileSystem.delete(
-                Path.of(this.configuration.get("anticorruption.topics.source")
-                        + "/" + Util.toSnakeCase(id) + ".json"));
+            Path.of(this.configuration.get("anticorruption.topics.source")
+                + "/" + Util.toSnakeCase(id) + ".json"));
     }
 
     private Path topicsSource() {

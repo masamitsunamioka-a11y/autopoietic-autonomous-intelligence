@@ -15,10 +15,10 @@ public class Gson implements JsonCodec {
 
     public Gson() {
         this.gson = new GsonBuilder()
-                .serializeNulls()
-                .disableHtmlEscaping()
-                ///.setPrettyPrinting()
-                .create();
+            .serializeNulls()
+            .disableHtmlEscaping()
+            ///.setPrettyPrinting()
+            .create();
     }
 
     @Override

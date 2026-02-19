@@ -47,15 +47,15 @@ public class RegexivePromptAssembler implements PromptAssembler {
         Conversation conversation = context.conversation();
         State state = context.state();
         return this.assemble("inference.md", Map.of(
-                "input", context.input(),
-                "conversation", conversation.snapshot().toString(),
-                "state", state.snapshot().toString(),
-                "self", this.self(self),
-                "topics", this.topics(self.topics()),
-                "actions", this.actions(
-                        self.topics().stream()
-                                .flatMap(x -> x.actions().stream())
-                                .toList())
+            "input", context.input(),
+            "conversation", conversation.snapshot().toString(),
+            "state", state.snapshot().toString(),
+            "self", this.self(self),
+            "topics", this.topics(self.topics()),
+            "actions", this.actions(
+                self.topics().stream()
+                    .flatMap(x -> x.actions().stream())
+                    .toList())
         ));
     }
 
@@ -64,11 +64,11 @@ public class RegexivePromptAssembler implements PromptAssembler {
         Conversation conversation = context.conversation();
         State state = context.state();
         return this.assemble("routing.md", Map.of(
-                "input", context.input(),
-                "conversation", conversation.snapshot().toString(),
-                "state", state.snapshot().toString(),
-                "agents", this.agentsForRouting(),
-                "topics", this.topicsForRouting()
+            "input", context.input(),
+            "conversation", conversation.snapshot().toString(),
+            "state", state.snapshot().toString(),
+            "agents", this.agentsForRouting(),
+            "topics", this.topicsForRouting()
         ));
     }
 
@@ -77,51 +77,51 @@ public class RegexivePromptAssembler implements PromptAssembler {
         Conversation conversation = context.conversation();
         State state = context.state();
         return this.assemble("upgrade.md", Map.of(
-                "input", context.input(),
-                "conversation", conversation.snapshot().toString(),
-                "state", state.snapshot().toString(),
-                "self", this.self(self),
-                "agents", this.agents(),
-                "topics", this.topics(),
-                "actions", this.actions()
+            "input", context.input(),
+            "conversation", conversation.snapshot().toString(),
+            "state", state.snapshot().toString(),
+            "self", this.self(self),
+            "agents", this.agents(),
+            "topics", this.topics(),
+            "actions", this.actions()
         ));
     }
 
     @Override
     public String consolidation() {
         return this.assemble("consolidation.md", Map.of(
-                "agents", this.agents(),
-                "topics", this.topics(),
-                "actions", this.actions()
+            "agents", this.agents(),
+            "topics", this.topics(),
+            "actions", this.actions()
         ));
     }
 
     private String self(Agent self) {
         return this.jsonCodec.marshal(Map.of(
-                "name", self.name(),
-                "description", self.description(),
-                "instructions", self.instructions()
+            "name", self.name(),
+            "description", self.description(),
+            "instructions", self.instructions()
         ));
     }
 
     private String agents() {
         return this.jsonCodec.marshal(this.agentRepository.findAll().stream()
-                .map(x -> Map.of(
-                        "name", x.name(),
-                        "description", x.description(),
-                        "instructions", x.instructions(),
-                        "topics", x.topics().stream().map(Topic::name).toList()
-                ))
-                .toList());
+            .map(x -> Map.of(
+                "name", x.name(),
+                "description", x.description(),
+                "instructions", x.instructions(),
+                "topics", x.topics().stream().map(Topic::name).toList()
+            ))
+            .toList());
     }
 
     private String agentsForRouting() {
         return this.jsonCodec.marshal(this.agentRepository.findAll().stream()
-                .map(x -> Map.of(
-                        "name", x.name(),
-                        "description", x.description()
-                ))
-                .toList());
+            .map(x -> Map.of(
+                "name", x.name(),
+                "description", x.description()
+            ))
+            .toList());
     }
 
     private String topics() {
@@ -130,22 +130,22 @@ public class RegexivePromptAssembler implements PromptAssembler {
 
     private String topics(List<Topic> topics) {
         return this.jsonCodec.marshal(topics.stream()
-                .map(x -> Map.of(
-                        "name", x.name(),
-                        "description", x.description(),
-                        "instructions", x.instructions(),
-                        "actions", x.actions().stream().map(Action::name).toList()
-                ))
-                .toList());
+            .map(x -> Map.of(
+                "name", x.name(),
+                "description", x.description(),
+                "instructions", x.instructions(),
+                "actions", x.actions().stream().map(Action::name).toList()
+            ))
+            .toList());
     }
 
     private String topicsForRouting() {
         return this.jsonCodec.marshal(this.topicRepository.findAll().stream()
-                .map(x -> Map.of(
-                        "name", x.name(),
-                        "description", x.description()
-                ))
-                .toList());
+            .map(x -> Map.of(
+                "name", x.name(),
+                "description", x.description()
+            ))
+            .toList());
     }
 
     private String actions() {
@@ -154,24 +154,24 @@ public class RegexivePromptAssembler implements PromptAssembler {
 
     private String actions(List<Action> actions) {
         return this.jsonCodec.marshal(actions.stream()
-                .map(x -> Map.of(
-                        "name", x.name(),
-                        "description", x.description()
-                ))
-                .toList());
+            .map(x -> Map.of(
+                "name", x.name(),
+                "description", x.description()
+            ))
+            .toList());
     }
 
     private String assemble(String id, Map<String, Object> values) {
         return values.entrySet().stream()
-                .reduce(this.read(id).replace("{{guardrails}}", this.read("guardrails.md")),
-                        (x, y) -> x.replace("{{" + y.getKey() + "}}", String.valueOf(y.getValue())),
-                        (x, y) -> x);
+            .reduce(this.read(id).replace("{{guardrails}}", this.read("guardrails.md")),
+                (x, y) -> x.replace("{{" + y.getKey() + "}}", String.valueOf(y.getValue())),
+                (x, y) -> x);
     }
 
     private String read(String id) {
         return this.fileSystem.read(
-                Paths.get(this.promptsSource().toString(), id),
-                StandardCharsets.UTF_8);
+            Paths.get(this.promptsSource().toString(), id),
+            StandardCharsets.UTF_8);
     }
 
     private Path promptsSource() {

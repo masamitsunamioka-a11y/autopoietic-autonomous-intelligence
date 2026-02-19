@@ -50,10 +50,10 @@ public class Cli {
                 Inference inference = this.interact(input, conversation, state);
                 if (this.isInteractive) {
                     System.out.printf("%s> %s\n[confidence %s, reasoning %s]\n\n",
-                            inference.agent(),
-                            inference.answer(),
-                            inference.confidence(),
-                            inference.reasoning());
+                        inference.agent(),
+                        inference.answer(),
+                        inference.confidence(),
+                        inference.reasoning());
                     System.out.print("> ");
                 } else {
                     logger.info("Input: {}, Answer: {}", input, inference.answer());

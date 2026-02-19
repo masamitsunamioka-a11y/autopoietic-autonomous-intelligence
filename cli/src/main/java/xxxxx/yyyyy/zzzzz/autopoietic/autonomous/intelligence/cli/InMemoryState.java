@@ -22,10 +22,10 @@ public class InMemoryState implements State {
     public Object read(String key) {
         Objects.requireNonNull(key, "Read key must not be null.");
         return this.memory.entrySet().stream()
-                .filter(x -> x.getKey().startsWith(key + "@"))
-                .max(Map.Entry.comparingByKey())
-                .map(Map.Entry::getValue)
-                .orElse(null);
+            .filter(x -> x.getKey().startsWith(key + "@"))
+            .max(Map.Entry.comparingByKey())
+            .map(Map.Entry::getValue)
+            .orElse(null);
     }
 
     @Override

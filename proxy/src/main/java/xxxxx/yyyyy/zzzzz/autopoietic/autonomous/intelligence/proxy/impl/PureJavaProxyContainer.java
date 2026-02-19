@@ -48,7 +48,6 @@ public class PureJavaProxyContainer implements ProxyContainer {
 
     private void register() {
         this.contexts.put(ApplicationScoped.class, new PureJavaContextApplicationScoped());
-        /// @formatter:off
         var contextuals = this.classScanner.scan().stream()
             .map(ClassWrapper::new)
             .filter(ClassWrapper::isInjectable)
@@ -59,7 +58,6 @@ public class PureJavaProxyContainer implements ProxyContainer {
             .forEach(x -> {
                 this.proxies.put(x, this.clientProxyProvider.provide(x));
             });
-        /// @formatter:on
     }
 
     @Override
@@ -74,7 +72,6 @@ public class PureJavaProxyContainer implements ProxyContainer {
 
     @SuppressWarnings("unchecked")
     private <T> T internalGet(Type type, Annotation[] qualifiers) {
-        /// @formatter:off
         var orDefault = (qualifiers.length > 0)
             ? Set.of(qualifiers)
             : Set.of(Default.Literal.INSTANCE);
@@ -85,7 +82,6 @@ public class PureJavaProxyContainer implements ProxyContainer {
             .findFirst()
             .map(this.proxies::get)
             .orElseThrow(IllegalArgumentException::new);
-        /// @formatter:on
     }
 
     @Override

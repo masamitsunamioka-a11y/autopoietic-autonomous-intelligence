@@ -31,17 +31,16 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
     }
 
     private static record InternalTopic(
-            String name,
-            String label,
-            String description,
-            String instructions,
-            List<String> actions) {
+        String name,
+        String label,
+        String description,
+        String instructions,
+        List<String> actions) {
     }
 
     @Override
     public Topic provide(String json) {
         var reference = new AtomicReference<InternalTopic>(this.jsonCodec.unmarshal(json, InternalTopic.class));
-        /// @formatter:off
         return (Topic) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
             new Class<?>[]{actualTypeArguments(this.getClass())},
@@ -75,7 +74,6 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
                 };
             }
         );
-        /// @formatter:on
     }
 
     private boolean equals(Object proxy, Object[] args) {

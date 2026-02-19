@@ -6,7 +6,7 @@ public class Util {
     /// @SuppressWarnings("unchecked")
     public static <T> Class<T> actualTypeArguments(Class<?> c) {
         return (Class<T>) ((ParameterizedType) c.getGenericInterfaces()[0])
-                .getActualTypeArguments()[0];
+            .getActualTypeArguments()[0];
     }
 
     public static String toSnakeCase(String input) {
@@ -24,7 +24,7 @@ public class Util {
             }
         }
         return result.toString()
-                .replaceAll("_+", "_")
-                .replaceAll("^_+|_+$", "");
+            .replaceAll("_+", "_")
+            .replaceAll("^_+|_+$", "");
     }
 }

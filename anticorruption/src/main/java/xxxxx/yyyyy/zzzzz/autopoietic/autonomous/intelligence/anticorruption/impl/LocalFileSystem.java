@@ -50,9 +50,9 @@ public class LocalFileSystem implements FileSystem {
     public Stream<String> list(Path path) {
         try (Stream<Path> stream = Files.list(path)) {
             return stream
-                    .map(Path::toString)
-                    .toList()
-                    .stream();
+                .map(Path::toString)
+                .toList()
+                .stream();
         } catch (IOException e) {
             throw new UncheckedIOException("List failed: " + path, e);
         }
@@ -62,10 +62,10 @@ public class LocalFileSystem implements FileSystem {
     public Stream<String> walk(Path path) {
         try (Stream<Path> stream = Files.walk(path)) {
             return stream
-                    .filter(Files::isRegularFile)
-                    .map(Path::toString)
-                    .toList()
-                    .stream();
+                .filter(Files::isRegularFile)
+                .map(Path::toString)
+                .toList()
+                .stream();
         } catch (IOException e) {
             throw new UncheckedIOException("Walk failed: " + path, e);
         }
