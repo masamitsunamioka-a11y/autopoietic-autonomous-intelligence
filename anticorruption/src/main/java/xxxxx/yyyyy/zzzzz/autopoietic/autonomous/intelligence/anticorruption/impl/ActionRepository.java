@@ -31,7 +31,17 @@ public class ActionRepository implements Repository<Action> {
     }
 
     @Override
-    public void store(String id, String source) {
-        this.adapter.publish(id, source);
+    public void store(String id, String json) {
+        this.adapter.publish(id, json);
+    }
+
+    @Override
+    public void store(String id, Action action) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void remove(String id) {
+        throw new UnsupportedOperationException();
     }
 }

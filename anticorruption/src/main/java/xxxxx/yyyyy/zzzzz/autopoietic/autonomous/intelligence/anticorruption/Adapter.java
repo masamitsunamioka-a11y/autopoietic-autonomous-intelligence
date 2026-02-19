@@ -3,19 +3,11 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 import java.util.List;
 
 public interface Adapter<I, E> {
-    default I fetch(String id) {
-        throw new UnsupportedOperationException();
-    }
+    I fetch(String id);
 
-    default List<I> fetchAll() {
-        throw new UnsupportedOperationException();
-    }
+    List<I> fetchAll();
 
-    default void publish(String id, E source) {
-        throw new UnsupportedOperationException();
-    }
+    void publish(String id, E source);
 
-    default void revoke(String id) {
-        throw new UnsupportedOperationException();
-    }
+    void revoke(String id);
 }

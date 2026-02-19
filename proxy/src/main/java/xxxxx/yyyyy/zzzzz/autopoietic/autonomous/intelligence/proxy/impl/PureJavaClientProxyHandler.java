@@ -20,7 +20,8 @@ public class PureJavaClientProxyHandler implements InvocationHandler {
     private final Contextual<?> contextual;
     private final ProxyContainer proxyContainer;
 
-    public PureJavaClientProxyHandler(Contextual<?> contextual, ProxyContainer proxyContainer) {
+    public PureJavaClientProxyHandler(Contextual<?> contextual,
+                                      ProxyContainer proxyContainer) {
         this.contextual = contextual;
         this.proxyContainer = proxyContainer;
     }

@@ -19,7 +19,12 @@ public class AgentTranslator implements Translator<Agent, String> {
     }
 
     @Override
-    public Agent translateFrom(String id, String source) {
-        return this.proxyProvider.provide(source);
+    public Agent translateFrom(String id, String json) {
+        return this.proxyProvider.provide(json);
+    }
+
+    @Override
+    public String translateTo(String id, Agent agent) {
+        throw new UnsupportedOperationException();
     }
 }

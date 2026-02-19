@@ -23,9 +23,10 @@ public class ActionTranslator implements Translator<Action, String> {
     }
 
     @Override
-    public Action translateFrom(String id, String source) {
-        try (URLClassLoader loader = this.urlClassLoader()) {
-            return (Action) loader.loadClass(source).getConstructor().newInstance();
+    public Action translateFrom(String id, String fqcn) {
+        /// Move to adapter.
+        try (var loader = this.urlClassLoader()) {
+            return (Action) loader.loadClass(fqcn).getConstructor().newInstance();
         } catch (IOException | ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -67,7 +68,6 @@ public class ActionTranslator implements Translator<Action, String> {
     }
 
     private Path actionsTarget() {
-        String actionsTarget = this.configuration.get("anticorruption.actions.target");
-        return Path.of(actionsTarget);
+        return Path.of(this.configuration.get("anticorruption.actions.target"), "");
     }
 }

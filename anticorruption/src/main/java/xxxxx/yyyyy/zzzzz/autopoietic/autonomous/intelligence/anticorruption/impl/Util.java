@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
 import java.lang.reflect.ParameterizedType;
 
@@ -11,7 +11,7 @@ public class Util {
 
     public static String toSnakeCase(String input) {
         if (input == null || input.isBlank()) return input;
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
             if (Character.isUpperCase(c)) {

@@ -4,7 +4,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adapter;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.FileSystem;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Localic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Translator;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
 
@@ -47,22 +50,20 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
     }
 
     @Override
-    public void publish(String id, String source) {
+    public void publish(String id, String json) {
         this.fileSystem.write(
             Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
-            source,
+            json,
             StandardCharsets.UTF_8);
     }
 
     @Override
     public void revoke(String id) {
         this.fileSystem.delete(
-            Path.of(this.configuration.get("anticorruption.topics.source")
-                + "/" + Util.toSnakeCase(id) + ".json"));
+            this.topicsSource().resolve(Util.toSnakeCase(id) + ".json"));
     }
 
     private Path topicsSource() {
-        String topicsSource = this.configuration.get("anticorruption.topics.source");
-        return Path.of(topicsSource);
+        return Path.of(this.configuration.get("anticorruption.topics.source"), "");
     }
 }

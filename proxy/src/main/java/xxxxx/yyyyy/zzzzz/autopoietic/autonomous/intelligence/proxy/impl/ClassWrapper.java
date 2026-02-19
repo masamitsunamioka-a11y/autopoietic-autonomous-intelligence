@@ -13,6 +13,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/// FIXME
 public class ClassWrapper<T> implements AnnotatedType<T> {
     private final Class<T> javaClass;
 

@@ -2,10 +2,8 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.exp
 
 import com.google.genai.Client;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
@@ -15,11 +13,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /// https://github.com/googleapis/java-genai/blob/main/examples/src/main/java/com/google/genai/examples/GenerateContent.java
@@ -32,7 +28,7 @@ public class Gemini implements Intelligence {
 
     public Gemini(JsonCodec jsonCodec) {
         this.jsonCodec = jsonCodec;
-        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+        try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
             this.validator = validatorFactory.getValidator();
         }
     }
@@ -43,7 +39,7 @@ public class Gemini implements Intelligence {
             this.dump(type.getSimpleName().toLowerCase(), "request", prompt);
             logger.trace("\n{}", prompt);
         }
-        String text = this.generate(prompt);
+        var text = this.generate(prompt);
         if (logger.isTraceEnabled()) {
             this.dump(type.getSimpleName().toLowerCase(), "response", text);
             logger.trace("\n{}", text);
@@ -54,16 +50,16 @@ public class Gemini implements Intelligence {
     }
 
     private String generate(String prompt) {
-        /// TODO: Client instance should also be provided via a CDI Provider.
-        try (Client client = new Client()) {
+        /// Client instance should also be provided via a CDI Provider.
+        try (var client = new Client()) {
             return client.models.generateContent(MODEL, prompt, null).text();
         }
     }
 
     private <T> void validate(T result) {
-        Set<ConstraintViolation<T>> violations = this.validator.validate(result);
+        var violations = this.validator.validate(result);
         if (!violations.isEmpty()) {
-            String reasons = violations.stream()
+            var reasons = violations.stream()
                 .map(x -> String.format("[%s] %s",
                     x.getPropertyPath(),
                     x.getMessage()))
@@ -76,14 +72,13 @@ public class Gemini implements Intelligence {
 
     private void dump(String phase, String mode, String content) {
         try {
-            Path dump = Paths.get("dump");
+            var dump = Paths.get("dump");
             if (Files.notExists(dump)) {
                 Files.createDirectories(dump);
             }
-            String now = LocalDateTime
-                .now()
+            var now = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-            String name = String.format("%s_%s_%s.txt", now, mode, phase);
+            var name = String.format("%s_%s_%s.txt", now, mode, phase);
             Files.writeString(
                 dump.resolve(name),
                 content,

@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/// FIXME
 public class PureJavaContextual<T> implements Contextual<T> {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaContextual.class);
     private final AnnotatedType<T> annotatedType;
@@ -30,7 +31,6 @@ public class PureJavaContextual<T> implements Contextual<T> {
 
     @Override
     public T create(CreationalContext<T> creationalContext) {
-        /// FIXME
         try {
             ClassWrapper<T> wrapper = (ClassWrapper<T>) this.annotatedType;
             Object[] args = wrapper.constructorParameters().stream()

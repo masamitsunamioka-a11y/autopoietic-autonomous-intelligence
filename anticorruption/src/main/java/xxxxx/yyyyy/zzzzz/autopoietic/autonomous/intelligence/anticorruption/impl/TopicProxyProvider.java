@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Util.actualTypeArguments;
+import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Util.actualTypeArguments;
 
 @ApplicationScoped
 public class TopicProxyProvider implements ProxyProvider<Topic> {
@@ -45,7 +45,7 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
             Thread.currentThread().getContextClassLoader(),
             new Class<?>[]{actualTypeArguments(this.getClass())},
             (proxy, method, args) -> {
-                InternalTopic topic = reference.get();
+                var topic = reference.get();
                 return switch (method.getName()) {
                     case "toString" -> this.jsonCodec.marshal(topic);
                     case "hashCode" -> System.identityHashCode(proxy);
@@ -57,7 +57,7 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
                                 .distinct()
                                 .toList();
                         } else {
-                            String name = ((Action) args[0]).name();
+                            var name = ((Action) args[0]).name();
                             reference.set(new InternalTopic(
                                 topic.name(),
                                 topic.label(),

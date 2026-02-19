@@ -9,6 +9,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
 import java.util.List;
 import java.util.Map;
 
+/// FIXME
 @ApplicationScoped
 public class PureJavaInferenceEngine implements InferenceEngine {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaInferenceEngine.class);
@@ -65,7 +66,6 @@ public class PureJavaInferenceEngine implements InferenceEngine {
                 };
             }
             case "ACT" -> {
-                /// FIXME
                 List<String> allActions = this.actionRepository.findAll().stream()
                     .map(Action::name)
                     .toList();

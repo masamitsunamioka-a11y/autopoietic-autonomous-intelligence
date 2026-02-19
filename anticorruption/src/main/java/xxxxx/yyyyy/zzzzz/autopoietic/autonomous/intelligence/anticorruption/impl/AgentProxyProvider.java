@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Util.actualTypeArguments;
+import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Util.actualTypeArguments;
 
 @ApplicationScoped
 public class AgentProxyProvider implements ProxyProvider<Agent> {
@@ -45,7 +45,7 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
             Thread.currentThread().getContextClassLoader(),
             new Class<?>[]{actualTypeArguments(this.getClass())},
             (proxy, method, args) -> {
-                InternalAgent agent = reference.get();
+                var agent = reference.get();
                 return switch (method.getName()) {
                     case "toString" -> this.jsonCodec.marshal(agent);
                     case "hashCode" -> System.identityHashCode(proxy);
@@ -57,7 +57,7 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
                                 .distinct()
                                 .toList();
                         } else {
-                            String name = ((Topic) args[0]).name();
+                            var name = ((Topic) args[0]).name();
                             reference.set(new InternalAgent(
                                 agent.name(),
                                 agent.label(),

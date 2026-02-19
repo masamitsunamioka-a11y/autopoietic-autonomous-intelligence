@@ -10,7 +10,10 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Loca
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.PromptAssembler;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Context;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -18,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
+/// FIXME
 @ApplicationScoped
 public class RegexivePromptAssembler implements PromptAssembler {
     private static final Logger logger = LoggerFactory.getLogger(RegexivePromptAssembler.class);
@@ -44,8 +48,8 @@ public class RegexivePromptAssembler implements PromptAssembler {
 
     @Override
     public String inference(Context context, Agent self) {
-        Conversation conversation = context.conversation();
-        State state = context.state();
+        var conversation = context.conversation();
+        var state = context.state();
         return this.assemble("inference.md", Map.of(
             "input", context.input(),
             "conversation", conversation.snapshot().toString(),
@@ -61,8 +65,8 @@ public class RegexivePromptAssembler implements PromptAssembler {
 
     @Override
     public String routing(Context context) {
-        Conversation conversation = context.conversation();
-        State state = context.state();
+        var conversation = context.conversation();
+        var state = context.state();
         return this.assemble("routing.md", Map.of(
             "input", context.input(),
             "conversation", conversation.snapshot().toString(),
@@ -74,8 +78,8 @@ public class RegexivePromptAssembler implements PromptAssembler {
 
     @Override
     public String upgrade(Context context, Agent self) {
-        Conversation conversation = context.conversation();
-        State state = context.state();
+        var conversation = context.conversation();
+        var state = context.state();
         return this.assemble("upgrade.md", Map.of(
             "input", context.input(),
             "conversation", conversation.snapshot().toString(),
@@ -175,7 +179,6 @@ public class RegexivePromptAssembler implements PromptAssembler {
     }
 
     private Path promptsSource() {
-        String promptsSource = this.configuration.get("anticorruption.prompts.source");
-        return Path.of(promptsSource);
+        return Path.of(this.configuration.get("anticorruption.prompts.source"), "");
     }
 }

@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+/// FIXME
 public class ClasspathClassScanner implements ClassScanner {
     private static final Logger logger = LoggerFactory.getLogger(ClasspathClassScanner.class);
     private final String basePackage;

@@ -14,25 +14,26 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
+/// FIXME
 @ApplicationScoped
 public class FileSystemActionAdapter implements Adapter<Action, String> {
     private static final Logger logger = LoggerFactory.getLogger(FileSystemActionAdapter.class);
     private final Configuration configuration;
     private final Translator<Action, String> translator;
     private final FileSystem fileSystem;
-    private final Compiler compiler;
     private final JsonCodec jsonCodec;
+    private final Compiler compiler;
 
     @Inject
     public FileSystemActionAdapter(Translator<Action, String> translator,
                                    @Localic FileSystem fileSystem,
-                                   Compiler compiler,
-                                   JsonCodec jsonCodec) {
+                                   JsonCodec jsonCodec,
+                                   Compiler compiler) {
         this.configuration = new Configuration("anticorruption.yaml");
         this.translator = translator;
         this.fileSystem = fileSystem;
-        this.compiler = compiler;
         this.jsonCodec = jsonCodec;
+        this.compiler = compiler;
     }
 
     @Override
@@ -50,11 +51,11 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
     }
 
     @Override
-    public void publish(String id, String source) {
-        Map<String, Object> meta = this.jsonCodec.unmarshal(source);
-        String label = (String) meta.get("label");
-        String description = (String) meta.get("description");
-        Action action = new Action() {
+    public void publish(String id, String json) {
+        Map<String, Object> meta = this.jsonCodec.unmarshal(json);
+        var label = (String) meta.get("label");
+        var description = (String) meta.get("description");
+        var action = new Action() {
             /// @formatter:off
             @Override public String name() { return id; }
             @Override public String label() { return label; }
@@ -72,17 +73,20 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
         this.compiler.compile(this.actionsSource(), this.actionsTarget());
     }
 
+    @Override
+    public void revoke(String id) {
+        throw new UnsupportedOperationException();
+    }
+
     private String actionsPackage() {
         return this.configuration.get("anticorruption.actions.package");
     }
 
     private Path actionsSource() {
-        String actionsSource = this.configuration.get("anticorruption.actions.source");
-        return Path.of(actionsSource);
+        return Path.of(this.configuration.get("anticorruption.actions.source"), "");
     }
 
     private Path actionsTarget() {
-        String actionsTarget = this.configuration.get("anticorruption.actions.target");
-        return Path.of(actionsTarget);
+        return Path.of(this.configuration.get("anticorruption.actions.target"), "");
     }
 }

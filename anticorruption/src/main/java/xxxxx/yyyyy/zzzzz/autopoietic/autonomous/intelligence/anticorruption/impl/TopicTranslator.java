@@ -19,7 +19,12 @@ public class TopicTranslator implements Translator<Topic, String> {
     }
 
     @Override
-    public Topic translateFrom(String id, String source) {
-        return this.proxyProvider.provide(source);
+    public Topic translateFrom(String id, String json) {
+        return this.proxyProvider.provide(json);
+    }
+
+    @Override
+    public String translateTo(String id, Topic topic) {
+        throw new UnsupportedOperationException();
     }
 }

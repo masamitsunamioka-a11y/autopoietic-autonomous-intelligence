@@ -31,8 +31,8 @@ public class AgentRepository implements Repository<Agent> {
     }
 
     @Override
-    public void store(String id, String source) {
-        this.adapter.publish(id, source);
+    public void store(String id, String json) {
+        this.adapter.publish(id, json);
     }
 
     @Override

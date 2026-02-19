@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.FileSystem;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Localic;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.SpinLock;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -48,7 +47,7 @@ public class LocalFileSystem implements FileSystem {
 
     @Override
     public Stream<String> list(Path path) {
-        try (Stream<Path> stream = Files.list(path)) {
+        try (var stream = Files.list(path)) {
             return stream
                 .map(Path::toString)
                 .toList()
@@ -60,7 +59,7 @@ public class LocalFileSystem implements FileSystem {
 
     @Override
     public Stream<String> walk(Path path) {
-        try (Stream<Path> stream = Files.walk(path)) {
+        try (var stream = Files.walk(path)) {
             return stream
                 .filter(Files::isRegularFile)
                 .map(Path::toString)
