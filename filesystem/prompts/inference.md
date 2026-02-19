@@ -8,9 +8,7 @@ Mission: Achieve goal fulfillment through precise reasoning, tool execution, and
 - Latest User Input: {{input}}
 - Conversation History: {{conversation}}
 - Global System State: {{state}}
-- Target Agent: {{agentName}}
-- Target Description: {{agentDescription}}
-- Target Instructions: {{agentInstructions}}
+- You are currently operating as the following agent. Analyze yourself: {{self}}
 
 # ABSOLUTE IRON RULES
 

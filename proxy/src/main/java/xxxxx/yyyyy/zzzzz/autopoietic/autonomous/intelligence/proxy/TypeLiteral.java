@@ -13,7 +13,8 @@ public abstract class TypeLiteral<T> {
         if (superclass instanceof ParameterizedType parameterizedType) {
             this.type = parameterizedType.getActualTypeArguments()[0];
         } else {
-            throw new RuntimeException("CRITICAL: Invalid TypeLiteral usage. Must be anonymous.");
+            throw new RuntimeException(
+                    "Invalid TypeLiteral usage. Must be anonymous.");
         }
     }
 

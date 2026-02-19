@@ -35,14 +35,13 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
                 this.fileSystem.read(
                         Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
                         StandardCharsets.UTF_8
-                )
-        );
+                ));
     }
 
     @Override
     public List<Topic> fetchAll() {
         return this.fileSystem.walk(this.topicsSource())
-                .map(this::extractId)
+                .map(x -> x.replaceAll(".*/|\\.json$", ""))
                 .map(this::fetch)
                 .toList();
     }
@@ -52,26 +51,18 @@ public class FileSystemTopicAdapter implements Adapter<Topic, String> {
         this.fileSystem.write(
                 Paths.get(this.topicsSource().toString(), Util.toSnakeCase(id) + ".json"),
                 source,
-                StandardCharsets.UTF_8
-        );
+                StandardCharsets.UTF_8);
     }
 
     @Override
     public void revoke(String id) {
         this.fileSystem.delete(
                 Path.of(this.configuration.get("anticorruption.topics.source")
-                        + "/" + Util.toSnakeCase(id) + ".json")
-        );
+                        + "/" + Util.toSnakeCase(id) + ".json"));
     }
 
     private Path topicsSource() {
         String topicsSource = this.configuration.get("anticorruption.topics.source");
         return Path.of(topicsSource);
-    }
-
-    private String extractId(String path) {
-        return path.replace(this.topicsSource().toString(), "")
-                .replaceFirst("^[\\\\/]", "")
-                .replaceFirst("\\.json$", "");
     }
 }

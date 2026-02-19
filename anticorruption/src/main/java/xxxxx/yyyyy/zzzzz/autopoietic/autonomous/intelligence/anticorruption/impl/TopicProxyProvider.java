@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonParser;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
@@ -21,60 +21,61 @@ import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorrupti
 public class TopicProxyProvider implements ProxyProvider<Topic> {
     private static final Logger logger = LoggerFactory.getLogger(TopicProxyProvider.class);
     private final Repository<Action> actionRepository;
-    private final JsonParser jsonParser;
+    private final JsonCodec jsonCodec;
 
     @Inject
     public TopicProxyProvider(Repository<Action> actionRepository,
-                              JsonParser jsonParser) {
+                              JsonCodec jsonCodec) {
         this.actionRepository = actionRepository;
-        this.jsonParser = jsonParser;
+        this.jsonCodec = jsonCodec;
     }
 
-    private static record InternalTopic(String name,
-                                        String label,
-                                        String description,
-                                        String instructions,
-                                        List<String> actions) {
+    private static record InternalTopic(
+            String name,
+            String label,
+            String description,
+            String instructions,
+            List<String> actions) {
     }
 
     @Override
     public Topic provide(String json) {
-        var reference = new AtomicReference<InternalTopic>(this.jsonParser.toObject(json, InternalTopic.class));
+        var reference = new AtomicReference<InternalTopic>(this.jsonCodec.unmarshal(json, InternalTopic.class));
+        /// @formatter:off
         return (Topic) Proxy.newProxyInstance(
-                Thread.currentThread().getContextClassLoader(),
-                new Class<?>[]{actualTypeArguments(this.getClass())},
-                (proxy, method, args) -> {
-                    InternalTopic topic = reference.get();
-                    return switch (method.getName()) {
-                        case "toString" -> this.jsonParser.toString(topic);
-                        case "hashCode" -> System.identityHashCode(proxy);
-                        case "equals" -> this.equals(proxy, args);
-                        case "actions" -> {
-                            if (args == null || args.length == 0) {
-                                yield topic.actions().stream()
-                                        .map(this.actionRepository::find)
-                                        .distinct()
-                                        .toList();
-                            } else {
-                                String name = ((Action) args[0]).name();
-                                /// @formatter:off
-                                reference.set(new InternalTopic(
-                                    topic.name(),
-                                    topic.label(),
-                                    topic.description(),
-                                    topic.instructions(),
-                                    Stream.concat(topic.actions().stream(), Stream.of(name))
-                                        .distinct()
-                                        .toList()
-                                ));
-                                /// @formatter:on
-                                yield null;
-                            }
+            Thread.currentThread().getContextClassLoader(),
+            new Class<?>[]{actualTypeArguments(this.getClass())},
+            (proxy, method, args) -> {
+                InternalTopic topic = reference.get();
+                return switch (method.getName()) {
+                    case "toString" -> this.jsonCodec.marshal(topic);
+                    case "hashCode" -> System.identityHashCode(proxy);
+                    case "equals" -> this.equals(proxy, args);
+                    case "actions" -> {
+                        if (args == null || args.length == 0) {
+                            yield topic.actions().stream()
+                                .map(this.actionRepository::find)
+                                .distinct()
+                                .toList();
+                        } else {
+                            String name = ((Action) args[0]).name();
+                            reference.set(new InternalTopic(
+                                topic.name(),
+                                topic.label(),
+                                topic.description(),
+                                topic.instructions(),
+                                Stream.concat(topic.actions().stream(), Stream.of(name))
+                                    .distinct()
+                                    .toList()
+                            ));
+                            yield null;
                         }
-                        default -> InternalTopic.class.getMethod(method.getName()).invoke(topic);
-                    };
-                }
+                    }
+                    default -> InternalTopic.class.getMethod(method.getName()).invoke(topic);
+                };
+            }
         );
+        /// @formatter:on
     }
 
     private boolean equals(Object proxy, Object[] args) {

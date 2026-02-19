@@ -6,12 +6,13 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.util.Objects;
 
-public record Conclusion(@NotBlank String reasoning,
-                         @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
-                         @NotBlank String phase,
-                         String handoffTo,
-                         String action,
-                         String answer) {
+public record Conclusion(
+        @NotBlank String reasoning,
+        @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
+        @NotBlank String phase,
+        String handoffTo,
+        String action,
+        String answer) {
     public Conclusion {
         switch (phase) {
             case "ACT" -> Objects.requireNonNull(action,

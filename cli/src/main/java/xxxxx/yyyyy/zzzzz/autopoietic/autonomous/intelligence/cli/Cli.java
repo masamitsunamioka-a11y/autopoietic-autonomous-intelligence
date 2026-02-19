@@ -70,13 +70,12 @@ public class Cli {
     }
 
     private Inference interact(String input, Conversation conversation, State state) {
-        state.write("last_user_input", input);
         conversation.write("user", input);
         /// @formatter:off
         Type inferenceEngineType = new TypeLiteral<InferenceEngine>() {}.type();
         /// @formatter:on
         InferenceEngine inferenceEngine = this.proxyContainer.get(inferenceEngineType);
-        return inferenceEngine.infer(input, conversation, state);
+        return inferenceEngine.infer(new InMemoryContext(input, conversation, state));
     }
 
     private static class DefaultScannerSource implements Iterable<String> {

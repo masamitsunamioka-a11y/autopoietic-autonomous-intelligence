@@ -5,8 +5,8 @@ import java.lang.reflect.ParameterizedType;
 public class Util {
     /// @SuppressWarnings("unchecked")
     public static <T> Class<T> actualTypeArguments(Class<?> c) {
-        return (Class<T>) ((ParameterizedType)
-                c.getGenericInterfaces()[0]).getActualTypeArguments()[0];
+        return (Class<T>) ((ParameterizedType) c.getGenericInterfaces()[0])
+                .getActualTypeArguments()[0];
     }
 
     public static String toSnakeCase(String input) {

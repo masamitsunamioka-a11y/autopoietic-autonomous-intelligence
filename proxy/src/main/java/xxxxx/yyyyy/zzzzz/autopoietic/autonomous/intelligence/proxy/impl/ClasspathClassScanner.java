@@ -35,7 +35,7 @@ public class ClasspathClassScanner implements ClassScanner {
                     .distinct()
                     .toList();
         } catch (IOException e) {
-            throw new UncheckedIOException("CRITICAL: Unified scan failed", e);
+            throw new UncheckedIOException("Unified scan failed", e);
         }
     }
 

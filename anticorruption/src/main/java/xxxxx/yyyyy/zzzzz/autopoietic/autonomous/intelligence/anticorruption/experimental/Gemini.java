@@ -1,115 +1,96 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.experimental;
 
+import com.google.genai.Client;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonParser;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.ExternalService;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Intelligence;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+/// https://github.com/googleapis/java-genai/blob/main/examples/src/main/java/com/google/genai/examples/GenerateContent.java
 @ApplicationScoped
-public class Gemini implements ExternalService {
+public class Gemini implements Intelligence {
     private static final Logger logger = LoggerFactory.getLogger(Gemini.class);
-    private static final String API_KEY = System.getenv("GEMINI_API_KEY");
-    private static final String API_BASE_URL = "https://generativelanguage.googleapis.com";
-    private static final String API_VERSION = "v1";
-    private static final String MODEL_NAME = "gemini-2.0-flash";
-    private static final String API_URL = String.format("%s/%s/models/%s:generateContent?key=%s",
-            API_BASE_URL, API_VERSION, MODEL_NAME, API_KEY);
-    /// private static final int MAX_RETRIES = 3;
-    /// private static final long INITIAL_BACKOFF_MS = 2000L;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final JsonParser jsonParser;
+    private final JsonCodec jsonCodec;
+    private final Validator validator;
+    private static final String MODEL = "gemini-2.0-flash";
 
-    public Gemini(JsonParser jsonParser) {
-        this.jsonParser = jsonParser;
+    public Gemini(JsonCodec jsonCodec) {
+        this.jsonCodec = jsonCodec;
+        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            this.validator = validatorFactory.getValidator();
+        }
     }
 
     @Override
-    public <I, T> I call(String prompt, Class<T> type) {
-        return this.jsonParser.toObject(this.call(prompt), type);
-    }
-
-    public String call(String text) {
-        if (API_KEY.isEmpty()) {
-            throw new IllegalStateException("Environment variable 'GEMINI_API_KEY' is not set.");
+    public <T> T reason(String prompt, Class<T> type) {
+        if (logger.isTraceEnabled()) {
+            this.dump(type.getSimpleName().toLowerCase(), "request", prompt);
+            logger.trace("\n{}", prompt);
         }
-        GeminiRequest request = new GeminiRequest(
-                List.of(new Content(List.of(new Part(text)))),
-                Map.of("temperature", 0.7)
-        );
-        String payload = this.jsonParser.toString(request);
-        return this.executeWithRetry(payload, 0);
+        String text = this.generate(prompt);
+        if (logger.isTraceEnabled()) {
+            this.dump(type.getSimpleName().toLowerCase(), "response", text);
+            logger.trace("\n{}", text);
+        }
+        T result = this.jsonCodec.unmarshal(text, type);
+        this.validate(result);
+        return result;
     }
 
-    private String executeWithRetry(String payload, int retryCount) {
+    private String generate(String prompt) {
+        /// TODO: Client instance should also be provided via a CDI Provider.
+        try (Client client = new Client()) {
+            return client.models.generateContent(MODEL, prompt, null).text();
+        }
+    }
+
+    private <T> void validate(T result) {
+        Set<ConstraintViolation<T>> violations = this.validator.validate(result);
+        if (!violations.isEmpty()) {
+            String reasons = violations.stream()
+                    .map(x -> String.format("[%s] %s",
+                            x.getPropertyPath(),
+                            x.getMessage()))
+                    .collect(Collectors.joining(", "));
+            throw new IllegalStateException(
+                    String.format("[Integrity Violation] %s: %s",
+                            result.getClass().getSimpleName(), reasons));
+        }
+    }
+
+    private void dump(String phase, String mode, String content) {
         try {
-            logger.trace("[GEMINI_REQUEST] Payload: {}", payload);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
-                    .build();
-            HttpResponse<String> response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            String body = response.body();
-            int status = response.statusCode();
-            logger.trace("[GEMINI_RESPONSE] Status: {}, Body: {}", status, body);
-            ///if (status == 429 && retryCount < MAX_RETRIES) {
-            ///    long backoff = INITIAL_BACKOFF_MS * (long) Math.pow(2, retryCount);
-            ///    logger.warn("PureJavaIntelligence API 429 received. Retrying in {}ms... ({}/{})",
-            ///            backoff,
-            ///            retryCount + 1,
-            ///            MAX_RETRIES);
-            ///    Thread.sleep(backoff);
-            ///    return this.executeWithRetry(payload, retryCount + 1);
-            ///}
-            if (status != 200) {
-                throw new RuntimeException("PureJavaIntelligence API Error: " + status + " - Body: " + body);
+            Path dump = Paths.get("dump");
+            if (Files.notExists(dump)) {
+                Files.createDirectories(dump);
             }
-            GeminiResponse responseObj = this.jsonParser.toObject(body, GeminiResponse.class);
-            return Optional.ofNullable(responseObj.text())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Response text extraction failed. Raw Body: " + body));
+            String now = LocalDateTime
+                    .now()
+                    .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+            String name = String.format("%s_%s_%s.txt", now, mode, phase);
+            Files.writeString(
+                    dump.resolve(name),
+                    content,
+                    StandardCharsets.UTF_8
+            );
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
         }
-    }
-
-    private record GeminiRequest(List<Content> contents,
-                                 Map<String, Object> generationConfig) {
-    }
-
-    private record GeminiResponse(List<Candidate> candidates) {
-        String text() {
-            return Optional.ofNullable(this.candidates)
-                    .filter(x -> !x.isEmpty())
-                    .map(x -> x.getFirst().content())
-                    .map(Content::parts)
-                    .filter(x -> !x.isEmpty())
-                    .map(x -> x.getFirst().text())
-                    .orElse(null);
-        }
-    }
-
-    private record Candidate(Content content) {
-    }
-
-    private record Content(List<Part> parts) {
-    }
-
-    private record Part(String text) {
     }
 }

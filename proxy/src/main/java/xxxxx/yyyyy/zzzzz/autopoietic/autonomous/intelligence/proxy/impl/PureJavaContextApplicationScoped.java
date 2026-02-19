@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Contextual;
 
 import java.lang.annotation.Annotation;
@@ -18,23 +20,22 @@ import static java.lang.Integer.toHexString;
 import static java.lang.System.identityHashCode;
 
 public class PureJavaContextApplicationScoped extends PureJavaContext {
-    private final Map<Type, Map<Set<? extends Annotation>, Object>> instanceCache;
+    private static final Logger logger = LoggerFactory.getLogger(PureJavaContextApplicationScoped.class);
+    private final Map<Type, Map<Set<? extends Annotation>, Object>> instances;
 
     public PureJavaContextApplicationScoped() {
-        this.instanceCache = new ConcurrentHashMap<>();
+        this.instances = new ConcurrentHashMap<>();
     }
 
-    /// @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T get(Contextual<T> contextual) {
-        PureJavaContextual<T> pureJavaContextual = (PureJavaContextual<T>) contextual;
-        return (T) this.instanceCache.computeIfAbsent(
-                pureJavaContextual.type(),
-                x -> new ConcurrentHashMap<>()
-        ).computeIfAbsent(
-                pureJavaContextual.qualifiers(),
-                x -> contextual.create(null)
-        );
+        return (T) this.instances.computeIfAbsent(
+                        this.reveal(contextual).type(),
+                        x -> new ConcurrentHashMap<>())
+                .computeIfAbsent(
+                        this.reveal(contextual).qualifiers(),
+                        x -> contextual.create(null));
     }
 
     @Override
@@ -42,26 +43,30 @@ public class PureJavaContextApplicationScoped extends PureJavaContext {
         return ApplicationScoped.class;
     }
 
+    private <T> PureJavaContextual<T> reveal(Contextual<T> contextual) {
+        return (PureJavaContextual<T>) contextual;
+    }
+
     @Override
     public String toString() {
         try {
+            /// @formatter:off
             Map<String, String> instanceIdMap =
-                    /// @formatter:off
-                    this.instanceCache.entrySet().stream()
-                        .flatMap(x -> x.getValue().entrySet().stream()
-                            .map(y -> Map.entry(
-                                x.getKey().getTypeName() + "[" +
-                                    y.getKey().stream()
-                                        .map(z -> z.annotationType().getSimpleName())
-                                        .sorted()
-                                        .collect(Collectors.joining(", ")) + "]",
-                                toHexString(identityHashCode(y.getValue()))
-                            )))
-                        .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (k, v) -> k,
-                            LinkedHashMap::new));
+                this.instances.entrySet().stream()
+                    .flatMap(x -> x.getValue().entrySet().stream()
+                        .map(y -> Map.entry(
+                            x.getKey().getTypeName() + "[" +
+                                y.getKey().stream()
+                                    .map(z -> z.annotationType().getSimpleName())
+                                    .sorted()
+                                    .collect(Collectors.joining(", ")) + "]",
+                            toHexString(identityHashCode(y.getValue()))
+                        )))
+                    .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (k, v) -> k,
+                        LinkedHashMap::new));
             /// @formatter:on
             JsonObject root = new JsonObject();
             root.add(this.scope().toString(), new Gson().toJsonTree(instanceIdMap));
@@ -72,9 +77,7 @@ public class PureJavaContextApplicationScoped extends PureJavaContext {
                     .toJson(root);
         } catch (Exception e) {
             return """
-                    {
-                      "instanceMap_error": "%s"
-                    }
+                    {"instanceMap_error": "%s"}
                     """.formatted(e.getMessage());
         }
     }

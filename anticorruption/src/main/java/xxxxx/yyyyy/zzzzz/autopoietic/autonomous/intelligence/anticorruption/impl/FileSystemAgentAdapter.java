@@ -35,14 +35,13 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
                 this.fileSystem.read(
                         Paths.get(this.agentsSource().toString(), Util.toSnakeCase(id) + ".json"),
                         StandardCharsets.UTF_8
-                )
-        );
+                ));
     }
 
     @Override
     public List<Agent> fetchAll() {
         return this.fileSystem.walk(this.agentsSource())
-                .map(this::extractId)
+                .map(x -> x.replaceAll(".*/|\\.json$", ""))
                 .map(this::fetch)
                 .toList();
     }
@@ -52,26 +51,18 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
         this.fileSystem.write(
                 Paths.get(this.agentsSource().toString(), Util.toSnakeCase(id) + ".json"),
                 source,
-                StandardCharsets.UTF_8
-        );
+                StandardCharsets.UTF_8);
     }
 
     @Override
     public void revoke(String id) {
         this.fileSystem.delete(
                 Path.of(this.agentsSource().toString()
-                        + "/" + Util.toSnakeCase(id) + ".json")
-        );
+                        + "/" + Util.toSnakeCase(id) + ".json"));
     }
 
     private Path agentsSource() {
         String agentsSource = this.configuration.get("anticorruption.agents.source");
         return Path.of(agentsSource);
-    }
-
-    private String extractId(String path) {
-        return path.replace(this.agentsSource().toString(), "")
-                .replaceFirst("^[\\\\/]", "")
-                .replaceFirst("\\.json$", "");
     }
 }

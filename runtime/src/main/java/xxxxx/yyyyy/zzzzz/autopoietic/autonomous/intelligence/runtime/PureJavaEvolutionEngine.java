@@ -29,8 +29,8 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
     }
 
     @Override
-    public void upgrade(String input, Conversation conversation, State state, Agent agent) {
-        String prompt = this.promptAssembler.upgrade(input, conversation, state, agent);
+    public void upgrade(Context context, Agent agent) {
+        String prompt = this.promptAssembler.upgrade(context, agent);
         Upgrade upgrade = this.intelligence.reason(prompt, Upgrade.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], " +
                         "NewInstructions: {} chars, NewAgents: {}, NewTopics: {}, NewActions: {}",
@@ -46,13 +46,15 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
         });
         upgrade.newTopics().forEach(x -> {
             this.topicRepository.store(x.name(), x.rawJson());
+            /// @formatter:off
             upgrade.newActions().stream()
-                    .filter(y -> y.relatedTopics().contains(x.name()))
-                    .forEach(y -> {
-                        Topic topic = this.topicRepository.find(x.name());
-                        topic.actions(actionRepository.find(y.name()));
-                        this.topicRepository.store(x.name(), topic);
-                    });
+                .filter(y -> y.relatedTopics().contains(x.name()))
+                .forEach(y -> {
+                    Topic topic = this.topicRepository.find(x.name());
+                    topic.actions(actionRepository.find(y.name()));
+                    this.topicRepository.store(x.name(), topic);
+                });
+            /// @formatter:on
         });
         upgrade.newAgents().forEach(x -> {
             this.agentRepository.store(x.name(), x.rawJson());
@@ -74,23 +76,19 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
                 consolidation.consolidatedAgents().size(),
                 consolidation.consolidatedTopics().size()
         );
-        /// Purge
+        /// @formatter:off
         consolidation.consolidatedAgents().stream()
-                .flatMap(x -> x.consolidants().stream())
-                .forEach(this.agentRepository::remove);
+            .flatMap(x -> x.consolidants().stream())
+            .forEach(this.agentRepository::remove);
         consolidation.consolidatedTopics().stream()
-                .flatMap(x -> x.consolidants().stream())
-                .forEach(this.topicRepository::remove);
-        /// Merge
+            .flatMap(x -> x.consolidants().stream())
+            .forEach(this.topicRepository::remove);
         consolidation.consolidatedTopics().stream()
-                .map(Consolidation.ConsolidatedTopic::consolidated)
-                .forEach(x -> this.topicRepository.store(
-                        x.name(),
-                        x.rawJson()));
+            .map(Consolidation.ConsolidatedTopic::consolidated)
+            .forEach(x -> this.topicRepository.store(x.name(), x.rawJson()));
         consolidation.consolidatedAgents().stream()
-                .map(Consolidation.ConsolidatedAgent::consolidated)
-                .forEach(x -> this.agentRepository.store(
-                        x.name(),
-                        x.rawJson()));
+            .map(Consolidation.ConsolidatedAgent::consolidated)
+            .forEach(x -> this.agentRepository.store(x.name(), x.rawJson()));
+        /// @formatter:on
     }
 }

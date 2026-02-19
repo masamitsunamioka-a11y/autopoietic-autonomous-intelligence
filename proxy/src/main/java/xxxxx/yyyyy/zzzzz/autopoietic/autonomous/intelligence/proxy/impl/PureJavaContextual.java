@@ -27,10 +27,11 @@ public class PureJavaContextual<T> implements Contextual<T> {
     public PureJavaContextual(AnnotatedType<T> annotatedType, ProxyContainer proxyContainer) {
         this.annotatedType = annotatedType;
         this.proxyContainer = proxyContainer;
+        /// FIXME
         this.type = this.annotatedType.typeClosure().stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(
-                        "CRITICAL: No interface found for " + annotatedType.javaClass().getName()));
+                        "No interface found for " + annotatedType.javaClass().getName()));
         /// Get scope from ClassWrapper.
         this.scope = this.annotatedType.isAnnotationPresent(ApplicationScoped.class)
                 ? ApplicationScoped.class
@@ -46,17 +47,17 @@ public class PureJavaContextual<T> implements Contextual<T> {
 
     @Override
     public T create(CreationalContext<T> creationalContext) {
+        /// FIXME
         try {
             ClassWrapper<T> wrapper = (ClassWrapper<T>) this.annotatedType;
             Object[] args = wrapper.constructorParameters().stream()
                     .map(x -> this.proxyContainer.get(
                             x.getParameterizedType(),
-                            wrapper.parameterQualifiers(x))
-                    )
+                            wrapper.parameterQualifiers(x)))
                     .toArray();
             return (T) wrapper.annotatedConstructor().newInstance(args);
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("CRITICAL: Instantiation failed for " +
+            throw new RuntimeException("Instantiation failed for " +
                     this.annotatedType.javaClass().getName(), e);
         }
     }

@@ -64,7 +64,7 @@ public class ClassWrapper<T> implements AnnotatedType<T> {
         return true;
     }
 
-    /// @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public Constructor<T> annotatedConstructor() {
         var constructors = this.javaClass.getConstructors();
         return (Constructor<T>) Arrays.stream(constructors)

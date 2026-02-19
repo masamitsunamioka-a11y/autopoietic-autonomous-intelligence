@@ -1,15 +1,14 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Conversation;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.State;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Context;
 
 public interface PromptAssembler {
-    String inference(String input, Conversation conversation, State state, Agent self);
+    String inference(Context context, Agent self);
 
-    String routing(String input, Conversation conversation, State state);
+    String routing(Context context);
 
-    String upgrade(String input, Conversation conversation, State state, Agent self);
+    String upgrade(Context context, Agent self);
 
     String consolidation();
 }

@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonParser;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
@@ -21,60 +21,61 @@ import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorrupti
 public class AgentProxyProvider implements ProxyProvider<Agent> {
     private static final Logger logger = LoggerFactory.getLogger(AgentProxyProvider.class);
     private final Repository<Topic> topicRepository;
-    private final JsonParser jsonParser;
+    private final JsonCodec jsonCodec;
 
     @Inject
     public AgentProxyProvider(Repository<Topic> topicRepository,
-                              JsonParser jsonParser) {
+                              JsonCodec jsonCodec) {
         this.topicRepository = topicRepository;
-        this.jsonParser = jsonParser;
+        this.jsonCodec = jsonCodec;
     }
 
-    private static record InternalAgent(String name,
-                                        String label,
-                                        String description,
-                                        String instructions,
-                                        List<String> topics) {
+    private static record InternalAgent(
+            String name,
+            String label,
+            String description,
+            String instructions,
+            List<String> topics) {
     }
 
     @Override
     public Agent provide(String json) {
-        var reference = new AtomicReference<InternalAgent>(this.jsonParser.toObject(json, InternalAgent.class));
+        var reference = new AtomicReference<InternalAgent>(this.jsonCodec.unmarshal(json, InternalAgent.class));
+        /// @formatter:off
         return (Agent) Proxy.newProxyInstance(
-                Thread.currentThread().getContextClassLoader(),
-                new Class<?>[]{actualTypeArguments(this.getClass())},
-                (proxy, method, args) -> {
-                    InternalAgent agent = reference.get();
-                    return switch (method.getName()) {
-                        case "toString" -> this.jsonParser.toString(agent);
-                        case "hashCode" -> System.identityHashCode(proxy);
-                        case "equals" -> this.equals(proxy, args);
-                        case "topics" -> {
-                            if (args == null || args.length == 0) {
-                                yield agent.topics().stream()
-                                        .map(this.topicRepository::find)
-                                        .distinct()
-                                        .toList();
-                            } else {
-                                String name = ((Topic) args[0]).name();
-                                /// @formatter:off
-                                reference.set(new InternalAgent(
-                                    agent.name(),
-                                    agent.label(),
-                                    agent.description(),
-                                    agent.instructions(),
-                                    Stream.concat(agent.topics().stream(), Stream.of(name))
-                                        .distinct()
-                                        .toList()
-                                ));
-                                /// @formatter:on
-                                yield null;
-                            }
+            Thread.currentThread().getContextClassLoader(),
+            new Class<?>[]{actualTypeArguments(this.getClass())},
+            (proxy, method, args) -> {
+                InternalAgent agent = reference.get();
+                return switch (method.getName()) {
+                    case "toString" -> this.jsonCodec.marshal(agent);
+                    case "hashCode" -> System.identityHashCode(proxy);
+                    case "equals" -> this.equals(proxy, args);
+                    case "topics" -> {
+                        if (args == null || args.length == 0) {
+                            yield agent.topics().stream()
+                                .map(this.topicRepository::find)
+                                .distinct()
+                                .toList();
+                        } else {
+                            String name = ((Topic) args[0]).name();
+                            reference.set(new InternalAgent(
+                                agent.name(),
+                                agent.label(),
+                                agent.description(),
+                                agent.instructions(),
+                                Stream.concat(agent.topics().stream(), Stream.of(name))
+                                    .distinct()
+                                    .toList()
+                            ));
+                            yield null;
                         }
-                        default -> InternalAgent.class.getMethod(method.getName()).invoke(agent);
-                    };
-                }
+                    }
+                    default -> InternalAgent.class.getMethod(method.getName()).invoke(agent);
+                };
+            }
         );
+        /// @formatter:on
     }
 
     private boolean equals(Object proxy, Object[] args) {

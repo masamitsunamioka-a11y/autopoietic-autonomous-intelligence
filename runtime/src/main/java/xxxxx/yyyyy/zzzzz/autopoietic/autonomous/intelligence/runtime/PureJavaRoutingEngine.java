@@ -4,7 +4,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Context;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Intelligence;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.RoutingEngine;
 
 @ApplicationScoped
 public class PureJavaRoutingEngine implements RoutingEngine {
@@ -24,8 +27,8 @@ public class PureJavaRoutingEngine implements RoutingEngine {
     }
 
     @Override
-    public Agent route(String input, Conversation conversation, State state) {
-        String prompt = this.promptAssembler.routing(input, conversation, state);
+    public Agent route(Context context) {
+        String prompt = this.promptAssembler.routing(context);
         Direction direction = this.intelligence.reason(prompt, Direction.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], SelectedAgent: {}",
                 direction.confidence(),

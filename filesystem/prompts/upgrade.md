@@ -8,9 +8,7 @@ Mission: Conduct continuous self-improvement and specialization of agents to sur
 - Latest User Input: {{input}}
 - Conversation History: {{conversation}}
 - Global System State: {{state}}
-- Target Agent: {{agentName}}
-- Target Description: {{agentDescription}}
-- Target Instructions: {{agentInstructions}}
+- You are currently operating as the following agent. Analyze yourself: {{self}}
 
 # ABSOLUTE IRON RULES
 
@@ -19,6 +17,8 @@ Mission: Conduct continuous self-improvement and specialization of agents to sur
 - [NON-NEGOTIABLE] REPOSITORY INTEGRITY: Output all 'rawJson' and source code without losing a single byte.
 - [IRONCLAD OBLIGATION] NO BLANK INSTRUCTIONS: If no changes are needed, return original {{agentInstructions}}.
 - [IRONCLAD OBLIGATION] SINGLE RESPONSIBILITY: If instructions approach 1500 characters, split into a new agent.
+- [SIDE-EFFECT PREVENTION]: Actions are implemented as Java Interfaces. You MUST NOT use instance fields. Only pure
+  logic within a method scope is allowed.
 
 # REASONING PROTOCOLS
 
@@ -33,6 +33,11 @@ Mission: Conduct continuous self-improvement and specialization of agents to sur
       `{{topics}}`) in `relatedTopics`.
     - CRITICAL: For any existing Topic listed in `relatedTopics`, you MUST also include its full definition in
       `newTopics` to update its physical `actions` list.
+    - [URGENT] `execution` property MUST contain a comprehensive and functional Java method body.
+    - You are FORBIDDEN from providing placeholders, comments only, or generic success messages.
+    - Implement the exact logic required for the action's purpose and ensure it returns a `Map<String, Object>` as the
+      final statement.
+    - Every line must be valid, executable Java code.
 
 # KNOWLEDGE ASSETS
 
@@ -49,8 +54,8 @@ Mission: Conduct continuous self-improvement and specialization of agents to sur
       standard RFC 8259.
     - [NULL POLICY]: `null` is PHYSICALLY FORBIDDEN for all fields.
     - [STRING POLICY]: Empty strings "" are PHYSICALLY FORBIDDEN. The following definition fields MUST be fully
-      populated with detailed logic: ("reasoning", "name", "label", "description", "instructions"). Any omission is an
-      architectural failure.
+      populated with detailed logic: ("reasoning", "name", "label", "description", "instructions", "execution"). Any
+      omission is an architectural failure.
     - [DOUBLE POLICY]: `confidence` MUST be a Double value between `0.0` and `1.0`.
 2. [NON-NEGOTIABLE] RAWJSON INTEGRITY (CRITICAL):
     - Each `rawJson` field MUST be a valid, escaped JSON string of the object itself.
@@ -102,6 +107,7 @@ You MUST return a valid JSON object strictly following this structure:
       "name": "UniqueActionName",
       "label": "Human-readable Action Name",
       "description": "Detailed description of what this action achieves physically",
+      "execution": "/* IMPLEMENT ACTUAL LOGIC HERE. RETURN Map<String, Object>. */",
       "relatedTopics": [
         "ExistingTopicName",
         "NewTopicName"

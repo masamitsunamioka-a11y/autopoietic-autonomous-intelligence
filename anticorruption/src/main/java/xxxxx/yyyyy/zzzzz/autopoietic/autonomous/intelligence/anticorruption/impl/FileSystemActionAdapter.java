@@ -20,37 +20,40 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
     private final Configuration configuration;
     private final Translator<Action, String> translator;
     private final FileSystem fileSystem;
-    private final JsonParser jsonParser;
+    private final Compiler compiler;
+    private final JsonCodec jsonCodec;
 
     @Inject
     public FileSystemActionAdapter(Translator<Action, String> translator,
                                    @Localic FileSystem fileSystem,
-                                   JsonParser jsonParser) {
+                                   Compiler compiler,
+                                   JsonCodec jsonCodec) {
         this.configuration = new Configuration("anticorruption.yaml");
         this.translator = translator;
         this.fileSystem = fileSystem;
-        this.jsonParser = jsonParser;
+        this.compiler = compiler;
+        this.jsonCodec = jsonCodec;
     }
 
     @Override
     public Action fetch(String id) {
-        return this.translator.translateFrom(id, this.javaPath(id).toString());
+        return this.translator.translateFrom(id, this.actionsPackage() + "." + id);
     }
 
     @Override
     public List<Action> fetchAll() {
-        return this.fileSystem.walk(this.actionsSource())
-                .filter(path -> path.endsWith(".java"))
-                .map(this::extractId)
+        return this.fileSystem.walk(this.actionsTarget())
+                .filter(path -> path.endsWith(".class"))
+                .map(x -> x.replaceAll(".*/|\\.class$", ""))
                 .map(this::fetch)
                 .toList();
     }
 
     @Override
     public void publish(String id, String source) {
-        Map<String, Object> meta = this.jsonParser.toObject(source);
-        String label = (String) meta.getOrDefault("label", id);
-        String description = (String) meta.getOrDefault("description", "Autopoietic evolution generated action.");
+        Map<String, Object> meta = this.jsonCodec.unmarshal(source);
+        String label = (String) meta.get("label");
+        String description = (String) meta.get("description");
         Action action = new Action() {
             /// @formatter:off
             @Override public String name() { return id; }
@@ -63,10 +66,14 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
             }
         };
         this.fileSystem.write(
-                this.javaPath(id),
+                Paths.get(this.actionsSource().toString(), this.actionsPackage().replace(".", "/"), id + ".java"),
                 this.translator.translateTo(id, action),
-                StandardCharsets.UTF_8
-        );
+                StandardCharsets.UTF_8);
+        this.compiler.compile(this.actionsSource(), this.actionsTarget());
+    }
+
+    private String actionsPackage() {
+        return this.configuration.get("anticorruption.actions.package");
     }
 
     private Path actionsSource() {
@@ -74,24 +81,8 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
         return Path.of(actionsSource);
     }
 
-    private String actionsPackage() {
-        return this.configuration.get("anticorruption.actions.package");
-    }
-
-    private Path javaPath(String id) {
-        return Paths.get(
-                this.actionsSource().toString(),
-                this.actionsPackage().replace(".", "/"),
-                id.endsWith(".java")
-                        ? id
-                        : id + ".java"
-        );
-    }
-
-    private String extractId(String path) {
-        return Paths.get(path)
-                .getFileName()
-                .toString()
-                .replace(".java", "");
+    private Path actionsTarget() {
+        String actionsTarget = this.configuration.get("anticorruption.actions.target");
+        return Path.of(actionsTarget);
     }
 }

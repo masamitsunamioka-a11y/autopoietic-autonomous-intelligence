@@ -2,7 +2,7 @@ anticorruption:
   actions:
     package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.actions"
     source: "../actions/src/main/java"
-    target: "../actions/target"
+    target: "../actions/target/classes"
     compiler:
       classpath:
         strategy: "system"
