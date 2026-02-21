@@ -16,7 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.joining;
 
 /// https://github.com/googleapis/java-genai/blob/main/examples/src/main/java/com/google/genai/examples/GenerateContent.java
 @ApplicationScoped
@@ -63,7 +64,7 @@ public class Gemini implements Intelligence {
                 .map(x -> String.format("[%s] %s",
                     x.getPropertyPath(),
                     x.getMessage()))
-                .collect(Collectors.joining(", "));
+                .collect(joining(", "));
             throw new IllegalStateException(
                 String.format("[Integrity Violation] %s: %s",
                     result.getClass().getSimpleName(), reasons));

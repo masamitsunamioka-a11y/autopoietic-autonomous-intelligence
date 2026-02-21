@@ -11,9 +11,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.lang.System.identityHashCode;
+import static java.util.stream.Collectors.joining;
 
 public class PureJavaClientProxyHandler implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaClientProxyHandler.class);
@@ -31,22 +31,18 @@ public class PureJavaClientProxyHandler implements InvocationHandler {
         if (method.getDeclaringClass() == Object.class) {
             return method.invoke(this, arguments);
         }
-        Object instance = this.proxyContainer
-            .context(this.reveal(this.contextual).scope())
+        var unwrapped = (PureJavaContextual<?>) this.contextual;
+        var instance = this.proxyContainer
+            .context(unwrapped.scope())
             .get(this.contextual);
-        InvocationContext invocationContext =
-            new InvocationContext(proxy, method, arguments, instance);
-        return this.invoke(invocationContext, x -> {
-            try {
-                return method.invoke(x, arguments);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    private <T> PureJavaContextual<T> reveal(Contextual<T> contextual) {
-        return (PureJavaContextual<T>) contextual;
+        return this.invoke(
+            new InvocationContext(proxy, method, arguments, instance), x -> {
+                try {
+                    return method.invoke(x, arguments);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            });
     }
 
     private static record InvocationContext(
@@ -57,23 +53,23 @@ public class PureJavaClientProxyHandler implements InvocationHandler {
     }
 
     private Object invoke(InvocationContext ic, Function<Object, Object> f) {
-        String qualifiers = this.reveal(contextual).qualifiers().stream()
-            .map(Annotation::annotationType)
-            .map(this::name)
-            .collect(Collectors.joining(" "));
+        var unwrapped = (PureJavaContextual<?>) this.contextual;
         logger.trace(String.format(
             "[%-17s] [Proxy:%08x] -> [Instance:%08x] [%-7s] %s#%s",
-            this.name(this.reveal(contextual).scope()),
+            this.name(unwrapped.scope()),
             identityHashCode(ic.proxy()),
             identityHashCode(ic.instance()),
-            qualifiers,
-            this.name(this.reveal(contextual).type()),
+            unwrapped.qualifiers().stream()
+                .map(Annotation::annotationType)
+                .map(this::name)
+                .collect(joining(" ")),
+            this.name(unwrapped.types()),
             ic.method().getName()));
         return f.apply(ic.instance());
     }
 
     private String name(Object object) {
-        String fullyQualifiedName = (switch (object) {
+        var fullyQualifiedName = (switch (object) {
             case null -> "null";
             case Class<?> x -> x.getName();
             case Type x -> x.getTypeName();

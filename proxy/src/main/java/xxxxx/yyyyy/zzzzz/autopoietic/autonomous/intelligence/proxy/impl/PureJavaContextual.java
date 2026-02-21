@@ -1,6 +1,6 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.NormalScope;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Qualifier;
 import org.slf4j.Logger;
@@ -11,13 +11,14 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.CreationalCon
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.ProxyContainer;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-/// FIXME
+import static java.util.Arrays.stream;
+
+/// https://jakarta.ee/specifications/cdi/4.1/apidocs/jakarta/enterprise/inject/spi/beanattributes
+/// https://github.com/jakartaee/cdi/blob/4.1.0/api/src/main/java/jakarta/enterprise/inject/spi/BeanAttributes.java
 public class PureJavaContextual<T> implements Contextual<T> {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaContextual.class);
     private final AnnotatedType<T> annotatedType;
@@ -31,50 +32,61 @@ public class PureJavaContextual<T> implements Contextual<T> {
 
     @Override
     public T create(CreationalContext<T> creationalContext) {
-        try {
-            ClassWrapper<T> wrapper = (ClassWrapper<T>) this.annotatedType;
-            Object[] args = wrapper.constructorParameters().stream()
-                .map(x -> this.proxyContainer.get(
-                    x.getParameterizedType(),
-                    wrapper.parameterQualifiers(x)))
-                .toArray();
-            return (T) wrapper.annotatedConstructor().newInstance(args);
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Instantiation failed for " +
-                this.annotatedType.javaClass().getName(), e);
-        }
+        var unwrapped = (ClassWrapper<T>) this.annotatedType;
+        return unwrapped.instantiate(x -> {
+            return this.inject(x.getParameterizedType(), x.getAnnotations());
+        });
     }
 
-    public Type type() {
-        return this.annotatedType.typeClosure().stream()
+    private T inject(Type type, Annotation[] annotations) {
+        var qualifiers = this.orDefault(annotations);
+        return this.proxyContainer.get(type, qualifiers);
+    }
+
+    private Annotation[] orDefault(Annotation[] annotations) {
+        var qualifiers = stream(annotations)
+            .filter(x -> x.annotationType()
+                .isAnnotationPresent(Qualifier.class))
+            .toArray(Annotation[]::new);
+        return (qualifiers.length > 0)
+            ? qualifiers
+            : new Annotation[]{Default.Literal.INSTANCE};
+    }
+
+    /// @Override
+    public Set<Type> types() {
+        return this.annotatedType.typeClosure();
+    }
+
+    /// @Override
+    public Set<Annotation> qualifiers() {
+        return Set.of(this.orDefault(
+            this.annotatedType.annotations().toArray(new Annotation[0])));
+    }
+
+    /// @Override
+    public Class<? extends Annotation> scope() {
+        return this.annotatedType.annotations().stream()
+            .map(Annotation::annotationType)
+            .filter(x -> x.isAnnotationPresent(NormalScope.class))
             .findFirst()
             .orElseThrow();
     }
 
-    public Class<? extends Annotation> scope() {
-        /// Get scope from ClassWrapper.
-        return ApplicationScoped.class;
-    }
-
-    public Set<? extends Annotation> qualifiers() {
-        var qualifiers = this.annotatedType.annotations().stream()
-            .filter(x -> x.annotationType().isAnnotationPresent(Qualifier.class))
-            .collect(Collectors.toSet());
-        return (!qualifiers.isEmpty())
-            ? qualifiers
-            : Set.of(Default.Literal.INSTANCE);
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PureJavaContextual<?> that)) return false;
-        return Objects.equals(this.type(), that.type())
-            && Objects.equals(this.qualifiers(), that.qualifiers());
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PureJavaContextual<?> that)) {
+            return false;
+        }
+        return this.types().equals(that.types())
+            && this.qualifiers().equals(that.qualifiers());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.type(), this.qualifiers());
+        return Objects.hash(this.types(), this.qualifiers());
     }
 }

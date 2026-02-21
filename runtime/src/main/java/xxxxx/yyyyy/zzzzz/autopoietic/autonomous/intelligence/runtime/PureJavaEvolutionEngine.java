@@ -82,9 +82,13 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
             .forEach(this.topicRepository::remove);
         consolidation.consolidatedTopics().stream()
             .map(Consolidation.ConsolidatedTopic::consolidated)
-            .forEach(x -> this.topicRepository.store(x.name(), x.rawJson()));
+            .forEach(x -> {
+                this.topicRepository.store(x.name(), x.rawJson());
+            });
         consolidation.consolidatedAgents().stream()
             .map(Consolidation.ConsolidatedAgent::consolidated)
-            .forEach(x -> this.agentRepository.store(x.name(), x.rawJson()));
+            .forEach(x -> {
+                this.agentRepository.store(x.name(), x.rawJson());
+            });
     }
 }

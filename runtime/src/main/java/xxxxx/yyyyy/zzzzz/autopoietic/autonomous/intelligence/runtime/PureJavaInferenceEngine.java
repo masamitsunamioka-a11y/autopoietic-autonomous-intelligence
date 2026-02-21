@@ -68,10 +68,14 @@ public class PureJavaInferenceEngine implements InferenceEngine {
             case "ACT" -> {
                 List<String> allActions = this.actionRepository.findAll().stream()
                     .map(Action::name)
+                    .distinct()
+                    .sorted()
                     .toList();
                 List<String> availables = agent.topics().stream()
                     .flatMap(x -> x.actions().stream())
                     .map(Action::name)
+                    .distinct()
+                    .sorted()
                     .toList();
                 logger.trace("""
                     Conclusion : [{}]

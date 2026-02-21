@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 set -eu
 set -o pipefail
 rm -rf $HOME/.m2/repository/xxxxx/yyyyy/zzzzz/self-evolving-autonomous-agent

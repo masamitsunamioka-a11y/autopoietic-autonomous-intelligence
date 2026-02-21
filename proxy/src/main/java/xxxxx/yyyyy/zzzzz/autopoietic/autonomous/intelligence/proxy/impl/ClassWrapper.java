@@ -1,20 +1,27 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl;
 
 import jakarta.enterprise.context.NormalScope;
-import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-import jakarta.inject.Qualifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.AnnotatedType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-/// FIXME
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+
 public class ClassWrapper<T> implements AnnotatedType<T> {
+    private static final Logger logger = LoggerFactory.getLogger(ClassWrapper.class);
     private final Class<T> javaClass;
 
     public ClassWrapper(Class<T> javaClass) {
@@ -23,73 +30,62 @@ public class ClassWrapper<T> implements AnnotatedType<T> {
 
     @Override
     public Set<Type> typeClosure() {
-        Set<Type> types = new LinkedHashSet<>();
-        Class<?> current = this.javaClass;
-        while (current != null && current != Object.class) {
-            Collections.addAll(types, current.getGenericInterfaces());
-            current = current.getSuperclass();
+        return Stream.of(this.javaClass)
+            .<Type>mapMulti(this::typeClosure)
+            .collect(toUnmodifiableSet());
+    }
+
+    /// org.jboss.weld.util.reflection.HierarchyDiscovery
+    private void typeClosure(Type v, Consumer<Type> c) {
+        if (v == null) {
+            return;
         }
-        return types;
+        c.accept(v);
+        switch (v) {
+            case ParameterizedType x -> {
+                this.typeClosure(x.getRawType(), c);
+            }
+            case Class<?> x -> {
+                this.typeClosure(x.getGenericSuperclass(), c);
+                stream(x.getGenericInterfaces())
+                    .forEach(y -> this.typeClosure(y, c));
+            }
+            default -> {
+            }
+        }
     }
 
     @Override
     public Set<Annotation> annotations() {
-        return Arrays.stream(this.javaClass.getAnnotations()).collect(Collectors.toSet());
+        return stream(this.javaClass.getAnnotations())
+            .collect(toSet());
     }
 
-    @Override
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
-        return this.javaClass.isAnnotationPresent(annotationType);
-    }
-
-    @Override
-    public Class<T> javaClass() {
-        return this.javaClass;
-    }
-
-    /// -----
     public boolean isInjectable() {
-        if (this.typeClosure().isEmpty()) {
-            return false;
+        return stream(this.javaClass.getAnnotations())
+            .map(Annotation::annotationType)
+            .filter(x -> x.isAnnotationPresent(NormalScope.class))
+            .count() == 1;
+    }
+
+    public T instantiate(Function<Parameter, Object> injector) {
+        try {
+            var constructor = this.constructor();
+            return constructor.newInstance(
+                stream(constructor.getParameters())
+                    .map(injector)
+                    .toArray());
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
-        long scopeCount = this.filterMetaAnnotationType(
-                this.javaClass.getAnnotations(), NormalScope.class)
-            .stream()
-            .count();
-        if (scopeCount != 1) {
-            return false;
-        }
-        if (this.javaClass.getInterfaces().length == 0) {
-            return false;
-        }
-        return true;
     }
 
     @SuppressWarnings("unchecked")
-    public Constructor<T> annotatedConstructor() {
+    private Constructor<T> constructor() {
         var constructors = this.javaClass.getConstructors();
-        return (Constructor<T>) Arrays.stream(constructors)
+        return (Constructor<T>) stream(constructors)
             .filter(x -> x.isAnnotationPresent(Inject.class))
             .findFirst()
             .orElse(constructors[0]);
-    }
-
-    public List<Parameter> constructorParameters() {
-        return List.of(this.annotatedConstructor().getParameters());
-    }
-
-    public Annotation parameterQualifiers(Parameter parameter) {
-        return Arrays.stream(parameter.getAnnotations())
-            .filter(x -> x.annotationType().isAnnotationPresent(Qualifier.class))
-            .findFirst()
-            .orElse(Default.Literal.INSTANCE);
-    }
-
-    private Set<Class<? extends Annotation>> filterMetaAnnotationType(
-        Annotation[] annotations, Class<? extends Annotation> metaAnnotationType) {
-        return Arrays.stream(annotations)
-            .map(Annotation::annotationType)
-            .filter(xyz -> xyz.isAnnotationPresent(metaAnnotationType))
-            .collect(Collectors.toSet());
     }
 }

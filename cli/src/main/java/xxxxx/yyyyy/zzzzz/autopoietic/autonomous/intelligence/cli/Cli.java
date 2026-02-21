@@ -1,6 +1,5 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.cli;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.ClassScanner;
@@ -60,12 +59,7 @@ public class Cli {
                 }
             }
         } catch (Exception e) {
-            logger.error("Critical error in Cli runtime", e);
             throw new RuntimeException(e);
-        } finally {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Final Topology: {}", this.proxyContainer.context(ApplicationScoped.class));
-            }
         }
     }
 

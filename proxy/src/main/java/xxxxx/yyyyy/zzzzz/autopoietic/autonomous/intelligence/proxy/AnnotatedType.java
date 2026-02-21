@@ -13,9 +13,6 @@ public interface AnnotatedType<T> {
     Set<Type> typeClosure();
 
     Set<Annotation> annotations();
-
-    boolean isAnnotationPresent(Class<? extends Annotation> annotationType);
-
     /// --- Derived from AnnotatedType ---
-    Class<T> javaClass();
+    /// Class<T> javaClass();
 }

@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 public class PureJavaProxyContainer implements ProxyContainer {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaProxyContainer.class);
@@ -21,40 +20,39 @@ public class PureJavaProxyContainer implements ProxyContainer {
     private final ClientProxyProvider clientProxyProvider;
     private final Map<Class<? extends Annotation>, Context> contexts;
     private final Map<Contextual<?>, Object> proxies;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
+    private final ReadWriteLock lock;
 
     public PureJavaProxyContainer(ClassScanner classScanner) {
         this.classScanner = classScanner;
         this.clientProxyProvider = new PureJavaClientProxyProvider(this);
         this.contexts = new ConcurrentHashMap<>();
         this.proxies = new ConcurrentHashMap<>();
-        this.reload();
+        this.lock = new ReentrantReadWriteLock(true);
+        this.provision();
     }
 
     private void reconcile() {
-        /// this.contexts.clear();
-        /// this.proxies.clear();
-        /// this.reload();
     }
 
-    private void reload() {
+    private void provision() {
         this.lock.writeLock().lock();
         try {
-            this.register();
+            this.allocate();
+            this.wire();
         } finally {
             this.lock.writeLock().unlock();
         }
     }
 
-    private void register() {
-        this.contexts.put(ApplicationScoped.class, new PureJavaContextApplicationScoped());
-        var contextuals = this.classScanner.scan().stream()
+    private void allocate() {
+        this.contexts.put(ApplicationScoped.class, new PureJavaContext(this.lock));
+    }
+
+    private void wire() {
+        this.classScanner.scan().stream()
             .map(ClassWrapper::new)
             .filter(ClassWrapper::isInjectable)
             .map(x -> new PureJavaContextual<>(x, this))
-            .collect(Collectors.toSet());
-        contextuals.stream()
-            .filter(x -> x.scope().equals(ApplicationScoped.class))
             .forEach(x -> {
                 this.proxies.put(x, this.clientProxyProvider.provide(x));
             });
@@ -64,24 +62,24 @@ public class PureJavaProxyContainer implements ProxyContainer {
     public <T> T get(Type type, Annotation... qualifiers) {
         this.lock.readLock().lock();
         try {
-            return this.internalGet(type, qualifiers);
+            return this.resolve(type, qualifiers);
         } finally {
             this.lock.readLock().unlock();
         }
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T internalGet(Type type, Annotation[] qualifiers) {
+    private <T> T resolve(Type type, Annotation[] qualifiers) {
         var orDefault = (qualifiers.length > 0)
             ? Set.of(qualifiers)
             : Set.of(Default.Literal.INSTANCE);
         return (T) this.proxies.keySet().stream()
             .map(x -> (PureJavaContextual<?>) x)
-            .filter(x -> x.type().equals(type))
+            .filter(x -> x.types().contains(type))
             .filter(x -> x.qualifiers().equals(orDefault))
             .findFirst()
             .map(this.proxies::get)
-            .orElseThrow(IllegalArgumentException::new);
+            .orElseThrow();
     }
 
     @Override

@@ -21,13 +21,23 @@ public class PureJavaClientProxyProvider implements ClientProxyProvider {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T provide(Contextual<T> contextual) {
-        Type type = ((PureJavaContextual<T>) contextual).type();
-        Class<?> rawType = (type instanceof ParameterizedType parameterizedType)
-            ? (Class<?>) parameterizedType.getRawType()
-            : (Class<?>) type;
         return (T) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
-            new Class<?>[]{rawType},
+            this.rawTypes(contextual),
             new PureJavaClientProxyHandler(contextual, this.proxyContainer));
+    }
+
+    private <T> Class<?>[] rawTypes(Contextual<T> contextual) {
+        return ((PureJavaContextual<T>) contextual).types().stream()
+            .map(this::rawType)
+            .filter(Class::isInterface)
+            .distinct()
+            .toArray(Class<?>[]::new);
+    }
+
+    private Class<?> rawType(Type type) {
+        return (type instanceof ParameterizedType parameterizedType)
+            ? (Class<?>) parameterizedType.getRawType()
+            : (Class<?>) type;
     }
 }
