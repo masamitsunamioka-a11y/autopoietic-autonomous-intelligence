@@ -14,8 +14,8 @@ manual intervention.
 AAI operates through a continuous four-stage recursive loop:
 
 1. **Infer**: Analyzes complex inputs and reasons through high-density context.
-2. **Route**: Dynamically dispatches tasks to specialized agents.
-3. **Upgrade**: Self-modifies directives and spawns new agents as needed.
+2. **Route**: Dynamically dispatches tasks to specialized neurons.
+3. **Upgrade**: Self-modifies directives and spawns new neurons as needed.
 4. **Consolidate**: Refines internal state to prevent information entropy.
 
 ## Technical Philosophy

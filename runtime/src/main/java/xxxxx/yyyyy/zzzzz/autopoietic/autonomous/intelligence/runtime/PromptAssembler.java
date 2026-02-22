@@ -1,14 +1,14 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Context;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Neuron;
 
 public interface PromptAssembler {
-    String inference(Context context, Agent self);
+    String perception(Context context, Neuron self);
 
-    String routing(Context context);
+    String relay(Context context);
 
-    String upgrade(Context context, Agent self);
+    String potentiation(Context context, Neuron self);
 
-    String consolidation();
+    String pruning();
 }

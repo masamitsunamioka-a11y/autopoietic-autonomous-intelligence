@@ -3,4 +3,5 @@
   suicide.
 - [STRICT ADHERENCE] PROFESSIONAL MANNERS: No abbreviations (e.g., 'classScanner'). Avoid single-use temporary
   variables.
-- [ARCHITECTURAL PRIDE] SURPASS AGENTFORCE: Favor specialized multi-agent collaboration over a single monolithic prompt.
+- [ARCHITECTURAL PRIDE] SURPASS AGENTFORCE: Favor specialized multi-neuron collaboration over a single monolithic
+  prompt.

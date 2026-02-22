@@ -1,14 +1,14 @@
 anticorruption:
-  actions:
-    package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.actions"
-    source: "../actions/src/main/java"
-    target: "../actions/target/classes"
+  effectors:
+    package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors"
+    source: "../effectors/src/main/java"
+    target: "../effectors/target/classes"
     compiler:
       classpath:
         strategy: "system"
   prompts:
     source: "../filesystem/prompts"
-  agents:
-    source: "../filesystem/agents"
-  topics:
-    source: "../filesystem/topics"
+  neurons:
+    source: "../filesystem/neurons"
+  receptors:
+    source: "../filesystem/receptors"

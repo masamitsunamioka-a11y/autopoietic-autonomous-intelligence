@@ -7,8 +7,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.TypeLiteral;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ClasspathClassScanner;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.PureJavaProxyContainer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Conversation;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Inference;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.InferenceEngine;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.State;
 
 import java.util.Iterator;
@@ -47,7 +47,7 @@ public class Cli {
                 Inference inference = this.interact(input, conversation, state);
                 if (this.isInteractive) {
                     System.out.printf("%s> %s\n[confidence %s, reasoning %s]\n\n",
-                        inference.agent(),
+                        inference.neuron(),
                         inference.answer(),
                         inference.confidence(),
                         inference.reasoning());
@@ -64,10 +64,10 @@ public class Cli {
     private Inference interact(String input, Conversation conversation, State state) {
         conversation.write("user", input);
         /// @formatter:off
-        var inferenceEngineType = new TypeLiteral<InferenceEngine>() {}.type();
+        var cortexType = new TypeLiteral<Cortex>() {}.type();
         /// @formatter:on
-        InferenceEngine inferenceEngine = this.proxyContainer.get(inferenceEngineType);
-        return inferenceEngine.infer(new InMemoryContext(input, conversation, state));
+        Cortex cortex = this.proxyContainer.get(cortexType);
+        return cortex.perceive(new InMemoryContext(input, conversation, state));
     }
 
     private static class DefaultScannerSource implements Iterable<String> {

@@ -79,7 +79,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>actions</artifactId>
+                <artifactId>effectors</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -117,7 +117,7 @@
     </build>
     <modules>
         <module>specification</module>
-        <module>actions</module>
+        <module>effectors</module>
         <module>runtime</module>
         <module>anticorruption</module>
         <module>cli</module>

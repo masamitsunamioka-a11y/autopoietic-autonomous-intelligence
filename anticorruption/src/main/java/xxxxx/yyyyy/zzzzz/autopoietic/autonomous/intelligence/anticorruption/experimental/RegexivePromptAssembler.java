@@ -10,10 +10,10 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Loca
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.PromptAssembler;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Context;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Effector;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Neuron;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Receptor;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -24,22 +24,22 @@ import java.util.function.Function;
 @ApplicationScoped
 public class RegexivePromptAssembler implements PromptAssembler {
     private static final Logger logger = LoggerFactory.getLogger(RegexivePromptAssembler.class);
-    private final Repository<Agent> agentRepository;
-    private final Repository<Topic> topicRepository;
-    private final Repository<Action> actionRepository;
+    private final Repository<Neuron> neuronRepository;
+    private final Repository<Receptor> receptorRepository;
+    private final Repository<Effector> effectorRepository;
     private final FileSystem fileSystem;
     private final JsonCodec jsonCodec;
     private final Path promptsSource;
 
     @Inject
-    public RegexivePromptAssembler(Repository<Agent> agentRepository,
-                                   Repository<Topic> topicRepository,
-                                   Repository<Action> actionRepository,
+    public RegexivePromptAssembler(Repository<Neuron> neuronRepository,
+                                   Repository<Receptor> receptorRepository,
+                                   Repository<Effector> effectorRepository,
                                    @Localic FileSystem fileSystem,
                                    JsonCodec jsonCodec) {
-        this.agentRepository = agentRepository;
-        this.topicRepository = topicRepository;
-        this.actionRepository = actionRepository;
+        this.neuronRepository = neuronRepository;
+        this.receptorRepository = receptorRepository;
+        this.effectorRepository = effectorRepository;
         this.fileSystem = fileSystem;
         this.jsonCodec = jsonCodec;
         var configuration = new Configuration("anticorruption.yaml");
@@ -47,22 +47,22 @@ public class RegexivePromptAssembler implements PromptAssembler {
     }
 
     @Override
-    public String inference(Context context, Agent self) {
-        return this.assemble("inference.md", Map.of(
+    public String perception(Context context, Neuron self) {
+        return this.assemble("perception.md", Map.of(
             "input", context.input(),
             "conversation", context.conversation().snapshot().toString(),
             "state", context.state().snapshot().toString(),
             "self", this.self(self),
-            "topics", this.marshal(self.topics(), x -> {
+            "receptors", this.marshal(self.receptors(), x -> {
                 return Map.of(
                     "name", x.name(),
                     "description", x.description(),
                     "instructions", x.instructions(),
-                    "actions", x.actions().stream().map(Action::name).toList()
+                    "effectors", x.effectors().stream().map(Effector::name).toList()
                 );
             }),
-            "actions", this.marshal(self.topics().stream()
-                .flatMap(x -> x.actions().stream())
+            "effectors", this.marshal(self.receptors().stream()
+                .flatMap(x -> x.effectors().stream())
                 .toList(), x -> {
                 return Map.of(
                     "name", x.name(),
@@ -72,17 +72,17 @@ public class RegexivePromptAssembler implements PromptAssembler {
     }
 
     @Override
-    public String routing(Context context) {
-        return this.assemble("routing.md", Map.of(
+    public String relay(Context context) {
+        return this.assemble("relay.md", Map.of(
             "input", context.input(),
             "conversation", context.conversation().snapshot().toString(),
             "state", context.state().snapshot().toString(),
-            "agents", this.marshal(this.agentRepository.findAll(), x -> {
+            "neurons", this.marshal(this.neuronRepository.findAll(), x -> {
                 return Map.of(
                     "name", x.name(),
                     "description", x.description());
             }),
-            "topics", this.marshal(this.topicRepository.findAll(), x -> {
+            "receptors", this.marshal(this.receptorRepository.findAll(), x -> {
                 return Map.of(
                     "name", x.name(),
                     "description", x.description());
@@ -91,28 +91,28 @@ public class RegexivePromptAssembler implements PromptAssembler {
     }
 
     @Override
-    public String upgrade(Context context, Agent self) {
-        return this.assemble("upgrade.md", Map.of(
+    public String potentiation(Context context, Neuron self) {
+        return this.assemble("potentiation.md", Map.of(
             "input", context.input(),
             "conversation", context.conversation().snapshot().toString(),
             "state", context.state().snapshot().toString(),
             "self", this.self(self),
-            "agents", this.agents(),
-            "topics", this.topics(),
-            "actions", this.actions()
+            "neurons", this.neurons(),
+            "receptors", this.receptors(),
+            "effectors", this.effectors()
         ));
     }
 
     @Override
-    public String consolidation() {
-        return this.assemble("consolidation.md", Map.of(
-            "agents", this.agents(),
-            "topics", this.topics(),
-            "actions", this.actions()
+    public String pruning() {
+        return this.assemble("pruning.md", Map.of(
+            "neurons", this.neurons(),
+            "receptors", this.receptors(),
+            "effectors", this.effectors()
         ));
     }
 
-    private String self(Agent self) {
+    private String self(Neuron self) {
         return this.jsonCodec.marshal(Map.of(
             "name", self.name(),
             "description", self.description(),
@@ -120,27 +120,27 @@ public class RegexivePromptAssembler implements PromptAssembler {
         ));
     }
 
-    private String agents() {
-        return this.marshal(this.agentRepository.findAll(), x -> Map.of(
+    private String neurons() {
+        return this.marshal(this.neuronRepository.findAll(), x -> Map.of(
             "name", x.name(),
             "description", x.description(),
             "instructions", x.instructions(),
-            "topics", x.topics().stream()
-                .map(Topic::name)
+            "receptors", x.receptors().stream()
+                .map(Receptor::name)
                 .toList()));
     }
 
-    private String topics() {
-        return this.marshal(this.topicRepository.findAll(), x -> Map.of(
+    private String receptors() {
+        return this.marshal(this.receptorRepository.findAll(), x -> Map.of(
             "name", x.name(), "description", x.description(),
             "instructions", x.instructions(),
-            "actions", x.actions().stream()
-                .map(Action::name)
+            "effectors", x.effectors().stream()
+                .map(Effector::name)
                 .toList()));
     }
 
-    private String actions() {
-        return this.marshal(this.actionRepository.findAll(), x -> Map.of(
+    private String effectors() {
+        return this.marshal(this.effectorRepository.findAll(), x -> Map.of(
             "name", x.name(),
             "description", x.description()));
     }

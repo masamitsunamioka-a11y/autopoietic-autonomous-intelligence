@@ -4,7 +4,7 @@
 
 - Build: `mvn clean install`
 - Test: `mvn test`
-- Line count check: `./lines.sh` — counts non-blank, non-comment lines; excludes `cli/`, `actions/`, and test sources.
+- Line count check: `./lines.sh` — counts non-blank, non-comment lines; excludes `cli/`, `effectors/`, and test sources.
   The **< 100 lines** rule applies to this count only.
 
 ## Module Dependency Graph
@@ -14,7 +14,7 @@ cli
 ├── specification       [compile]
 ├── proxy               [compile]
 │   └── (no internal deps)
-├── actions             [runtime]
+├── effectors           [runtime]
 │   └── specification *
 ├── runtime             [runtime]
 │   └── specification *
@@ -26,13 +26,14 @@ cli
 `*` = already listed above
 Each module's role:
 
-- **specification**: Minimal domain interfaces (Agent, Topic, Action, Context, Inference, …)
-- **actions**: Concrete `Action` implementations (e.g., Google Cloud search); may contain **runtime-generated files** —
-  `*Action.java` can be produced by the Evolution Engine via `ActionCompiler` at runtime (these appear as untracked in
+- **specification**: Minimal domain interfaces (Neuron, Receptor, Effector, Context, Inference, …)
+- **effectors**: Concrete `Effector` implementations (e.g., Google Cloud search); may contain **runtime-generated files
+  ** —
+  `*Effector.java` can be produced by Plasticity via `EffectorCompiler` at runtime (these appear as untracked in
   git)
-- **runtime**: Core engines (InferenceEngine, RoutingEngine, EvolutionEngine) + Repository SPI; CDI annotations are
+- **runtime**: Core engines (Cortex, Thalamus, Plasticity) + Repository SPI; CDI annotations are
   `provided`
-- **anticorruption**: ACL — adapters, translators, proxy providers, Gemini client, ActionCompiler; CDI annotations are
+- **anticorruption**: ACL — adapters, translators, proxy providers, Gemini client, EffectorCompiler; CDI annotations are
   `provided`
 - **proxy**: ULCDI — custom CDI container (PureJavaProxyContainer), ClassScanner, TypeLiteral
 - **cli**: Entry point; wires everything via ProxyContainer at startup
@@ -44,33 +45,34 @@ Runtime data is stored under `filesystem/` and configured via `cli/src/main/reso
 ```
 filesystem/
   prompts/    — Markdown prompt templates (inference, routing, upgrade, consolidation, guardrails)
-  agents/     — Agent definitions (JSON)
-  topics/     — Topic definitions (JSON, may reference actions)
+  neurons/    — Neuron definitions (JSON)
+  receptors/  — Receptor definitions (JSON, may reference effectors)
 ```
 
 Configuration keys (`anticorruption.yaml`):
 
 - `anticorruption.prompts.source` → `filesystem/prompts`
-- `anticorruption.agents.source` → `filesystem/agents`
-- `anticorruption.topics.source` → `filesystem/topics`
-- `anticorruption.actions.*` → source/target paths and classpath strategy for ActionCompiler
+- `anticorruption.neurons.source` → `filesystem/neurons`
+- `anticorruption.receptors.source` → `filesystem/receptors`
+- `anticorruption.effectors.*` → source/target paths and classpath strategy for EffectorCompiler
 
 ## Autopoietic Design Principles
 
 This system embodies Maturana & Varela's autopoiesis theory at two distinct levels:
 | Autopoietic Concept | Realization in this system |
 |---|---|
-| **Self-production** (structural level) | `ActionCompiler` compiles new `Action` classes at runtime — the system
+| **Self-production** (structural level) | `EffectorCompiler` compiles new `Effector` classes at runtime — the system
 produces new executable capabilities |
-| **Self-production** (organizational level) | `EvolutionEngine.upgrade()` generates new Agents and Topics;
+| **Self-production** (organizational level) | `Plasticity.potentiate()` generates new Neurons and Receptors;
 `consolidate()` merges and removes redundant ones |
 | **Organizational closure** | The ULCDI container wires all components internally without external framework
 intervention |
-| **Structure determines behavior** | The state of `filesystem/agents` and `filesystem/topics` fully determines
+| **Structure determines behavior** | The state of `filesystem/neurons` and `filesystem/receptors` fully determines
 inference behavior |
 | **Boundary with environment** | The `anticorruption` layer (ACL) acts as the selective boundary between the domain and
 external systems (Gemini, FileSystem) |
-The consolidation of Agents and Topics is analogous to **apoptosis** in biology — the system can autonomously reduce its
+The consolidation of Neurons and Receptors is analogous to **apoptosis** in biology — the system can autonomously reduce
+its
 own complexity, not merely grow it. This two-level self-production (structural + organizational) is what makes the
 autopoietic claim architecturally genuine.
 
@@ -97,7 +99,7 @@ autopoietic claim architecturally genuine.
 - JUnit 6 (test scope)
 - Hibernate Validator 9 (in `anticorruption`)
 - Google GenAI SDK (Gemini — in `anticorruption`)
-- Google Cloud libraries BOM (in `actions`)
+- Google Cloud libraries BOM (in `effectors`)
 - SLF4J 2 + Logback (logging; Logback is `runtime` scope in `cli`)
 - SnakeYAML 2 (configuration loading in `runtime`)
 - Gson 2 (JSON codec in `proxy`, `anticorruption`)
