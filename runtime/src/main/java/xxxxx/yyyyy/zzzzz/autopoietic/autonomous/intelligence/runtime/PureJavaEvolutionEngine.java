@@ -43,15 +43,46 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
             upgrade.newTopics().size(),
             upgrade.newActions().size()
         );
+        this.createNewActions(upgrade);
+        this.createNewTopics(upgrade);
+        this.createNewAgents(upgrade);
+        this.updateInstructions(upgrade, agent);
+    }
+
+    @Override
+    public void consolidate() {
+        var prompt = this.promptAssembler.consolidation();
+        var consolidation = this.intelligence.reason(prompt, Consolidation.class);
+        logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], " +
+                "ConsolidatedAgents: {}, ConsolidatedTopics: {}",
+            consolidation.confidence(),
+            consolidation.reasoning(),
+            consolidation.consolidatedAgents().size(),
+            consolidation.consolidatedTopics().size()
+        );
+        this.removeConsolidants(consolidation);
+        this.createConsolidated(consolidation);
+    }
+
+    private void createNewActions(Upgrade upgrade) {
         upgrade.newActions().forEach(x -> {
             this.actionRepository.store(x.name(), x);
         });
+    }
+
+    private void createNewTopics(Upgrade upgrade) {
         upgrade.newTopics().forEach(x -> {
             this.topicRepository.store(x.name(), x);
         });
+    }
+
+    private void createNewAgents(Upgrade upgrade) {
         upgrade.newAgents().forEach(x -> {
             this.agentRepository.store(x.name(), x);
         });
+    }
+
+    private void updateInstructions(Upgrade upgrade, Agent agent) {
         if (!upgrade.newInstructions().isEmpty()) {
             this.agentRepository.store(agent.name(), () -> """
                 {
@@ -73,23 +104,16 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
         }
     }
 
-    @Override
-    public void consolidate() {
-        var prompt = this.promptAssembler.consolidation();
-        var consolidation = this.intelligence.reason(prompt, Consolidation.class);
-        logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], " +
-                "ConsolidatedAgents: {}, ConsolidatedTopics: {}",
-            consolidation.confidence(),
-            consolidation.reasoning(),
-            consolidation.consolidatedAgents().size(),
-            consolidation.consolidatedTopics().size()
-        );
+    private void removeConsolidants(Consolidation consolidation) {
         consolidation.consolidatedAgents().stream()
             .flatMap(x -> x.consolidants().stream())
             .forEach(this.agentRepository::remove);
         consolidation.consolidatedTopics().stream()
             .flatMap(x -> x.consolidants().stream())
             .forEach(this.topicRepository::remove);
+    }
+
+    private void createConsolidated(Consolidation consolidation) {
         consolidation.consolidatedTopics().stream()
             .map(Consolidation.ConsolidatedTopic::consolidated)
             .forEach(x -> {

@@ -52,14 +52,14 @@ public class Gemini implements Intelligence {
         }
     }
 
-    private boolean isMalformed(Throwable t) {
-        if (t == null) {
+    private boolean isMalformed(Throwable throwable) {
+        if (throwable == null) {
             return false;
         }
-        if (t instanceof MalformedJsonException) {
+        if (throwable instanceof MalformedJsonException) {
             return true;
         }
-        return this.isMalformed(t.getCause());
+        return this.isMalformed(throwable.getCause());
     }
 
     private String generate(String prompt) {

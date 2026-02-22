@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-/// FIXME
 @ApplicationScoped
 public class RegexivePromptAssembler implements PromptAssembler {
     private static final Logger logger = LoggerFactory.getLogger(RegexivePromptAssembler.class);
@@ -54,10 +53,21 @@ public class RegexivePromptAssembler implements PromptAssembler {
             "conversation", context.conversation().snapshot().toString(),
             "state", context.state().snapshot().toString(),
             "self", this.self(self),
-            "topics", this.topics(self.topics()),
-            "actions", this.actions(self.topics().stream()
+            "topics", this.marshal(self.topics(), x -> {
+                return Map.of(
+                    "name", x.name(),
+                    "description", x.description(),
+                    "instructions", x.instructions(),
+                    "actions", x.actions().stream().map(Action::name).toList()
+                );
+            }),
+            "actions", this.marshal(self.topics().stream()
                 .flatMap(x -> x.actions().stream())
-                .toList())
+                .toList(), x -> {
+                return Map.of(
+                    "name", x.name(),
+                    "description", x.description());
+            })
         ));
     }
 
@@ -67,14 +77,16 @@ public class RegexivePromptAssembler implements PromptAssembler {
             "input", context.input(),
             "conversation", context.conversation().snapshot().toString(),
             "state", context.state().snapshot().toString(),
-            "agents", this.marshal(this.agentRepository.findAll(),
-                x -> Map.of(
+            "agents", this.marshal(this.agentRepository.findAll(), x -> {
+                return Map.of(
                     "name", x.name(),
-                    "description", x.description())),
-            "topics", this.marshal(this.topicRepository.findAll(),
-                x -> Map.of(
+                    "description", x.description());
+            }),
+            "topics", this.marshal(this.topicRepository.findAll(), x -> {
+                return Map.of(
                     "name", x.name(),
-                    "description", x.description()))
+                    "description", x.description());
+            })
         ));
     }
 
@@ -109,35 +121,26 @@ public class RegexivePromptAssembler implements PromptAssembler {
     }
 
     private String agents() {
-        return this.agents(this.agentRepository.findAll());
-    }
-
-    private String agents(List<Agent> agents) {
         return this.marshal(this.agentRepository.findAll(), x -> Map.of(
-            "name", x.name(), "description", x.description(),
+            "name", x.name(),
+            "description", x.description(),
             "instructions", x.instructions(),
-            "topics", x.topics().stream().map(Topic::name).toList()
-        ));
+            "topics", x.topics().stream()
+                .map(Topic::name)
+                .toList()));
     }
 
     private String topics() {
-        return this.topics(this.topicRepository.findAll());
-    }
-
-    private String topics(List<Topic> topics) {
-        return this.marshal(topics, x -> Map.of(
+        return this.marshal(this.topicRepository.findAll(), x -> Map.of(
             "name", x.name(), "description", x.description(),
             "instructions", x.instructions(),
-            "actions", x.actions().stream().map(Action::name).toList()
-        ));
+            "actions", x.actions().stream()
+                .map(Action::name)
+                .toList()));
     }
 
     private String actions() {
-        return this.actions(this.actionRepository.findAll());
-    }
-
-    private String actions(List<Action> actions) {
-        return this.marshal(actions, x -> Map.of(
+        return this.marshal(this.actionRepository.findAll(), x -> Map.of(
             "name", x.name(),
             "description", x.description()));
     }

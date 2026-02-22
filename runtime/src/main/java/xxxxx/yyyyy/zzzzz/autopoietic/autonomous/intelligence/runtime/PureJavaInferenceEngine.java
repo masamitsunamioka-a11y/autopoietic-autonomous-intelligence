@@ -9,7 +9,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/// FIXME
 @ApplicationScoped
 public class PureJavaInferenceEngine implements InferenceEngine {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaInferenceEngine.class);
@@ -34,10 +33,6 @@ public class PureJavaInferenceEngine implements InferenceEngine {
 
     @Override
     public Inference infer(Context context) {
-        return this.recursiveInfer(context);
-    }
-
-    private Inference recursiveInfer(Context context) {
         var agent = this.routingEngine.route(context);
         var prompt = this.promptAssembler.inference(context, agent);
         var conclusion = this.intelligence.reason(prompt, Conclusion.class);
@@ -48,48 +43,58 @@ public class PureJavaInferenceEngine implements InferenceEngine {
             conclusion.action(),
             conclusion.handoffTo()
         );
-        var conversation = context.conversation();
-        var state = context.state();
-        switch (conclusion.phase()) {
+        return switch (conclusion.phase()) {
             case "ANSWER" -> {
-                conversation.write(agent.name(), conclusion.answer());
-                return new Inference() {
-                    /// @formatter:off
-                    @Override public String agent()      { return agent.name(); }
-                    @Override public String reasoning()  { return conclusion.reasoning(); }
-                    @Override public double confidence() { return 1.0; }
-                    @Override public String answer()     { return conclusion.answer(); }
-                    /// @formatter:on
-                };
+                yield this.answer(context.conversation(), agent, conclusion);
             }
             case "ACT" -> {
-                logger.trace("\n--- conclusion: {}\n--- own: {}\n--- all: {}",
-                    conclusion.action(),
-                    this.own(agent),
-                    this.all());
-                var output = agent.topics().stream()
-                    .flatMap(x -> x.actions().stream())
-                    .filter(x -> x.name().equals(conclusion.action()))
-                    .findFirst()
-                    .orElseThrow()
-                    .execute(state.snapshot());
-                output.forEach((k, v) -> {
-                    state.write("action_results." + conclusion.action() + "." + k, v);
-                });
-                return this.recursiveInfer(context);
+                this.act(agent, conclusion.action(), context.state());
+                yield this.infer(context);
             }
             case "HANDOFF" -> {
-                state.write("last_handoff_from", agent.name());
-                state.write("last_handoff_to", conclusion.handoffTo());
-                return this.recursiveInfer(context);
+                this.handoff(context.state(), agent, conclusion.handoffTo());
+                yield this.infer(context);
             }
             case "EVOLVE" -> {
-                this.evolutionEngine.upgrade(context, agent);
-                this.evolutionEngine.consolidate();
-                return this.recursiveInfer(context);
+                this.evolve(context, agent);
+                yield this.infer(context);
             }
             default -> throw new IllegalStateException();
+        };
+    }
+
+    private Inference answer(Conversation conversation, Agent agent, Conclusion conclusion) {
+        conversation.write(agent.name(), conclusion.answer());
+        return new InternalInference(
+            agent.name(),
+            conclusion.reasoning(),
+            conclusion.answer());
+    }
+
+    private static record InternalInference(
+        String agent,
+        String reasoning,
+        String answer) implements Inference {
+        @Override
+        public double confidence() {
+            return 1.0;
         }
+    }
+
+    private void act(Agent agent, String name, State state) {
+        logger.trace("\n--- conclusion: {}\n--- own: {}\n--- all: {}",
+            name,
+            this.own(agent),
+            this.all());
+        var output = agent.topics().stream()
+            .flatMap(x -> x.actions().stream())
+            .filter(x -> x.name().equals(name))
+            .findFirst()
+            .orElseThrow()
+            .execute(state.snapshot());
+        output.forEach((k, v) -> {
+            state.write("action_results." + name + "." + k, v);
+        });
     }
 
     private Set<String> own(Agent agent) {
@@ -103,5 +108,15 @@ public class PureJavaInferenceEngine implements InferenceEngine {
         return this.actionRepository.findAll().stream()
             .map(Action::name)
             .collect(Collectors.toSet());
+    }
+
+    private void handoff(State state, Agent agent, String handoffTo) {
+        state.write("last_handoff_from", agent.name());
+        state.write("last_handoff_to", handoffTo);
+    }
+
+    private void evolve(Context context, Agent agent) {
+        this.evolutionEngine.upgrade(context, agent);
+        this.evolutionEngine.consolidate();
     }
 }
