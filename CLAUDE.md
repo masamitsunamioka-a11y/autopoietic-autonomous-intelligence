@@ -55,6 +55,25 @@ Configuration keys (`anticorruption.yaml`):
 - `anticorruption.topics.source` → `filesystem/topics`
 - `anticorruption.actions.*` → source/target paths and classpath strategy for ActionCompiler
 
+## Autopoietic Design Principles
+
+This system embodies Maturana & Varela's autopoiesis theory at two distinct levels:
+| Autopoietic Concept | Realization in this system |
+|---|---|
+| **Self-production** (structural level) | `ActionCompiler` compiles new `Action` classes at runtime — the system
+produces new executable capabilities |
+| **Self-production** (organizational level) | `EvolutionEngine.upgrade()` generates new Agents and Topics;
+`consolidate()` merges and removes redundant ones |
+| **Organizational closure** | The ULCDI container wires all components internally without external framework
+intervention |
+| **Structure determines behavior** | The state of `filesystem/agents` and `filesystem/topics` fully determines
+inference behavior |
+| **Boundary with environment** | The `anticorruption` layer (ACL) acts as the selective boundary between the domain and
+external systems (Gemini, FileSystem) |
+The consolidation of Agents and Topics is analogous to **apoptosis** in biology — the system can autonomously reduce its
+own complexity, not merely grow it. This two-level self-production (structural + organizational) is what makes the
+autopoietic claim architecturally genuine.
+
 ## Code Style & Rules
 
 - **Purity**: Always use `this.` for field/method access.

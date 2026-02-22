@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adapter;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Storable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic;
 
 import java.util.List;
@@ -31,13 +32,8 @@ public class TopicRepository implements Repository<Topic> {
     }
 
     @Override
-    public void store(String id, String json) {
-        this.adapter.publish(id, json);
-    }
-
-    @Override
-    public void store(String id, Topic topic) {
-        this.adapter.publish(id, topic.toString());
+    public void store(String id, Storable storable) {
+        this.adapter.publish(id, storable.serialize());
     }
 
     @Override

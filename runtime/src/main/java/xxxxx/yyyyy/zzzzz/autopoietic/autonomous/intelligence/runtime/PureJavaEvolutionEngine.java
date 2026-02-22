@@ -42,24 +42,24 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
             upgrade.newActions().size()
         );
         upgrade.newActions().forEach(x -> {
-            this.actionRepository.store(x.name(), x.rawJson());
+            this.actionRepository.store(x.name(), x);
         });
         upgrade.newTopics().forEach(x -> {
-            this.topicRepository.store(x.name(), x.rawJson());
+            this.topicRepository.store(x.name(), x);
             upgrade.newActions().stream()
                 .filter(y -> y.relatedTopics().contains(x.name()))
                 .forEach(y -> {
                     var topic = this.topicRepository.find(x.name());
                     topic.actions(actionRepository.find(y.name()));
-                    this.topicRepository.store(x.name(), topic);
+                    this.topicRepository.store(x.name(), topic::toString);
                 });
         });
         upgrade.newAgents().forEach(x -> {
-            this.agentRepository.store(x.name(), x.rawJson());
+            this.agentRepository.store(x.name(), x);
         });
         if (!upgrade.newInstructions().isEmpty()) {
             agent.instructions(upgrade.newInstructions());
-            this.agentRepository.store(agent.name(), agent);
+            this.agentRepository.store(agent.name(), agent::toString);
         }
     }
 
@@ -83,12 +83,12 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
         consolidation.consolidatedTopics().stream()
             .map(Consolidation.ConsolidatedTopic::consolidated)
             .forEach(x -> {
-                this.topicRepository.store(x.name(), x.rawJson());
+                this.topicRepository.store(x.name(), x);
             });
         consolidation.consolidatedAgents().stream()
             .map(Consolidation.ConsolidatedAgent::consolidated)
             .forEach(x -> {
-                this.agentRepository.store(x.name(), x.rawJson());
+                this.agentRepository.store(x.name(), x);
             });
     }
 }

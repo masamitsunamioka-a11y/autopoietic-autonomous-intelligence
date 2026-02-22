@@ -14,34 +14,38 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
 public class FileSystemActionAdapter implements Adapter<Action, String> {
     private static final Logger logger = LoggerFactory.getLogger(FileSystemActionAdapter.class);
-    private final Configuration configuration;
     private final Translator<Action, String> translator;
     private final FileSystem fileSystem;
     private final JsonCodec jsonCodec;
     private final Compiler compiler;
+    private final String actionsPackage;
+    private final Path actionsSource;
+    private final Path actionsTarget;
 
     @Inject
     public FileSystemActionAdapter(Translator<Action, String> translator,
                                    @Localic FileSystem fileSystem,
                                    JsonCodec jsonCodec,
                                    Compiler compiler) {
-        this.configuration = new Configuration("anticorruption.yaml");
         this.translator = translator;
         this.fileSystem = fileSystem;
         this.jsonCodec = jsonCodec;
         this.compiler = compiler;
+        var configuration = new Configuration("anticorruption.yaml");
+        this.actionsPackage = configuration.get("anticorruption.actions.package");
+        this.actionsSource = Path.of(configuration.get("anticorruption.actions.source"), "");
+        this.actionsTarget = Path.of(configuration.get("anticorruption.actions.target"), "");
     }
 
     @Override
     public Action fetch(String id) {
-        var name = this.actionsPackage() + "." + id;
+        var name = this.actionsPackage + "." + id;
         try (var loader = this.urlClassLoader()) {
             return (Action) loader.loadClass(name).getConstructor().newInstance();
         } catch (IOException | ReflectiveOperationException e) {
@@ -52,7 +56,7 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
     private URLClassLoader urlClassLoader() {
         try {
             return new URLClassLoader(
-                new URL[]{this.actionsTarget().toUri().toURL()},
+                new URL[]{this.actionsTarget.toUri().toURL()},
                 Thread.currentThread().getContextClassLoader());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
@@ -61,7 +65,7 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
 
     @Override
     public List<Action> fetchAll() {
-        return this.fileSystem.walk(this.actionsTarget())
+        return this.fileSystem.walk(this.actionsTarget)
             .filter(path -> path.endsWith(".class"))
             .map(x -> x.replaceAll(".*/|\\.class$", ""))
             .map(this::fetch)
@@ -85,27 +89,14 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
             }
         };
         this.fileSystem.write(
-            Paths.get(this.actionsSource().toString(),
-                this.actionsPackage().replace(".", "/"), id + ".java"),
+            this.actionsSource.resolve(Path.of(this.actionsPackage.replace(".", "/"), id + ".java")),
             this.translator.translateTo(id, action),
             StandardCharsets.UTF_8);
-        this.compiler.compile(this.actionsSource(), this.actionsTarget());
+        this.compiler.compile(this.actionsSource, this.actionsTarget);
     }
 
     @Override
     public void revoke(String id) {
         throw new UnsupportedOperationException();
-    }
-
-    private String actionsPackage() {
-        return this.configuration.get("anticorruption.actions.package");
-    }
-
-    private Path actionsSource() {
-        return Path.of(this.configuration.get("anticorruption.actions.source"), "");
-    }
-
-    private Path actionsTarget() {
-        return Path.of(this.configuration.get("anticorruption.actions.target"), "");
     }
 }

@@ -7,9 +7,7 @@ public interface Repository<T> {
 
     List<T> findAll();
 
-    void store(String id, String string);
-
-    void store(String id, T object);
+    void store(String id, Storable storable);
 
     void remove(String id);
 }

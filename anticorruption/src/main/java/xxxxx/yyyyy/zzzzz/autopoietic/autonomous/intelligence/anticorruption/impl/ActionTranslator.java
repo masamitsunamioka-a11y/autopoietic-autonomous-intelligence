@@ -10,10 +10,11 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Actio
 @ApplicationScoped
 public class ActionTranslator implements Translator<Action, String> {
     private static final Logger logger = LoggerFactory.getLogger(ActionTranslator.class);
-    private final Configuration configuration;
+    private final String actionsPackage;
 
     public ActionTranslator() {
-        this.configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration("anticorruption.yaml");
+        this.actionsPackage = configuration.get("anticorruption.actions.package");
     }
 
     @Override
@@ -39,10 +40,6 @@ public class ActionTranslator implements Translator<Action, String> {
                 }
             }
             """
-            .formatted(this.actionsPackage(), id, id, action.label(), action.description(), id);
-    }
-
-    private String actionsPackage() {
-        return this.configuration.get("anticorruption.actions.package");
+            .formatted(this.actionsPackage, id, id, action.label(), action.description(), id);
     }
 }

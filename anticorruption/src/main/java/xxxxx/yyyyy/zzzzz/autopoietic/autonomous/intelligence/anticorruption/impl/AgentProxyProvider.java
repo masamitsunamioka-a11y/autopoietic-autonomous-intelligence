@@ -13,7 +13,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Util.actualTypeArguments;
 
@@ -36,17 +35,6 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
         String description,
         String instructions,
         List<String> topics) {
-        InternalAgent addTopic(String name) {
-            return new InternalAgent(
-                this.name,
-                this.label,
-                this.description,
-                this.instructions,
-                Stream.concat(this.topics.stream(), Stream.of(name))
-                    .distinct()
-                    .toList()
-            );
-        }
     }
 
     @Override
@@ -61,17 +49,10 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
                     case "toString" -> this.jsonCodec.marshal(agent);
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> this.equals(proxy, args);
-                    case "topics" -> {
-                        if (args == null || args.length == 0) {
-                            yield agent.topics().stream()
-                                .map(this.topicRepository::find)
-                                .distinct()
-                                .toList();
-                        } else {
-                            reference.set(agent.addTopic(((Topic) args[0]).name()));
-                            yield null;
-                        }
-                    }
+                    case "topics" -> agent.topics().stream()
+                        .map(this.topicRepository::find)
+                        .distinct()
+                        .toList();
                     default -> InternalAgent.class.getMethod(method.getName()).invoke(agent);
                 };
             }

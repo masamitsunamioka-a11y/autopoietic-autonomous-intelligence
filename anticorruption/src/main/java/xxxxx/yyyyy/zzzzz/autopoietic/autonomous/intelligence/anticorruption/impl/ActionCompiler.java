@@ -17,10 +17,13 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public class ActionCompiler implements Compiler {
     private static final Logger logger = LoggerFactory.getLogger(ActionCompiler.class);
-    private final Configuration configuration;
+    private final String classpath;
 
     public ActionCompiler() {
-        this.configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration("anticorruption.yaml");
+        this.classpath = "manual".equals(configuration.get("anticorruption.actions.compiler.classpath.strategy"))
+            ? configuration.get("anticorruption.actions.compiler.classpath.value")
+            : System.getProperty("java.class.path");
     }
 
     @Override
@@ -50,15 +53,8 @@ public class ActionCompiler implements Compiler {
     private List<String> options(Path target) {
         return List.of(
             "-d", target.toString(),
-            "-classpath", this.classpath(),
+            "-classpath", this.classpath,
             "-Xlint:none");
-    }
-
-    private String classpath() {
-        var strategy = this.configuration.get("anticorruption.actions.compiler.classpath.strategy");
-        return "manual".equals(strategy)
-            ? this.configuration.get("anticorruption.actions.compiler.classpath.value")
-            : System.getProperty("java.class.path");
     }
 
     private List<String> sources(Path source) {

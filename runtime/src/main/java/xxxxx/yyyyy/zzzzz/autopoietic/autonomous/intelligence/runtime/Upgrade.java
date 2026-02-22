@@ -21,7 +21,11 @@ public record Upgrade(
         @NotBlank String description,
         @NotBlank String instructions,
         @NotNull List<String> topics,
-        @NotBlank String rawJson) {
+        @NotBlank String rawJson) implements Storable {
+        @Override
+        public String serialize() {
+            return this.rawJson;
+        }
     }
 
     public record TopicDefinition(
@@ -30,7 +34,11 @@ public record Upgrade(
         @NotBlank String description,
         @NotBlank String instructions,
         @NotNull List<String> actions,
-        @NotBlank String rawJson) {
+        @NotBlank String rawJson) implements Storable {
+        @Override
+        public String serialize() {
+            return this.rawJson;
+        }
     }
 
     public record ActionDefinition(
@@ -39,6 +47,10 @@ public record Upgrade(
         @NotBlank String description,
         @NotBlank String execution,
         @NotNull List<String> relatedTopics,
-        @NotBlank String rawJson) {
+        @NotBlank String rawJson) implements Storable {
+        @Override
+        public String serialize() {
+            return this.rawJson;
+        }
     }
 }

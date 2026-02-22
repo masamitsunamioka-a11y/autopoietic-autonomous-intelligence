@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adapter;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Storable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent;
 
 import java.util.List;
@@ -31,13 +32,8 @@ public class AgentRepository implements Repository<Agent> {
     }
 
     @Override
-    public void store(String id, String json) {
-        this.adapter.publish(id, json);
-    }
-
-    @Override
-    public void store(String id, Agent agent) {
-        this.adapter.publish(id, agent.toString());
+    public void store(String id, Storable storable) {
+        this.adapter.publish(id, storable.serialize());
     }
 
     @Override

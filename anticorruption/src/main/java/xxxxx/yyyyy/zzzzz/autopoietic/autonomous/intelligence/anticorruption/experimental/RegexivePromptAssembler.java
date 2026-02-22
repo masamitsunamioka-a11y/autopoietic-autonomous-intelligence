@@ -17,7 +17,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -25,12 +24,12 @@ import java.util.Map;
 @ApplicationScoped
 public class RegexivePromptAssembler implements PromptAssembler {
     private static final Logger logger = LoggerFactory.getLogger(RegexivePromptAssembler.class);
-    private final Configuration configuration;
     private final Repository<Agent> agentRepository;
     private final Repository<Topic> topicRepository;
     private final Repository<Action> actionRepository;
     private final FileSystem fileSystem;
     private final JsonCodec jsonCodec;
+    private final Path promptsSource;
 
     @Inject
     public RegexivePromptAssembler(Repository<Agent> agentRepository,
@@ -38,22 +37,21 @@ public class RegexivePromptAssembler implements PromptAssembler {
                                    Repository<Action> actionRepository,
                                    @Localic FileSystem fileSystem,
                                    JsonCodec jsonCodec) {
-        this.configuration = new Configuration("anticorruption.yaml");
         this.agentRepository = agentRepository;
         this.topicRepository = topicRepository;
         this.actionRepository = actionRepository;
         this.fileSystem = fileSystem;
         this.jsonCodec = jsonCodec;
+        var configuration = new Configuration("anticorruption.yaml");
+        this.promptsSource = Path.of(configuration.get("anticorruption.prompts.source"), "");
     }
 
     @Override
     public String inference(Context context, Agent self) {
-        var conversation = context.conversation();
-        var state = context.state();
         return this.assemble("inference.md", Map.of(
             "input", context.input(),
-            "conversation", conversation.snapshot().toString(),
-            "state", state.snapshot().toString(),
+            "conversation", context.conversation().snapshot().toString(),
+            "state", context.state().snapshot().toString(),
             "self", this.self(self),
             "topics", this.topics(self.topics()),
             "actions", this.actions(
@@ -65,12 +63,10 @@ public class RegexivePromptAssembler implements PromptAssembler {
 
     @Override
     public String routing(Context context) {
-        var conversation = context.conversation();
-        var state = context.state();
         return this.assemble("routing.md", Map.of(
             "input", context.input(),
-            "conversation", conversation.snapshot().toString(),
-            "state", state.snapshot().toString(),
+            "conversation", context.conversation().snapshot().toString(),
+            "state", context.state().snapshot().toString(),
             "agents", this.agentsForRouting(),
             "topics", this.topicsForRouting()
         ));
@@ -78,12 +74,10 @@ public class RegexivePromptAssembler implements PromptAssembler {
 
     @Override
     public String upgrade(Context context, Agent self) {
-        var conversation = context.conversation();
-        var state = context.state();
         return this.assemble("upgrade.md", Map.of(
             "input", context.input(),
-            "conversation", conversation.snapshot().toString(),
-            "state", state.snapshot().toString(),
+            "conversation", context.conversation().snapshot().toString(),
+            "state", context.state().snapshot().toString(),
             "self", this.self(self),
             "agents", this.agents(),
             "topics", this.topics(),
@@ -174,11 +168,7 @@ public class RegexivePromptAssembler implements PromptAssembler {
 
     private String read(String id) {
         return this.fileSystem.read(
-            Paths.get(this.promptsSource().toString(), id),
+            this.promptsSource.resolve(id),
             StandardCharsets.UTF_8);
-    }
-
-    private Path promptsSource() {
-        return Path.of(this.configuration.get("anticorruption.prompts.source"), "");
     }
 }

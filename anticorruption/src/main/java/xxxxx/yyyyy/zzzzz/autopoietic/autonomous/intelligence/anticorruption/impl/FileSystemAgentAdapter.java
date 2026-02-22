@@ -13,22 +13,22 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Agent
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @ApplicationScoped
 public class FileSystemAgentAdapter implements Adapter<Agent, String> {
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAgentAdapter.class);
-    private final Configuration configuration;
     private final Translator<Agent, String> translator;
     private final FileSystem fileSystem;
+    private final Path agentsSource;
 
     @Inject
     public FileSystemAgentAdapter(Translator<Agent, String> translator,
                                   @Localic FileSystem fileSystem) {
-        this.configuration = new Configuration("anticorruption.yaml");
         this.translator = translator;
         this.fileSystem = fileSystem;
+        var configuration = new Configuration("anticorruption.yaml");
+        this.agentsSource = Path.of(configuration.get("anticorruption.agents.source"), "");
     }
 
     @Override
@@ -36,14 +36,13 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
         return this.translator.translateFrom(
             id,
             this.fileSystem.read(
-                Paths.get(this.agentsSource().toString(), Util.toSnakeCase(id) + ".json"),
-                StandardCharsets.UTF_8
-            ));
+                this.agentsSource.resolve(Util.toSnakeCase(id) + ".json"),
+                StandardCharsets.UTF_8));
     }
 
     @Override
     public List<Agent> fetchAll() {
-        return this.fileSystem.walk(this.agentsSource())
+        return this.fileSystem.walk(this.agentsSource)
             .map(x -> x.replaceAll(".*/|\\.json$", ""))
             .map(this::fetch)
             .toList();
@@ -52,7 +51,7 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
     @Override
     public void publish(String id, String json) {
         this.fileSystem.write(
-            Paths.get(this.agentsSource().toString(), Util.toSnakeCase(id) + ".json"),
+            this.agentsSource.resolve(Util.toSnakeCase(id) + ".json"),
             json,
             StandardCharsets.UTF_8);
     }
@@ -60,10 +59,6 @@ public class FileSystemAgentAdapter implements Adapter<Agent, String> {
     @Override
     public void revoke(String id) {
         this.fileSystem.delete(
-            this.agentsSource().resolve(Util.toSnakeCase(id) + ".json"));
-    }
-
-    private Path agentsSource() {
-        return Path.of(this.configuration.get("anticorruption.agents.source"), "");
+            this.agentsSource.resolve(Util.toSnakeCase(id) + ".json"));
     }
 }
