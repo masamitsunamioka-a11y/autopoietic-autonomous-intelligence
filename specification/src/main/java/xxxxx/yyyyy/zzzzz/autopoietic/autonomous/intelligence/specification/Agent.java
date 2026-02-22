@@ -2,7 +2,6 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification;
 
 import java.util.List;
 
-/// Role
 public interface Agent {
     String name();
 

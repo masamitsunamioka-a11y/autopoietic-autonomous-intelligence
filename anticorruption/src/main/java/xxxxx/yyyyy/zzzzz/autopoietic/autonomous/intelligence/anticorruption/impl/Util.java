@@ -3,7 +3,7 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.imp
 import java.lang.reflect.ParameterizedType;
 
 public class Util {
-    /// @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public static <T> Class<T> actualTypeArguments(Class<?> c) {
         return (Class<T>) ((ParameterizedType) c.getGenericInterfaces()[0])
             .getActualTypeArguments()[0];

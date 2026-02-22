@@ -36,6 +36,17 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
         String description,
         String instructions,
         List<String> actions) {
+        InternalTopic addAction(String name) {
+            return new InternalTopic(
+                this.name,
+                this.label,
+                this.description,
+                this.instructions,
+                Stream.concat(this.actions.stream(), Stream.of(name))
+                    .distinct()
+                    .toList()
+            );
+        }
     }
 
     @Override
@@ -57,16 +68,7 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
                                 .distinct()
                                 .toList();
                         } else {
-                            var name = ((Action) args[0]).name();
-                            reference.set(new InternalTopic(
-                                topic.name(),
-                                topic.label(),
-                                topic.description(),
-                                topic.instructions(),
-                                Stream.concat(topic.actions().stream(), Stream.of(name))
-                                    .distinct()
-                                    .toList()
-                            ));
+                            reference.set(topic.addAction(((Action) args[0]).name()));
                             yield null;
                         }
                     }

@@ -14,7 +14,7 @@ public class InMemoryConversation implements Conversation {
     public void write(String role, String text) {
         Objects.requireNonNull(role, "Role must not be null.");
         Objects.requireNonNull(text, "Text must not be null.");
-        String key = String.format("%s@%s", role, LocalDateTime.now());
+        var key = String.format("%s@%s", role, LocalDateTime.now());
         this.memory.put(key, text);
     }
 

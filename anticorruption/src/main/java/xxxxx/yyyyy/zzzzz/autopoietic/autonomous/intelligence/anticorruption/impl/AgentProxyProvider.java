@@ -36,6 +36,17 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
         String description,
         String instructions,
         List<String> topics) {
+        InternalAgent addTopic(String name) {
+            return new InternalAgent(
+                this.name,
+                this.label,
+                this.description,
+                this.instructions,
+                Stream.concat(this.topics.stream(), Stream.of(name))
+                    .distinct()
+                    .toList()
+            );
+        }
     }
 
     @Override
@@ -57,16 +68,7 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
                                 .distinct()
                                 .toList();
                         } else {
-                            var name = ((Topic) args[0]).name();
-                            reference.set(new InternalAgent(
-                                agent.name(),
-                                agent.label(),
-                                agent.description(),
-                                agent.instructions(),
-                                Stream.concat(agent.topics().stream(), Stream.of(name))
-                                    .distinct()
-                                    .toList()
-                            ));
+                            reference.set(agent.addTopic(((Topic) args[0]).name()));
                             yield null;
                         }
                     }

@@ -2,7 +2,6 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.cli;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.ClassScanner;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.ProxyContainer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.TypeLiteral;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ClasspathClassScanner;
@@ -12,7 +11,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Infer
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.InferenceEngine;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.State;
 
-import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.Scanner;
 
@@ -31,7 +29,7 @@ public class Cli {
     }
 
     public Cli(Iterable<String> inputSource, boolean isInteractive) {
-        ClassScanner classScanner = new ClasspathClassScanner("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence");
+        var classScanner = new ClasspathClassScanner("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence");
         this.proxyContainer = new PureJavaProxyContainer(classScanner);
         this.inputSource = inputSource;
         this.isInteractive = isInteractive;
@@ -39,8 +37,8 @@ public class Cli {
 
     public void run() {
         try {
-            Conversation conversation = new InMemoryConversation();
-            State state = new InMemoryState();
+            var conversation = new InMemoryConversation();
+            var state = new InMemoryState();
             if (this.isInteractive) {
                 System.out.print("> ");
             }
@@ -66,7 +64,7 @@ public class Cli {
     private Inference interact(String input, Conversation conversation, State state) {
         conversation.write("user", input);
         /// @formatter:off
-        Type inferenceEngineType = new TypeLiteral<InferenceEngine>() {}.type();
+        var inferenceEngineType = new TypeLiteral<InferenceEngine>() {}.type();
         /// @formatter:on
         InferenceEngine inferenceEngine = this.proxyContainer.get(inferenceEngineType);
         return inferenceEngine.infer(new InMemoryContext(input, conversation, state));
@@ -75,7 +73,7 @@ public class Cli {
     private static class DefaultScannerSource implements Iterable<String> {
         @Override
         public Iterator<String> iterator() {
-            Scanner scanner = new Scanner(System.in);
+            var scanner = new Scanner(System.in);
             return new Iterator<>() {
                 @Override
                 public boolean hasNext() {

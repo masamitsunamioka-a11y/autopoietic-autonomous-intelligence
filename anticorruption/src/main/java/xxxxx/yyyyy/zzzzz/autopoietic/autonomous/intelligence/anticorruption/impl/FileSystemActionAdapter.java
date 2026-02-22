@@ -8,13 +8,16 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-/// FIXME
 @ApplicationScoped
 public class FileSystemActionAdapter implements Adapter<Action, String> {
     private static final Logger logger = LoggerFactory.getLogger(FileSystemActionAdapter.class);
@@ -38,7 +41,22 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
 
     @Override
     public Action fetch(String id) {
-        return this.translator.translateFrom(id, this.actionsPackage() + "." + id);
+        var name = this.actionsPackage() + "." + id;
+        try (var loader = this.urlClassLoader()) {
+            return (Action) loader.loadClass(name).getConstructor().newInstance();
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private URLClassLoader urlClassLoader() {
+        try {
+            return new URLClassLoader(
+                new URL[]{this.actionsTarget().toUri().toURL()},
+                Thread.currentThread().getContextClassLoader());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -52,9 +70,9 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
 
     @Override
     public void publish(String id, String json) {
-        Map<String, Object> meta = this.jsonCodec.unmarshal(json);
-        var label = (String) meta.get("label");
-        var description = (String) meta.get("description");
+        Map<String, Object> definition = this.jsonCodec.unmarshal(json);
+        var label = (String) definition.get("label");
+        var description = (String) definition.get("description");
         var action = new Action() {
             /// @formatter:off
             @Override public String name() { return id; }
@@ -67,7 +85,8 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
             }
         };
         this.fileSystem.write(
-            Paths.get(this.actionsSource().toString(), this.actionsPackage().replace(".", "/"), id + ".java"),
+            Paths.get(this.actionsSource().toString(),
+                this.actionsPackage().replace(".", "/"), id + ".java"),
             this.translator.translateTo(id, action),
             StandardCharsets.UTF_8);
         this.compiler.compile(this.actionsSource(), this.actionsTarget());

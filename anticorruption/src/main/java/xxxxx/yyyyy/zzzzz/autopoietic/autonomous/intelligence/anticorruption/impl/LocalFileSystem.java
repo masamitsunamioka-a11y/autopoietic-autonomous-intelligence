@@ -46,27 +46,15 @@ public class LocalFileSystem implements FileSystem {
     }
 
     @Override
-    public Stream<String> list(Path path) {
-        try (var stream = Files.list(path)) {
-            return stream
-                .map(Path::toString)
-                .toList()
-                .stream();
-        } catch (IOException e) {
-            throw new UncheckedIOException("List failed: " + path, e);
-        }
-    }
-
-    @Override
-    public Stream<String> walk(Path path) {
-        try (var stream = Files.walk(path)) {
+    public Stream<String> walk(Path path, boolean recursive) {
+        try (var stream = recursive ? Files.walk(path) : Files.list(path)) {
             return stream
                 .filter(Files::isRegularFile)
                 .map(Path::toString)
                 .toList()
                 .stream();
         } catch (IOException e) {
-            throw new UncheckedIOException("Walk failed: " + path, e);
+            throw new UncheckedIOException("List failed: " + path, e);
         }
     }
 

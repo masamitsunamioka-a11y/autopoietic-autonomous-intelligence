@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /// FIXME
 @ApplicationScoped
@@ -41,9 +41,9 @@ public class PureJavaInferenceEngine implements InferenceEngine {
         if (depth >= 1000) {
             throw new RuntimeException("Max recursion depth reached in InferenceEngine.");
         }
-        Agent agent = this.routingEngine.route(context);
-        String prompt = this.promptAssembler.inference(context, agent);
-        Conclusion conclusion = this.intelligence.reason(prompt, Conclusion.class);
+        var agent = this.routingEngine.route(context);
+        var prompt = this.promptAssembler.inference(context, agent);
+        var conclusion = this.intelligence.reason(prompt, Conclusion.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], Phase: {}, Action: {}, Handoff: {}",
             conclusion.confidence(),
             conclusion.reasoning(),
@@ -51,8 +51,8 @@ public class PureJavaInferenceEngine implements InferenceEngine {
             conclusion.action(),
             conclusion.handoffTo()
         );
-        Conversation conversation = context.conversation();
-        State state = context.state();
+        var conversation = context.conversation();
+        var state = context.state();
         switch (conclusion.phase()) {
             case "ANSWER" -> {
                 conversation.write(agent.name(), conclusion.answer());
@@ -66,29 +66,16 @@ public class PureJavaInferenceEngine implements InferenceEngine {
                 };
             }
             case "ACT" -> {
-                List<String> allActions = this.actionRepository.findAll().stream()
-                    .map(Action::name)
-                    .distinct()
-                    .sorted()
-                    .toList();
-                List<String> availables = agent.topics().stream()
-                    .flatMap(x -> x.actions().stream())
-                    .map(Action::name)
-                    .distinct()
-                    .sorted()
-                    .toList();
-                logger.trace("""
-                    Conclusion : [{}]
-                    Availables : {} in {}
-                    AllActions : {}
-                    """, conclusion.action(), availables, agent.name(), allActions);
-                Action action = agent.topics().stream()
+                logger.trace("\n--- conclusion: {}\n--- own: {}\n--- all: {}",
+                    conclusion.action(),
+                    this.own(agent),
+                    this.all());
+                var output = agent.topics().stream()
                     .flatMap(x -> x.actions().stream())
                     .filter(x -> x.name().equals(conclusion.action()))
                     .findFirst()
-                    .orElseThrow();
-                logger.info("Executing Action: [{}]", action.name());
-                Map<String, Object> output = action.execute(state.snapshot());
+                    .orElseThrow()
+                    .execute(state.snapshot());
                 output.forEach((k, v) -> {
                     state.write("action_results." + conclusion.action() + "." + k, v);
                 });
@@ -106,5 +93,18 @@ public class PureJavaInferenceEngine implements InferenceEngine {
             }
             default -> throw new IllegalStateException();
         }
+    }
+
+    private Set<String> own(Agent agent) {
+        return agent.topics().stream()
+            .flatMap(x -> x.actions().stream())
+            .map(Action::name)
+            .collect(Collectors.toSet());
+    }
+
+    private Set<String> all() {
+        return this.actionRepository.findAll().stream()
+            .map(Action::name)
+            .collect(Collectors.toSet());
     }
 }

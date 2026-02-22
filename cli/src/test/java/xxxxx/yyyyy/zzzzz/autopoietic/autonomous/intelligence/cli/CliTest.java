@@ -28,7 +28,7 @@ class CliTest {
                 その後、備えた能力を実行してこの世に起きることを理由とともに述べてください。
                 """
             );
-            Cli cli = new Cli(scenario, false);
+            var cli = new Cli(scenario, false);
             cli.run();
         } catch (Throwable t) {
             logger.error("", t);

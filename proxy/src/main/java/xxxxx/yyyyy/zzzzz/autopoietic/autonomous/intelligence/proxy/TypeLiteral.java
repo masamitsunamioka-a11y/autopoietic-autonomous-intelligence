@@ -9,7 +9,7 @@ public abstract class TypeLiteral<T> {
     private final Type type;
 
     protected TypeLiteral() {
-        Type superclass = this.getClass().getGenericSuperclass();
+        var superclass = this.getClass().getGenericSuperclass();
         if (superclass instanceof ParameterizedType parameterizedType) {
             this.type = parameterizedType.getActualTypeArguments()[0];
         } else {

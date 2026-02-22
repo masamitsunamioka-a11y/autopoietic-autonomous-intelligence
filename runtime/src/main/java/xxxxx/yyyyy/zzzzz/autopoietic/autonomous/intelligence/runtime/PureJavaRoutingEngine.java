@@ -28,17 +28,16 @@ public class PureJavaRoutingEngine implements RoutingEngine {
 
     @Override
     public Agent route(Context context) {
-        String prompt = this.promptAssembler.routing(context);
-        Direction direction = this.intelligence.reason(prompt, Direction.class);
+        var prompt = this.promptAssembler.routing(context);
+        var direction = this.intelligence.reason(prompt, Direction.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], SelectedAgent: {}",
             direction.confidence(),
             direction.reasoning(),
             direction.agent()
         );
-        Agent agent = this.agentRepository.find(direction.agent());
+        var agent = this.agentRepository.find(direction.agent());
         if (agent == null) {
-            /// log?
-            return this.agentRepository.find(START_AGENT);
+            throw new IllegalStateException();
         }
         return agent;
     }

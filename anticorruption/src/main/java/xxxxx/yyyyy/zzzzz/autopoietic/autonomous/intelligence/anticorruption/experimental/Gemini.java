@@ -1,6 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.experimental;
 
 import com.google.genai.Client;
+import com.google.gson.stream.MalformedJsonException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -8,14 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Intelligence;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import static java.util.stream.Collectors.joining;
 
@@ -36,24 +29,44 @@ public class Gemini implements Intelligence {
 
     @Override
     public <T> T reason(String prompt, Class<T> type) {
+        return this.reasonWithRetry(prompt, type, 0);
+    }
+
+    private <T> T reasonWithRetry(String prompt, Class<T> type, int retry) {
         if (logger.isTraceEnabled()) {
-            this.dump(type.getSimpleName().toLowerCase(), "request", prompt);
             logger.trace("\n{}", prompt);
         }
         var text = this.generate(prompt);
         if (logger.isTraceEnabled()) {
-            this.dump(type.getSimpleName().toLowerCase(), "response", text);
             logger.trace("\n{}", text);
         }
-        T result = this.jsonCodec.unmarshal(text, type);
-        this.validate(result);
-        return result;
+        try {
+            T result = this.jsonCodec.unmarshal(text, type);
+            this.validate(result);
+            return result;
+        } catch (Exception e) {
+            if (this.isMalformed(e) && retry < 2) {
+                return this.reasonWithRetry(prompt, type, ++retry);
+            }
+            throw e;
+        }
+    }
+
+    private boolean isMalformed(Throwable t) {
+        if (t == null) {
+            return false;
+        }
+        if (t instanceof MalformedJsonException) {
+            return true;
+        }
+        return this.isMalformed(t.getCause());
     }
 
     private String generate(String prompt) {
         /// Client instance should also be provided via a CDI Provider.
         try (var client = new Client()) {
-            return client.models.generateContent(MODEL, prompt, null).text();
+            return client.models
+                .generateContent(MODEL, prompt, null).text();
         }
     }
 
@@ -65,28 +78,7 @@ public class Gemini implements Intelligence {
                     x.getPropertyPath(),
                     x.getMessage()))
                 .collect(joining(", "));
-            throw new IllegalStateException(
-                String.format("[Integrity Violation] %s: %s",
-                    result.getClass().getSimpleName(), reasons));
-        }
-    }
-
-    private void dump(String phase, String mode, String content) {
-        try {
-            var dump = Paths.get("dump");
-            if (Files.notExists(dump)) {
-                Files.createDirectories(dump);
-            }
-            var now = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-            var name = String.format("%s_%s_%s.txt", now, mode, phase);
-            Files.writeString(
-                dump.resolve(name),
-                content,
-                StandardCharsets.UTF_8
-            );
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new IllegalStateException(reasons);
         }
     }
 }

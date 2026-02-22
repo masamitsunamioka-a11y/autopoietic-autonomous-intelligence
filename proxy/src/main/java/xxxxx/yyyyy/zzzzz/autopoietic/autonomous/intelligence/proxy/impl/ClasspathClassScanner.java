@@ -6,12 +6,12 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.ClassScanner;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static java.util.Collections.list;
@@ -44,13 +44,9 @@ public class ClasspathClassScanner implements ClassScanner {
     private Stream<Path> toPath(URL url) {
         try {
             var uri = url.toURI();
-            /// @formatter:off
             var root = "jar".equals(uri.getScheme())
-                ? FileSystems.getFileSystem(uri)
-                    .getPath(uri.toString()
-                    .split("!")[1])
+                ? this.getOrNewFileSystem(uri).getPath(uri.toString().split("!")[1])
                 : Path.of(uri);
-            /// @formatter:on
             try (var stream = Files.walk(root)) {
                 return stream
                     .filter(x -> x.toString().endsWith(".class"))
@@ -59,6 +55,18 @@ public class ClasspathClassScanner implements ClassScanner {
             }
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private FileSystem getOrNewFileSystem(URI uri) {
+        try {
+            return FileSystems.getFileSystem(uri);
+        } catch (FileSystemNotFoundException e) {
+            try {
+                return FileSystems.newFileSystem(uri, Map.of());
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
         }
     }
 

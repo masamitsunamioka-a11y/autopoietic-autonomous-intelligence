@@ -30,8 +30,8 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
 
     @Override
     public void upgrade(Context context, Agent agent) {
-        String prompt = this.promptAssembler.upgrade(context, agent);
-        Upgrade upgrade = this.intelligence.reason(prompt, Upgrade.class);
+        var prompt = this.promptAssembler.upgrade(context, agent);
+        var upgrade = this.intelligence.reason(prompt, Upgrade.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], " +
                 "NewInstructions: {} chars, NewAgents: {}, NewTopics: {}, NewActions: {}",
             upgrade.confidence(),
@@ -49,7 +49,7 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
             upgrade.newActions().stream()
                 .filter(y -> y.relatedTopics().contains(x.name()))
                 .forEach(y -> {
-                    Topic topic = this.topicRepository.find(x.name());
+                    var topic = this.topicRepository.find(x.name());
                     topic.actions(actionRepository.find(y.name()));
                     this.topicRepository.store(x.name(), topic);
                 });
@@ -65,8 +65,8 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
 
     @Override
     public void consolidate() {
-        String prompt = this.promptAssembler.consolidation();
-        Consolidation consolidation = this.intelligence.reason(prompt, Consolidation.class);
+        var prompt = this.promptAssembler.consolidation();
+        var consolidation = this.intelligence.reason(prompt, Consolidation.class);
         logger.debug("[INTELLIGENCE] Reasoning: ({}) [{}], " +
                 "ConsolidatedAgents: {}, ConsolidatedTopics: {}",
             consolidation.confidence(),

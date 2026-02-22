@@ -39,14 +39,12 @@ public class PureJavaContextual<T> implements Contextual<T> {
     }
 
     private T inject(Type type, Annotation[] annotations) {
-        var qualifiers = this.orDefault(annotations);
-        return this.proxyContainer.get(type, qualifiers);
+        return this.proxyContainer.get(type, this.orDefault(annotations));
     }
 
     private Annotation[] orDefault(Annotation[] annotations) {
         var qualifiers = stream(annotations)
-            .filter(x -> x.annotationType()
-                .isAnnotationPresent(Qualifier.class))
+            .filter(x -> x.annotationType().isAnnotationPresent(Qualifier.class))
             .toArray(Annotation[]::new);
         return (qualifiers.length > 0)
             ? qualifiers

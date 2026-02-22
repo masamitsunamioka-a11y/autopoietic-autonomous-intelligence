@@ -14,7 +14,7 @@ public class InMemoryState implements State {
     public void write(String key, Object value) {
         Objects.requireNonNull(key, "Key must not be null.");
         Objects.requireNonNull(value, "Value must not be null.");
-        String timestampedKey = String.format("%s@%s", key, LocalDateTime.now());
+        var timestampedKey = String.format("%s@%s", key, LocalDateTime.now());
         this.memory.put(timestampedKey, value);
     }
 

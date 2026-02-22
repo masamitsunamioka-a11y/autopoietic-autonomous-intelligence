@@ -7,12 +7,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Tran
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Action;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Path;
-
 @ApplicationScoped
 public class ActionTranslator implements Translator<Action, String> {
     private static final Logger logger = LoggerFactory.getLogger(ActionTranslator.class);
@@ -23,23 +17,8 @@ public class ActionTranslator implements Translator<Action, String> {
     }
 
     @Override
-    public Action translateFrom(String id, String fqcn) {
-        /// Move to adapter.
-        try (var loader = this.urlClassLoader()) {
-            return (Action) loader.loadClass(fqcn).getConstructor().newInstance();
-        } catch (IOException | ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private URLClassLoader urlClassLoader() {
-        try {
-            return new URLClassLoader(
-                new URL[]{this.actionsTarget().toUri().toURL()},
-                Thread.currentThread().getContextClassLoader());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+    public Action translateFrom(String id, String source) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -65,9 +44,5 @@ public class ActionTranslator implements Translator<Action, String> {
 
     private String actionsPackage() {
         return this.configuration.get("anticorruption.actions.package");
-    }
-
-    private Path actionsTarget() {
-        return Path.of(this.configuration.get("anticorruption.actions.target"), "");
     }
 }

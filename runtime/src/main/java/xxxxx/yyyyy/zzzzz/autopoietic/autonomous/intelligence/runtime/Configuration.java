@@ -5,31 +5,30 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.InputStream;
 import java.util.Map;
 
-/// FIXME
 public class Configuration {
     private final Map<String, Object> yaml;
 
-    /// @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public Configuration(String name) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        var classLoader = Thread.currentThread().getContextClassLoader();
         try (InputStream is = classLoader.getResourceAsStream(name)) {
             if (is == null) {
-                throw new RuntimeException("[FATAL] File not found: " + name);
+                throw new RuntimeException();
             }
             this.yaml = (Map<String, Object>) new Yaml().load(is);
         } catch (Exception e) {
-            throw new RuntimeException("[FATAL] Configuration init error: " + name, e);
+            throw new RuntimeException(e);
         }
     }
 
-    /// @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public <T> T get(String key) {
         Object current = this.yaml;
         for (String k : key.split("\\.")) {
             current = (current instanceof Map<?, ?> m) ? m.get(k) : null;
         }
         if (current == null) {
-            throw new RuntimeException("[ERROR] Configuration key not found: " + key);
+            throw new RuntimeException();
         }
         return (T) current;
     }

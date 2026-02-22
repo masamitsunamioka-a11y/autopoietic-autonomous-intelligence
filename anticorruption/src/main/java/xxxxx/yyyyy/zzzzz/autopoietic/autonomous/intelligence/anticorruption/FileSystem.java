@@ -11,9 +11,15 @@ public interface FileSystem {
 
     boolean exists(Path path);
 
-    Stream<String> list(Path path);
+    Stream<String> walk(Path path, boolean recursive);
 
-    Stream<String> walk(Path path);
+    default Stream<String> list(Path path) {
+        return this.walk(path, false);
+    }
+
+    default Stream<String> walk(Path path) {
+        return this.walk(path, true);
+    }
 
     void delete(Path path);
 }
