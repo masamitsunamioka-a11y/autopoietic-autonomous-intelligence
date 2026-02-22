@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
 
+import java.util.stream.Collectors;
+
 @ApplicationScoped
 public class PureJavaEvolutionEngine implements EvolutionEngine {
     private static final Logger logger = LoggerFactory.getLogger(PureJavaEvolutionEngine.class);
@@ -46,20 +48,28 @@ public class PureJavaEvolutionEngine implements EvolutionEngine {
         });
         upgrade.newTopics().forEach(x -> {
             this.topicRepository.store(x.name(), x);
-            upgrade.newActions().stream()
-                .filter(y -> y.relatedTopics().contains(x.name()))
-                .forEach(y -> {
-                    var topic = this.topicRepository.find(x.name());
-                    topic.actions(actionRepository.find(y.name()));
-                    this.topicRepository.store(x.name(), topic::toString);
-                });
         });
         upgrade.newAgents().forEach(x -> {
             this.agentRepository.store(x.name(), x);
         });
         if (!upgrade.newInstructions().isEmpty()) {
-            agent.instructions(upgrade.newInstructions());
-            this.agentRepository.store(agent.name(), agent::toString);
+            this.agentRepository.store(agent.name(), () -> """
+                {
+                  "name": "%s",
+                  "label": "%s",
+                  "description": "%s",
+                  "instructions": "%s",
+                  "topics": %s
+                }
+                """.formatted(agent.name(), agent.label(), agent.description(),
+                upgrade.newInstructions()
+                    .replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n"),
+                agent.topics().stream()
+                    .map(x -> "\"" + x.name() + "\"")
+                    .collect(Collectors.joining(", ", "[", "]"))
+            ));
         }
     }
 

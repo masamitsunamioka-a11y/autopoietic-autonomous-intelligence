@@ -13,7 +13,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Topic
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Util.actualTypeArguments;
 
@@ -36,17 +35,6 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
         String description,
         String instructions,
         List<String> actions) {
-        InternalTopic addAction(String name) {
-            return new InternalTopic(
-                this.name,
-                this.label,
-                this.description,
-                this.instructions,
-                Stream.concat(this.actions.stream(), Stream.of(name))
-                    .distinct()
-                    .toList()
-            );
-        }
     }
 
     @Override
@@ -62,15 +50,10 @@ public class TopicProxyProvider implements ProxyProvider<Topic> {
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> this.equals(proxy, args);
                     case "actions" -> {
-                        if (args == null || args.length == 0) {
-                            yield topic.actions().stream()
-                                .map(this.actionRepository::find)
-                                .distinct()
-                                .toList();
-                        } else {
-                            reference.set(topic.addAction(((Action) args[0]).name()));
-                            yield null;
-                        }
+                        yield topic.actions().stream()
+                            .map(this.actionRepository::find)
+                            .distinct()
+                            .toList();
                     }
                     default -> InternalTopic.class.getMethod(method.getName()).invoke(topic);
                 };

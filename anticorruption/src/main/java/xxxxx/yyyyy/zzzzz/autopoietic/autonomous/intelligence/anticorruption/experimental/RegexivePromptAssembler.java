@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /// FIXME
 @ApplicationScoped
@@ -54,10 +55,9 @@ public class RegexivePromptAssembler implements PromptAssembler {
             "state", context.state().snapshot().toString(),
             "self", this.self(self),
             "topics", this.topics(self.topics()),
-            "actions", this.actions(
-                self.topics().stream()
-                    .flatMap(x -> x.actions().stream())
-                    .toList())
+            "actions", this.actions(self.topics().stream()
+                .flatMap(x -> x.actions().stream())
+                .toList())
         ));
     }
 
@@ -67,8 +67,14 @@ public class RegexivePromptAssembler implements PromptAssembler {
             "input", context.input(),
             "conversation", context.conversation().snapshot().toString(),
             "state", context.state().snapshot().toString(),
-            "agents", this.agentsForRouting(),
-            "topics", this.topicsForRouting()
+            "agents", this.marshal(this.agentRepository.findAll(),
+                x -> Map.of(
+                    "name", x.name(),
+                    "description", x.description())),
+            "topics", this.marshal(this.topicRepository.findAll(),
+                x -> Map.of(
+                    "name", x.name(),
+                    "description", x.description()))
         ));
     }
 
@@ -103,23 +109,15 @@ public class RegexivePromptAssembler implements PromptAssembler {
     }
 
     private String agents() {
-        return this.jsonCodec.marshal(this.agentRepository.findAll().stream()
-            .map(x -> Map.of(
-                "name", x.name(),
-                "description", x.description(),
-                "instructions", x.instructions(),
-                "topics", x.topics().stream().map(Topic::name).toList()
-            ))
-            .toList());
+        return this.agents(this.agentRepository.findAll());
     }
 
-    private String agentsForRouting() {
-        return this.jsonCodec.marshal(this.agentRepository.findAll().stream()
-            .map(x -> Map.of(
-                "name", x.name(),
-                "description", x.description()
-            ))
-            .toList());
+    private String agents(List<Agent> agents) {
+        return this.marshal(this.agentRepository.findAll(), x -> Map.of(
+            "name", x.name(), "description", x.description(),
+            "instructions", x.instructions(),
+            "topics", x.topics().stream().map(Topic::name).toList()
+        ));
     }
 
     private String topics() {
@@ -127,23 +125,11 @@ public class RegexivePromptAssembler implements PromptAssembler {
     }
 
     private String topics(List<Topic> topics) {
-        return this.jsonCodec.marshal(topics.stream()
-            .map(x -> Map.of(
-                "name", x.name(),
-                "description", x.description(),
-                "instructions", x.instructions(),
-                "actions", x.actions().stream().map(Action::name).toList()
-            ))
-            .toList());
-    }
-
-    private String topicsForRouting() {
-        return this.jsonCodec.marshal(this.topicRepository.findAll().stream()
-            .map(x -> Map.of(
-                "name", x.name(),
-                "description", x.description()
-            ))
-            .toList());
+        return this.marshal(topics, x -> Map.of(
+            "name", x.name(), "description", x.description(),
+            "instructions", x.instructions(),
+            "actions", x.actions().stream().map(Action::name).toList()
+        ));
     }
 
     private String actions() {
@@ -151,12 +137,13 @@ public class RegexivePromptAssembler implements PromptAssembler {
     }
 
     private String actions(List<Action> actions) {
-        return this.jsonCodec.marshal(actions.stream()
-            .map(x -> Map.of(
-                "name", x.name(),
-                "description", x.description()
-            ))
-            .toList());
+        return this.marshal(actions, x -> Map.of(
+            "name", x.name(),
+            "description", x.description()));
+    }
+
+    private <T> String marshal(List<T> list, Function<T, Map<String, Object>> toMap) {
+        return this.jsonCodec.marshal(list.stream().map(toMap).toList());
     }
 
     private String assemble(String id, Map<String, Object> values) {

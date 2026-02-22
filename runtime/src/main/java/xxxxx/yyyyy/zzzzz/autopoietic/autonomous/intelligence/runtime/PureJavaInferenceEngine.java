@@ -34,13 +34,10 @@ public class PureJavaInferenceEngine implements InferenceEngine {
 
     @Override
     public Inference infer(Context context) {
-        return this.recursiveInfer(context, 0);
+        return this.recursiveInfer(context);
     }
 
-    private Inference recursiveInfer(Context context, int depth) {
-        if (depth >= 1000) {
-            throw new RuntimeException("Max recursion depth reached in InferenceEngine.");
-        }
+    private Inference recursiveInfer(Context context) {
         var agent = this.routingEngine.route(context);
         var prompt = this.promptAssembler.inference(context, agent);
         var conclusion = this.intelligence.reason(prompt, Conclusion.class);
@@ -58,10 +55,10 @@ public class PureJavaInferenceEngine implements InferenceEngine {
                 conversation.write(agent.name(), conclusion.answer());
                 return new Inference() {
                     /// @formatter:off
-                    @Override public String agent() { return agent.name(); }
-                    @Override public String reasoning() { return conclusion.reasoning(); }
+                    @Override public String agent()      { return agent.name(); }
+                    @Override public String reasoning()  { return conclusion.reasoning(); }
                     @Override public double confidence() { return 1.0; }
-                    @Override public String answer() { return conclusion.answer(); }
+                    @Override public String answer()     { return conclusion.answer(); }
                     /// @formatter:on
                 };
             }
@@ -79,17 +76,17 @@ public class PureJavaInferenceEngine implements InferenceEngine {
                 output.forEach((k, v) -> {
                     state.write("action_results." + conclusion.action() + "." + k, v);
                 });
-                return this.recursiveInfer(context, ++depth);
+                return this.recursiveInfer(context);
             }
             case "HANDOFF" -> {
                 state.write("last_handoff_from", agent.name());
                 state.write("last_handoff_to", conclusion.handoffTo());
-                return this.recursiveInfer(context, ++depth);
+                return this.recursiveInfer(context);
             }
             case "EVOLVE" -> {
                 this.evolutionEngine.upgrade(context, agent);
                 this.evolutionEngine.consolidate();
-                return this.recursiveInfer(context, ++depth);
+                return this.recursiveInfer(context);
             }
             default -> throw new IllegalStateException();
         }

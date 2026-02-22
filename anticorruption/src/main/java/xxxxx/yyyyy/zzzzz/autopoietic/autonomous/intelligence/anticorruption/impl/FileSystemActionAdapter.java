@@ -79,8 +79,8 @@ public class FileSystemActionAdapter implements Adapter<Action, String> {
         var description = (String) definition.get("description");
         var action = new Action() {
             /// @formatter:off
-            @Override public String name() { return id; }
-            @Override public String label() { return label; }
+            @Override public String name()        { return id; }
+            @Override public String label()       { return label; }
             @Override public String description() { return description; }
             /// @formatter:on
             @Override

@@ -49,10 +49,12 @@ public class AgentProxyProvider implements ProxyProvider<Agent> {
                     case "toString" -> this.jsonCodec.marshal(agent);
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> this.equals(proxy, args);
-                    case "topics" -> agent.topics().stream()
-                        .map(this.topicRepository::find)
-                        .distinct()
-                        .toList();
+                    case "topics" -> {
+                        yield agent.topics().stream()
+                            .map(this.topicRepository::find)
+                            .distinct()
+                            .toList();
+                    }
                     default -> InternalAgent.class.getMethod(method.getName()).invoke(agent);
                 };
             }

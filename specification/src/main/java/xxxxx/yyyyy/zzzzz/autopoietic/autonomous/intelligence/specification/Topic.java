@@ -11,9 +11,5 @@ public interface Topic {
 
     String instructions();
 
-    void instructions(String instructions);
-
     List<Action> actions();
-
-    void actions(Action action);
 }

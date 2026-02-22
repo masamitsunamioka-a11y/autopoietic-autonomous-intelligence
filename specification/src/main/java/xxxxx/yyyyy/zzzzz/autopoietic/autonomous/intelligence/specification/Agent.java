@@ -11,7 +11,5 @@ public interface Agent {
 
     String instructions();
 
-    void instructions(String instructions);
-
     List<Topic> topics();
 }
