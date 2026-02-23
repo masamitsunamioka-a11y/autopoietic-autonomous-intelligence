@@ -37,7 +37,8 @@ public class SchemaRepository implements Repository<Schema> {
 
     @Override
     public void store(Engram engram) {
-        this.adapter.publish(engram.name(), engram.transcribe(this.jsonCodec::marshal));
+        this.adapter.publish(
+            engram.name(), engram.transcribe(this.jsonCodec::marshal));
     }
 
     @Override

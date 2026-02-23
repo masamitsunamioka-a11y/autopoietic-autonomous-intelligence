@@ -37,7 +37,8 @@ public class EffectorRepository implements Repository<Effector> {
 
     @Override
     public void store(Engram engram) {
-        this.adapter.publish(engram.name(), engram.transcribe(this.jsonCodec::marshal));
+        this.adapter.publish(
+            engram.name(), engram.transcribe(this.jsonCodec::marshal));
     }
 
     @Override

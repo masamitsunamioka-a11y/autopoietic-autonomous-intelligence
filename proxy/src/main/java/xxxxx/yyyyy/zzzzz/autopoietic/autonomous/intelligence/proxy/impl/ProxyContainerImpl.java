@@ -2,6 +2,7 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.ConversationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class ProxyContainerImpl implements ProxyContainer {
         this.reconcile();
     }
 
-    /// 123456789_123456789_123456789_123456789_123456789_123456789_
+    /// 123456789_123456789_123456789_123456789_123456789_123456789_1
     private void reconcile() {
         this.lock.writeLock().lock();
         try {
@@ -46,7 +47,6 @@ public class ProxyContainerImpl implements ProxyContainer {
         }
     }
 
-    /// 123456789_123456789_123456789_123456789_123456789_123456789_
     private void discover() {
         var contextuals = this.classScanner.scan().stream()
             .map(AnnotatedTypeImpl::new)
@@ -58,12 +58,17 @@ public class ProxyContainerImpl implements ProxyContainer {
         });
     }
 
-    /// 123456789_123456789_123456789_123456789_123456789_123456789_
     private void activate() {
         this.contexts.put(ApplicationScoped.class,
             new ApplicationContextImpl());
+        /// this.contexts.put(SessionScoped.class,
+        ///     new SessionContextImpl());
+        /// this.contexts.put(RequestScoped.class,
+        ///     new RequestContextImpl());
         this.contexts.put(ConversationScoped.class,
             this.get(ConversationContextImpl.class));
+        this.contexts.put(Dependent.class,
+            new DependentContextImpl());
     }
 
     @Override

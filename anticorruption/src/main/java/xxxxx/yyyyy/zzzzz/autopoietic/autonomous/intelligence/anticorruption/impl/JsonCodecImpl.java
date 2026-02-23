@@ -1,5 +1,6 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
@@ -11,7 +12,7 @@ import java.lang.reflect.Type;
 @ApplicationScoped
 public class JsonCodecImpl implements JsonCodec {
     private static final Logger logger = LoggerFactory.getLogger(JsonCodecImpl.class);
-    private final com.google.gson.Gson gson;
+    private final Gson gson;
 
     public JsonCodecImpl() {
         this.gson = new GsonBuilder()
