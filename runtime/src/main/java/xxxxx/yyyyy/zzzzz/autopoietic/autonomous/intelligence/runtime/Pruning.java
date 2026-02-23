@@ -12,42 +12,36 @@ public record Pruning(
     @NotBlank String reasoning,
     @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
     @NotNull List<@Valid MergedNeuron> mergedNeurons,
-    @NotNull List<@Valid MergedReceptor> mergedReceptors) {
+    @NotNull List<@Valid MergedSchema> mergedSchemas) {
     public record MergedNeuron(
         @NotNull List<String> sources,
         @NotBlank String reasoning,
-        @NotNull @Valid NeuronDefinition result) {
+        @NotNull @Valid Neuron result) {
     }
 
-    public record MergedReceptor(
+    public record MergedSchema(
         @NotNull List<String> sources,
         @NotBlank String reasoning,
-        @NotNull @Valid ReceptorDefinition result) {
+        @NotNull @Valid Schema result) {
     }
 
-    public record NeuronDefinition(
+    public record Neuron(
         @NotBlank String name,
-        @NotBlank String label,
         @NotBlank String description,
-        @NotBlank String instructions,
-        @NotNull List<String> receptors,
-        @NotBlank String rawJson) implements Storable {
-        @Override
-        public String serialize() {
-            return this.rawJson;
-        }
+        @NotBlank String protocol,
+        @NotNull List<String> schemas) implements Engram {
+        /// @formatter:off
+        @Override public String name() { return this.name;}
+        /// @formatter:on
     }
 
-    public record ReceptorDefinition(
+    public record Schema(
         @NotBlank String name,
-        @NotBlank String label,
         @NotBlank String description,
-        @NotBlank String instructions,
-        @NotNull List<String> effectors,
-        @NotBlank String rawJson) implements Storable {
-        @Override
-        public String serialize() {
-            return this.rawJson;
-        }
+        @NotBlank String protocol,
+        @NotNull List<String> effectors) implements Engram {
+        /// @formatter:off
+        @Override public String name() { return this.name;}
+        /// @formatter:on
     }
 }

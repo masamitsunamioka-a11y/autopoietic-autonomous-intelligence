@@ -5,8 +5,9 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adapter;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Engram;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Storable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Neuron;
 
 import java.util.List;
@@ -15,10 +16,13 @@ import java.util.List;
 public class NeuronRepository implements Repository<Neuron> {
     private static final Logger logger = LoggerFactory.getLogger(NeuronRepository.class);
     private final Adapter<Neuron, String> adapter;
+    private final JsonCodec jsonCodec;
 
     @Inject
-    public NeuronRepository(Adapter<Neuron, String> adapter) {
+    public NeuronRepository(Adapter<Neuron, String> adapter,
+                            JsonCodec jsonCodec) {
         this.adapter = adapter;
+        this.jsonCodec = jsonCodec;
     }
 
     @Override
@@ -32,8 +36,8 @@ public class NeuronRepository implements Repository<Neuron> {
     }
 
     @Override
-    public void store(String id, Storable storable) {
-        this.adapter.publish(id, storable.serialize());
+    public void store(Engram engram) {
+        this.adapter.publish(engram.name(), engram.transcribe(this.jsonCodec::marshal));
     }
 
     @Override

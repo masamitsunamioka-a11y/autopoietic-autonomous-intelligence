@@ -7,9 +7,9 @@ anticorruption:
       classpath:
         strategy: "manual"
         value: "effectors/target/classes:specification/target/classes:anticorruption/target/classes"
-  prompts:
-    source: "filesystem/prompts"
+  encodings:
+    source: "filesystem/encodings"
   neurons:
     source: "filesystem/neurons"
-  receptors:
-    source: "filesystem/receptors"
+  schemas:
+    source: "filesystem/schemas"

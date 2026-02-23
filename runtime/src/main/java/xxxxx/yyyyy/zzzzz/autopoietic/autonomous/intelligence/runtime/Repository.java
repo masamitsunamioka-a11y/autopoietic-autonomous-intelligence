@@ -7,7 +7,7 @@ public interface Repository<T> {
 
     List<T> findAll();
 
-    void store(String id, Storable storable);
+    void store(Engram engram);
 
     void remove(String id);
 }

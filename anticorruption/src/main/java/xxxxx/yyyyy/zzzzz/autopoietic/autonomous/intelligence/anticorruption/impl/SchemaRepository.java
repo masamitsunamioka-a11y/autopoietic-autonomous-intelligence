@@ -8,30 +8,30 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adap
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Engram;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Effector;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Schema;
 
 import java.util.List;
 
 @ApplicationScoped
-public class EffectorRepository implements Repository<Effector> {
-    private static final Logger logger = LoggerFactory.getLogger(EffectorRepository.class);
-    private final Adapter<Effector, String> adapter;
+public class SchemaRepository implements Repository<Schema> {
+    private static final Logger logger = LoggerFactory.getLogger(SchemaRepository.class);
+    private final Adapter<Schema, String> adapter;
     private final JsonCodec jsonCodec;
 
     @Inject
-    public EffectorRepository(Adapter<Effector, String> adapter,
-                              JsonCodec jsonCodec) {
+    public SchemaRepository(Adapter<Schema, String> adapter,
+                            JsonCodec jsonCodec) {
         this.adapter = adapter;
         this.jsonCodec = jsonCodec;
     }
 
     @Override
-    public Effector find(String id) {
+    public Schema find(String id) {
         return this.adapter.fetch(id);
     }
 
     @Override
-    public List<Effector> findAll() {
+    public List<Schema> findAll() {
         return this.adapter.fetchAll();
     }
 
@@ -42,6 +42,6 @@ public class EffectorRepository implements Repository<Effector> {
 
     @Override
     public void remove(String id) {
-        throw new UnsupportedOperationException();
+        this.adapter.revoke(id);
     }
 }

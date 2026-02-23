@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Neuron;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Schema;
 
 import java.lang.reflect.Proxy;
@@ -17,45 +17,45 @@ import java.util.concurrent.atomic.AtomicReference;
 import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Util.actualTypeArguments;
 
 @ApplicationScoped
-public class NeuronProxyProvider implements ProxyProvider<Neuron> {
-    private static final Logger logger = LoggerFactory.getLogger(NeuronProxyProvider.class);
-    private final Repository<Schema> schemaRepository;
+public class SchemaProxyProvider implements ProxyProvider<Schema> {
+    private static final Logger logger = LoggerFactory.getLogger(SchemaProxyProvider.class);
+    private final Repository<Effector> effectorRepository;
     private final JsonCodec jsonCodec;
 
     @Inject
-    public NeuronProxyProvider(Repository<Schema> schemaRepository,
+    public SchemaProxyProvider(Repository<Effector> effectorRepository,
                                JsonCodec jsonCodec) {
-        this.schemaRepository = schemaRepository;
+        this.effectorRepository = effectorRepository;
         this.jsonCodec = jsonCodec;
     }
 
-    private static record InternalNeuron(
+    private static record InternalSchema(
         String name,
         String description,
         String protocol,
-        List<String> schemas) {
+        List<String> effectors) {
     }
 
     @Override
-    public Neuron provide(String json) {
-        var reference = new AtomicReference<InternalNeuron>(this.jsonCodec.unmarshal(json, InternalNeuron.class));
-        return (Neuron) Proxy.newProxyInstance(
+    public Schema provide(String json) {
+        var reference = new AtomicReference<InternalSchema>(this.jsonCodec.unmarshal(json, InternalSchema.class));
+        return (Schema) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
             new Class<?>[]{actualTypeArguments(this.getClass())},
             (proxy, method, args) -> {
-                var neuron = reference.get();
+                var schema = reference.get();
                 return switch (method.getName()) {
-                    case "toString" -> this.jsonCodec.marshal(neuron);
+                    case "toString" -> this.jsonCodec.marshal(schema);
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> this.equals(proxy, args);
-                    case "schemas" -> {
-                        yield neuron.schemas().stream()
-                            .map(this.schemaRepository::find)
+                    case "effectors" -> {
+                        yield schema.effectors().stream()
+                            .map(this.effectorRepository::find)
                             .distinct()
                             .toList();
                     }
                     default ->
-                        InternalNeuron.class.getMethod(method.getName()).invoke(neuron);
+                        InternalSchema.class.getMethod(method.getName()).invoke(schema);
                 };
             }
         );

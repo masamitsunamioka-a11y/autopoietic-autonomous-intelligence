@@ -29,7 +29,7 @@ class CliTest {
                 """
             );
             var cli = new Cli(scenario, false);
-            cli.run();
+            cli.launch();
         } catch (Throwable t) {
             logger.error("", t);
             throw new RuntimeException(t);

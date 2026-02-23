@@ -6,9 +6,9 @@ anticorruption:
     compiler:
       classpath:
         strategy: "system"
-  prompts:
-    source: "../filesystem/prompts"
+  encodings:
+    source: "../filesystem/encodings"
   neurons:
     source: "../filesystem/neurons"
-  receptors:
-    source: "../filesystem/receptors"
+  schemas:
+    source: "../filesystem/schemas"

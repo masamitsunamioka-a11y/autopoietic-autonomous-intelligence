@@ -30,7 +30,6 @@ public class EffectorTranslator implements Translator<Effector, String> {
             import java.util.Map;
             public class %s implements Effector {
                 @Override public String name() { return "%s"; }
-                @Override public String label() { return "%s"; }
                 @Override public String description() { return "%s"; }
                 @Override
                 public Map<String, Object> fire(Map<String, Object> input) {
@@ -40,6 +39,6 @@ public class EffectorTranslator implements Translator<Effector, String> {
                 }
             }
             """
-            .formatted(this.effectorPackage, id, id, effector.label(), effector.description(), id);
+            .formatted(this.effectorPackage, id, id, effector.description(), id);
     }
 }

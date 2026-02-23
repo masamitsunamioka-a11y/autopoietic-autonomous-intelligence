@@ -1,11 +1,13 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification;
 
-import java.util.Map;
+import java.util.List;
 
-public interface Effector {
+public interface Schema {
     String name();
 
     String description();
 
-    Map<String, Object> fire(Map<String, Object> input);
+    String protocol();
+
+    List<Effector> effectors();
 }

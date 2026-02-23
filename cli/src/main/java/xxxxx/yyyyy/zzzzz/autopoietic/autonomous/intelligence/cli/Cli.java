@@ -2,26 +2,30 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.cli;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.ProxyContainer;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Conversation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.TypeLiteral;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ClasspathClassScanner;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.PureJavaProxyContainer;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Conversation;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ClassScannerImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ProxyContainerImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Cortex;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Inference;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.State;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Drive;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Memory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Thalamus;
 
 import java.util.Iterator;
 import java.util.Scanner;
 
 public class Cli {
     private static final Logger logger = LoggerFactory.getLogger(Cli.class);
-    private final ProxyContainer proxyContainer;
     private final Iterable<String> inputSource;
     private final boolean isInteractive;
+    private final Conversation conversation;
+    private final Thalamus thalamus;
+    private final Cortex cortex;
+    private final Drive drive;
+    private final Memory memory;
 
     public static void main(String[] args) {
-        new Cli().run();
+        new Cli().launch();
     }
 
     public Cli() {
@@ -29,45 +33,59 @@ public class Cli {
     }
 
     public Cli(Iterable<String> inputSource, boolean isInteractive) {
-        var classScanner = new ClasspathClassScanner("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence");
-        this.proxyContainer = new PureJavaProxyContainer(classScanner);
+        var classScanner = new ClassScannerImpl("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence");
+        var proxyContainer = new ProxyContainerImpl(classScanner);
         this.inputSource = inputSource;
         this.isInteractive = isInteractive;
+        /// @formatter:off
+        this.thalamus = proxyContainer.get(
+            new TypeLiteral<Thalamus>() {}.type());
+        this.cortex = proxyContainer.get(
+            new TypeLiteral<Cortex>() {}.type());
+        this.drive = proxyContainer.get(
+            new TypeLiteral<Drive>() {}.type());
+        this.conversation = proxyContainer.get(
+            new TypeLiteral<Conversation>() {}.type());
+        this.memory = proxyContainer.get(
+            new TypeLiteral<Memory>() {}.type());
+        /// @formatter:on
     }
 
-    public void run() {
+    public void launch() {
+        this.conversation.begin();
         try {
-            var conversation = new InMemoryConversation();
-            var state = new InMemoryState();
             if (this.isInteractive) {
-                System.out.print("> ");
+                this.drive.start();
             }
-            for (String input : this.inputSource) {
-                if (input == null || input.equalsIgnoreCase("exit")) break;
-                Inference inference = this.interact(input, conversation, state);
-                if (this.isInteractive) {
-                    System.out.printf("%s> %s\n[confidence %s, reasoning %s]\n\n",
-                        inference.neuron(),
-                        inference.answer(),
-                        inference.confidence(),
-                        inference.reasoning());
-                    System.out.print("> ");
-                } else {
-                    logger.info("Input: {}, Answer: {}", input, inference.answer());
-                }
-            }
+            this.interact();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            if (this.isInteractive) {
+                this.drive.stop();
+            }
+            this.conversation.end();
         }
     }
 
-    private Inference interact(String input, Conversation conversation, State state) {
-        conversation.write("user", input);
-        /// @formatter:off
-        var cortexType = new TypeLiteral<Cortex>() {}.type();
-        /// @formatter:on
-        Cortex cortex = this.proxyContainer.get(cortexType);
-        return cortex.perceive(new InMemoryContext(input, conversation, state));
+    private void interact() {
+        if (this.isInteractive) {
+            System.out.print("> ");
+        }
+        for (String input : this.inputSource) {
+            if ("exit".equalsIgnoreCase(input)) {
+                break;
+            }
+            this.memory.record("user", input);
+            var percept = this.cortex.perceive(
+                this.thalamus.relay(new ImpulseImpl(input, null)));
+            System.out.printf("%s> %s%n",
+                percept.neuron(),
+                percept.answer());
+            if (this.isInteractive) {
+                System.out.print("> ");
+            }
+        }
     }
 
     private static class DefaultScannerSource implements Iterable<String> {

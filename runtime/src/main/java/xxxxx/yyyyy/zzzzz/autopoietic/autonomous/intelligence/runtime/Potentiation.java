@@ -11,46 +11,37 @@ import java.util.List;
 public record Potentiation(
     @NotBlank String reasoning,
     @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
-    @NotBlank String newInstructions,
-    @NotNull List<@Valid NeuronDefinition> newNeurons,
-    @NotNull List<@Valid ReceptorDefinition> newReceptors,
-    @NotNull List<@Valid EffectorDefinition> newEffectors) {
-    public record NeuronDefinition(
+    @NotBlank String newProtocol,
+    @NotNull List<@Valid Neuron> newNeurons,
+    @NotNull List<@Valid Schema> newSchemas,
+    @NotNull List<@Valid Effector> newEffectors) {
+    public record Neuron(
         @NotBlank String name,
-        @NotBlank String label,
         @NotBlank String description,
-        @NotBlank String instructions,
-        @NotNull List<String> receptors,
-        @NotBlank String rawJson) implements Storable {
-        @Override
-        public String serialize() {
-            return this.rawJson;
-        }
+        @NotBlank String protocol,
+        @NotNull List<String> schemas) implements Engram {
+        /// @formatter:off
+        @Override public String name() { return this.name;}
+        /// @formatter:on
     }
 
-    public record ReceptorDefinition(
+    public record Schema(
         @NotBlank String name,
-        @NotBlank String label,
         @NotBlank String description,
-        @NotBlank String instructions,
-        @NotNull List<String> effectors,
-        @NotBlank String rawJson) implements Storable {
-        @Override
-        public String serialize() {
-            return this.rawJson;
-        }
+        @NotBlank String protocol,
+        @NotNull List<String> effectors) implements Engram {
+        /// @formatter:off
+        @Override public String name() { return this.name;}
+        /// @formatter:on
     }
 
-    public record EffectorDefinition(
+    public record Effector(
         @NotBlank String name,
-        @NotBlank String label,
         @NotBlank String description,
         @NotBlank String execution,
-        @NotNull List<String> relatedReceptors,
-        @NotBlank String rawJson) implements Storable {
-        @Override
-        public String serialize() {
-            return this.rawJson;
-        }
+        @NotNull List<String> relatedSchemas) implements Engram {
+        /// @formatter:off
+        @Override public String name() { return this.name;}
+        /// @formatter:on
     }
 }

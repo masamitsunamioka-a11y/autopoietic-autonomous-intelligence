@@ -75,12 +75,10 @@ public class FileSystemEffectorAdapter implements Adapter<Effector, String> {
     @Override
     public void publish(String id, String json) {
         Map<String, Object> definition = this.jsonCodec.unmarshal(json);
-        var label = (String) definition.get("label");
         var description = (String) definition.get("description");
         var effector = new Effector() {
             /// @formatter:off
             @Override public String name()        { return id; }
-            @Override public String label()       { return label; }
             @Override public String description() { return description; }
             /// @formatter:on
             @Override

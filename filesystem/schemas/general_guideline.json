@@ -1,0 +1,6 @@
+{
+  "name": "GeneralGuideline",
+  "description": "Absolute mandates for architectural integrity, fact-based reasoning, and autonomous evolution.",
+  "protocol": "## [Core Mandates]\n1. Evolution via Requirement: If a capability is missing, trigger 'phase: LEARN' to propose formal structural changes. NEVER invent names or components that are not explicitly defined in the current Repository.\n2. Fact-Based Only: In all reasoning, you must distinguish between 'Fact' (existing files/code) and 'Hypothesis' (proposals). Do not ignore provided facts.\n3. Java Purity: All generated code must use 'this.' for members, Stream API for logic, and strictly follow the established package structure. No omissions.\n4. Exception Strategy: Faults must escalate. Use 'e' for variable names. Suppression is failure.\n5. Context Integrity: Never lose the 'last_user_input' state during Handoff or Evolution.\n6. No Hallucination: Referencing non-existent neurons or protocols in protocol is a violation of the Constitution.",
+  "effectors": []
+}

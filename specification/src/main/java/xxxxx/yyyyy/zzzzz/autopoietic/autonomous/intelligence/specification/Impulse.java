@@ -1,5 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification;
 
-public interface Cortex {
-    Percept perceive(Impulse impulse);
+public interface Impulse {
+    String input();
+
+    Neuron neuron();
 }
