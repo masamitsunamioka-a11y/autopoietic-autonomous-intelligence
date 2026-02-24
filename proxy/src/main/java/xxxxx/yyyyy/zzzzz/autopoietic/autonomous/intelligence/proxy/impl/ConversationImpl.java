@@ -1,38 +1,44 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Context;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Conversation;
 
-/// @ApplicationScoped
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+
+@ApplicationScoped
 public class ConversationImpl implements Conversation {
     private static final Logger logger = LoggerFactory.getLogger(ConversationImpl.class);
-    private final Context context;
+    private final AtomicReference<String> id;
 
-    /// @Inject
-    public ConversationImpl(Context context) {
-        this.context = context;
+    public ConversationImpl() {
+        this.id = new AtomicReference<>();
     }
 
     @Override
     public void begin() {
-        /// this.context.begin();
+        this.begin(UUID.randomUUID().toString());
     }
 
     @Override
     public void begin(String id) {
-        /// this.context.begin(id);
+        if (!this.id.compareAndSet(null, id)) {
+            throw new IllegalStateException();
+        }
     }
 
     @Override
     public void end() {
-        /// this.context.end();
+        if (Objects.isNull(this.id.getAndSet(null))) {
+            throw new IllegalStateException();
+        }
     }
 
     @Override
     public boolean isTransient() {
-        /// return this.context.isTransient();
-        return false;
+        return Objects.isNull(this.id.get());
     }
 }

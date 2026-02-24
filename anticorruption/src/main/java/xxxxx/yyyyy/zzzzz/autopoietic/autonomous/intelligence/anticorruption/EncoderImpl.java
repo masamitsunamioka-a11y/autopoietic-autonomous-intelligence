@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class EncoderImpl implements Encoder {
@@ -24,7 +25,8 @@ public class EncoderImpl implements Encoder {
     private final FileSystem fileSystem;
     private final JsonCodec jsonCodec;
     private final Memory memory;
-    private final Path promptsSource;
+    private final Path phasedSource;
+    private final Path sharedSource;
 
     @Inject
     public EncoderImpl(Repository<Neuron> neuronRepository,
@@ -40,7 +42,8 @@ public class EncoderImpl implements Encoder {
         this.jsonCodec = jsonCodec;
         this.memory = memory;
         var configuration = new Configuration("anticorruption.yaml");
-        this.promptsSource = Path.of(configuration.get("anticorruption.encodings.source"), "");
+        this.phasedSource = Path.of(configuration.get("anticorruption.encodings.phased"), "");
+        this.sharedSource = Path.of(configuration.get("anticorruption.encodings.shared"), "");
     }
 
     @Override
@@ -51,6 +54,9 @@ public class EncoderImpl implements Encoder {
             "conversation", this.memory.conversation().toString(),
             "state", this.memory.state().toString(),
             "self", this.self(self),
+            "neuron_names", this.neuronRepository.findAll().stream()
+                .map(Neuron::name)
+                .collect(Collectors.joining(", ")),
             "schemas", this.marshal(self.schemas(), x -> {
                 return Map.of(
                     "name", x.name(),
@@ -71,16 +77,15 @@ public class EncoderImpl implements Encoder {
 
     @Override
     public String relay(Impulse impulse) {
+        var neurons = this.neuronRepository.findAll();
         return this.assemble("relay.md", Map.of(
             "input", impulse.input(),
             "conversation", this.memory.conversation().toString(),
             "state", this.memory.state().toString(),
-            "neurons", this.marshal(this.neuronRepository.findAll(), x -> {
-                return Map.of(
-                    "name", x.name(),
-                    "description", x.description());
-            }),
-            "schemas", this.marshal(this.schemaRepository.findAll(), x -> {
+            "neuron_names", neurons.stream()
+                .map(Neuron::name)
+                .collect(Collectors.joining(", ")),
+            "neurons", this.marshal(neurons, x -> {
                 return Map.of(
                     "name", x.name(),
                     "description", x.description());
@@ -97,6 +102,9 @@ public class EncoderImpl implements Encoder {
             "state", this.memory.state().toString(),
             "self", this.self(self),
             "neurons", this.neurons(),
+            "schema_names", this.schemaRepository.findAll().stream()
+                .map(Schema::name)
+                .collect(Collectors.joining(", ")),
             "schemas", this.schemas(),
             "effectors", this.effectors()
         ));
@@ -115,7 +123,10 @@ public class EncoderImpl implements Encoder {
     public String drive() {
         return this.assemble("drive.md", Map.of(
             "conversation", this.memory.conversation().toString(),
-            "state", this.memory.state().toString()
+            "state", this.memory.state().toString(),
+            "neurons", this.marshal(this.neuronRepository.findAll(), x -> Map.of(
+                "name", x.name(),
+                "description", x.description()))
         ));
     }
 
@@ -153,19 +164,30 @@ public class EncoderImpl implements Encoder {
     }
 
     private <T> String marshal(List<T> list, Function<T, Map<String, Object>> toMap) {
+        if (list.isEmpty()) {
+            return "None";
+        }
         return this.jsonCodec.marshal(list.stream().map(toMap).toList());
     }
 
     private String assemble(String id, Map<String, Object> values) {
         return values.entrySet().stream()
-            .reduce(this.read(id).replace("{{guardrails}}", this.read("guardrails.md")),
+            .reduce(this.read(id)
+                    .replace("{{guardrails}}", this.readShared("guardrails.md"))
+                    .replace("{{output_integrity}}", this.readShared("output_integrity.md")),
                 (x, y) -> x.replace("{{" + y.getKey() + "}}", String.valueOf(y.getValue())),
                 (x, y) -> x);
     }
 
     private String read(String id) {
         return this.fileSystem.read(
-            this.promptsSource.resolve(id),
+            this.phasedSource.resolve(id),
+            StandardCharsets.UTF_8);
+    }
+
+    private String readShared(String id) {
+        return this.fileSystem.read(
+            this.sharedSource.resolve(id),
             StandardCharsets.UTF_8);
     }
 }

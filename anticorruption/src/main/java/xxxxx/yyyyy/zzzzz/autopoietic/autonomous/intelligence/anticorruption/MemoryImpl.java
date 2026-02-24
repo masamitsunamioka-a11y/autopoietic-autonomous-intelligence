@@ -4,9 +4,14 @@ import jakarta.enterprise.context.ConversationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Memory;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,11 +21,22 @@ public class MemoryImpl implements Memory {
     private static final Logger logger = LoggerFactory.getLogger(MemoryImpl.class);
     private final Map<String, Object> conversations;
     private final Map<String, Object> states;
+    private final FileSystem fileSystem;
+    private final JsonCodec jsonCodec;
+    private final Path sessionDir;
 
     @Inject
-    public MemoryImpl() {
+    public MemoryImpl(@Localic FileSystem fileSystem, JsonCodec jsonCodec) {
+        this.fileSystem = fileSystem;
+        this.jsonCodec = jsonCodec;
+        var configuration = new Configuration("anticorruption.yaml");
+        var base = Path.of(configuration.get("anticorruption.memory.source"), "");
+        var sessions = Integer.parseInt(configuration.get("anticorruption.memory.sessions"));
+        this.sessionDir = base.resolve(
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
         this.conversations = new ConcurrentHashMap<>();
         this.states = new ConcurrentHashMap<>();
+        this.loadPastSessions(base, sessions);
     }
 
     @Override
@@ -28,6 +44,7 @@ public class MemoryImpl implements Memory {
         Objects.requireNonNull(role);
         Objects.requireNonNull(text);
         this.conversations.put(String.format("%s@%s", role, LocalDateTime.now()), text);
+        this.persist();
     }
 
     @Override
@@ -40,6 +57,7 @@ public class MemoryImpl implements Memory {
         Objects.requireNonNull(key);
         Objects.requireNonNull(value);
         this.states.put(String.format("%s@%s", key, LocalDateTime.now()), value);
+        this.persist();
     }
 
     @Override
@@ -54,5 +72,41 @@ public class MemoryImpl implements Memory {
     @Override
     public Map<String, Object> state() {
         return Map.copyOf(this.states);
+    }
+
+    private void loadPastSessions(Path base, int sessions) {
+        if (!this.fileSystem.exists(base)) {
+            return;
+        }
+        this.fileSystem.list(base)
+            .sorted(Comparator.reverseOrder())
+            .limit(sessions)
+            .forEach(dir -> {
+                var conversation = base.resolve(dir).resolve("conversation.json");
+                var state = base.resolve(dir).resolve("state.json");
+                if (this.fileSystem.exists(conversation)) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> map = (Map<String, Object>) this.jsonCodec.unmarshal(
+                        this.fileSystem.read(conversation, StandardCharsets.UTF_8), Map.class);
+                    this.conversations.putAll(map);
+                }
+                if (this.fileSystem.exists(state)) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> map = (Map<String, Object>) this.jsonCodec.unmarshal(
+                        this.fileSystem.read(state, StandardCharsets.UTF_8), Map.class);
+                    this.states.putAll(map);
+                }
+            });
+    }
+
+    private void persist() {
+        this.fileSystem.write(
+            this.sessionDir.resolve("conversation.json"),
+            this.jsonCodec.marshal(this.conversations),
+            StandardCharsets.UTF_8);
+        this.fileSystem.write(
+            this.sessionDir.resolve("state.json"),
+            this.jsonCodec.marshal(this.states),
+            StandardCharsets.UTF_8);
     }
 }

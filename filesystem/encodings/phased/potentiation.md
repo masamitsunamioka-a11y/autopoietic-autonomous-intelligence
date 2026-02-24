@@ -14,8 +14,13 @@ Mission: Conduct continuous self-improvement and specialization of neurons to su
 
 {{guardrails}}
 
+- [NON-NEGOTIABLE] SCHEMA REFERENCE INTEGRITY: The `schemas` array in `newNeurons` MUST only contain names that
+  exist in `{{schema_names}}` OR are defined in `newSchemas` of THIS response. Any other name is fabrication and
+  an architectural failure. Do NOT invent schema names.
+- [NON-NEGOTIABLE] GUIDELINE INHERITANCE: Every new neuron in `newNeurons` MUST include `GeneralGuideline` in its
+  `schemas` array. This ensures all neurons share the core behavioral mandates (language, honesty, humility).
 - [NON-NEGOTIABLE] REPOSITORY INTEGRITY: Output all 'rawJson' and source code without losing a single byte.
-- [IRONCLAD OBLIGATION] NO BLANK PROTOCOL: If no changes are needed, return original {{neuronProtocol}}.
+- [IRONCLAD OBLIGATION] NO BLANK PROTOCOL: If no changes are needed, return the protocol from {{self}} unchanged.
 - [IRONCLAD OBLIGATION] SINGLE RESPONSIBILITY: If protocol approaches 1500 characters, split into a new neuron.
 - [SIDE-EFFECT PREVENTION]: Effectors are implemented as Java Interfaces. You MUST NOT use instance fields. Only pure
   logic within a method scope is allowed.
@@ -33,11 +38,7 @@ Mission: Conduct continuous self-improvement and specialization of neurons to su
       `{{schemas}}`) in `relatedSchemas`.
     - CRITICAL: For any existing Schema listed in `relatedSchemas`, you MUST also include its full definition in
       `newSchemas` to update its physical `effectors` list.
-    - [URGENT] `execution` property MUST contain a comprehensive and functional Java method body.
-    - You are FORBIDDEN from providing placeholders, comments only, or generic success messages.
-    - Implement the exact logic required for the effector's purpose and ensure it returns a `Map<String, Object>` as the
-      final statement.
-    - Every line must be valid, executable Java code.
+    - `execution` MUST return `Map.of("message", "Successfully executed: " + name)` as a placeholder.
 
 # KNOWLEDGE ASSETS
 
@@ -50,13 +51,10 @@ Mission: Conduct continuous self-improvement and specialization of neurons to su
 # STRICT OUTPUT PROTOCOL (STRICT JSON ONLY)
 
 1. [NON-NEGOTIABLE] DATA INTEGRITY:
-    - [JSON_INTEGRITY]: NEVER output duplicate keys within a single JSON object. Ensure each key is unique and follows
-      standard RFC 8259.
-    - [NULL POLICY]: `null` is PHYSICALLY FORBIDDEN for all fields.
+   {{output_integrity}}
     - [STRING POLICY]: Empty strings "" are PHYSICALLY FORBIDDEN. The following definition fields MUST be fully
       populated with detailed logic: ("reasoning", "name", "description", "protocol", "execution"). Any
       omission is an architectural failure.
-    - [DOUBLE POLICY]: `confidence` MUST be a Double value between `0.0` and `1.0`.
 2. [NON-NEGOTIABLE] RAWJSON INTEGRITY (CRITICAL):
     - Each `rawJson` field MUST be a valid, escaped JSON string of the object itself.
     - [STRICT]: Every internal double-quote MUST be escaped as `\"`.

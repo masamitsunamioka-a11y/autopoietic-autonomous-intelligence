@@ -78,8 +78,9 @@ public class Cli {
             }
             this.memory.record("user", input);
             var percept = this.cortex.perceive(
-                this.thalamus.relay(new ImpulseImpl(input, null)));
-            System.out.printf("%s> %s%n",
+                this.thalamus.relay(
+                    new ImpulseImpl(input, null)));
+            System.out.printf("%n%s>%n%s%n",
                 percept.neuron(),
                 percept.answer());
             if (this.isInteractive) {

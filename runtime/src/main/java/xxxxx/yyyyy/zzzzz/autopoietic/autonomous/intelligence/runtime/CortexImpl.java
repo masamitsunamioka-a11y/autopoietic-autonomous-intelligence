@@ -7,8 +7,13 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.*;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static java.util.stream.Collectors.toSet;
 
 @ApplicationScoped
 public class CortexImpl implements Cortex {
@@ -19,6 +24,9 @@ public class CortexImpl implements Cortex {
     private final Plasticity plasticity;
     private final Repository<Effector> effectorRepository;
     private final Memory memory;
+    private final ReentrantLock focus;
+    private final AtomicReference<String> lastEffector;
+    private final AtomicInteger consecutiveFireCount;
 
     @Inject
     public CortexImpl(Nucleus nucleus,
@@ -33,10 +41,34 @@ public class CortexImpl implements Cortex {
         this.plasticity = plasticity;
         this.effectorRepository = effectorRepository;
         this.memory = memory;
+        this.focus = new ReentrantLock();
+        this.lastEffector = new AtomicReference<>("");
+        this.consecutiveFireCount = new AtomicInteger(0);
     }
 
     @Override
     public Percept perceive(Impulse impulse) {
+        this.focus.lock();
+        try {
+            return this.doPerceive(impulse);
+        } finally {
+            this.focus.unlock();
+        }
+    }
+
+    @Override
+    public Optional<Percept> tryPerceive(Impulse impulse) {
+        if (!this.focus.tryLock()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(this.doPerceive(impulse));
+        } finally {
+            this.focus.unlock();
+        }
+    }
+
+    private Percept doPerceive(Impulse impulse) {
         Objects.requireNonNull(impulse.neuron());
         var encoding = this.encoder.perception(impulse);
         var output = this.nucleus.compute(encoding, Decision.class);
@@ -54,17 +86,17 @@ public class CortexImpl implements Cortex {
             }
             case "FIRE" -> {
                 this.fire(impulse, output);
-                yield this.perceive(
+                yield this.doPerceive(
                     this.thalamus.relay(impulse));
             }
             case "LEARN" -> {
                 this.learn(impulse);
-                yield this.perceive(
+                yield this.doPerceive(
                     this.thalamus.relay(impulse));
             }
             case "PROPAGATE" -> {
                 this.propagate(impulse, output);
-                yield this.perceive(
+                yield this.doPerceive(
                     this.thalamus.relay(impulse));
             }
             default -> {
@@ -85,19 +117,32 @@ public class CortexImpl implements Cortex {
 
     private void fire(Impulse impulse, Decision decision) {
         var neuron = impulse.neuron();
+        var effector = decision.effector();
         logger.debug("\n--- act: {}\n--- own: {}\n--- all: {}",
-            decision.effector(),
+            effector,
             this.own(neuron),
             this.all());
+        if (effector.equals(this.lastEffector.get())) {
+            if (this.consecutiveFireCount.incrementAndGet() >= 3) {
+                logger.warn("[CORTEX] Loop detected on {}, injecting SYSTEM WARNING", effector);
+                this.consecutiveFireCount.set(0);
+                this.lastEffector.set("");
+                this.memory.record("[SYSTEM]",
+                    "[SYSTEM WARNING] Effector " + effector + " fired 3+ consecutive times. Do not FIRE again.");
+            }
+        } else {
+            this.lastEffector.set(effector);
+            this.consecutiveFireCount.set(1);
+        }
         var output = neuron.schemas().stream()
             .flatMap(x -> x.effectors().stream())
-            .filter(x -> x.name().equals(decision.effector()))
+            .filter(x -> x.name().equals(effector))
             .findFirst()
             .orElseThrow()
             .fire(this.memory.state());
         output.forEach((k, v) -> {
             this.memory.update(
-                "results." + decision.effector() + "." + k, v);
+                "results." + effector + "." + k, v);
         });
     }
 
@@ -113,23 +158,24 @@ public class CortexImpl implements Cortex {
             "last_propagate_to", decision.target());
     }
 
+    /// @formatter:off
     private static record InternalPercept(
-        String neuron,
-        String reasoning,
-        double confidence,
-        String answer) implements Percept {
+            String neuron,
+            String reasoning,
+            double confidence,
+            String answer) implements Percept {
     }
-
+    /// @formatter:on
     private Set<String> own(Neuron neuron) {
         return neuron.schemas().stream()
             .flatMap(x -> x.effectors().stream())
             .map(Effector::name)
-            .collect(Collectors.toSet());
+            .collect(toSet());
     }
 
     private Set<String> all() {
         return this.effectorRepository.findAll().stream()
             .map(Effector::name)
-            .collect(Collectors.toSet());
+            .collect(toSet());
     }
 }

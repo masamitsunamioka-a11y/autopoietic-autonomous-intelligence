@@ -2,7 +2,6 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.ConversationScoped;
-import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,26 +14,27 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 public class ProxyContainerImpl implements ProxyContainer {
     private static final Logger logger = LoggerFactory.getLogger(ProxyContainerImpl.class);
-    private final ClassScanner classScanner;
-    private final ClientProxyProvider clientProxyProvider;
     private final Map<Class<? extends Annotation>, Context> contexts;
     private final Map<Contextual<?>, Object> proxies;
     private final ReadWriteLock lock;
+    private final ClassScanner classScanner;
+    private final ClientProxyProvider clientProxyProvider;
 
     public ProxyContainerImpl(ClassScanner classScanner) {
-        this.classScanner = classScanner;
-        this.clientProxyProvider = new ClientProxyProviderImpl(this);
         this.contexts = new ConcurrentHashMap<>();
         this.proxies = new ConcurrentHashMap<>();
         this.lock = new ReentrantReadWriteLock(true);
+        this.classScanner = classScanner;
+        this.clientProxyProvider = new ClientProxyProviderImpl(this);
         this.reconcile();
     }
 
-    /// 123456789_123456789_123456789_123456789_123456789_123456789_1
+    /// In the future, this container will implement a reconciliation loop.
     private void reconcile() {
         this.lock.writeLock().lock();
         try {
@@ -52,23 +52,25 @@ public class ProxyContainerImpl implements ProxyContainer {
             .map(AnnotatedTypeImpl::new)
             .filter(AnnotatedTypeImpl::isInjectable)
             .map(x -> new ContextualImpl<>(x, this))
-            .collect(Collectors.toSet());
-        contextuals.forEach(x -> {
-            this.proxies.put(x, this.clientProxyProvider.provide(x));
-        });
+            .collect(toSet());
+        contextuals
+            .forEach(x -> {
+                this.proxies.put(x,
+                    this.clientProxyProvider.provide(x));
+            });
     }
 
     private void activate() {
         this.contexts.put(ApplicationScoped.class,
-            new ApplicationContextImpl());
+            new ApplicationContextImpl(this.lock));
+        this.contexts.put(ConversationScoped.class,
+            new ConversationContextImpl(this.lock, this.get(Conversation.class)));
         /// this.contexts.put(SessionScoped.class,
         ///     new SessionContextImpl());
         /// this.contexts.put(RequestScoped.class,
         ///     new RequestContextImpl());
-        this.contexts.put(ConversationScoped.class,
-            this.get(ConversationContextImpl.class));
-        this.contexts.put(Dependent.class,
-            new DependentContextImpl());
+        /// this.contexts.put(Dependent.class,
+        ///     new DependentContextImpl());
     }
 
     @Override
@@ -86,14 +88,17 @@ public class ProxyContainerImpl implements ProxyContainer {
         var orDefault = (qualifiers.length > 0)
             ? Set.of(qualifiers)
             : Set.of(Default.Literal.INSTANCE);
-        ///
-        return (T) this.proxies.keySet().stream()
+        var qualified = this.proxies.keySet().stream()
             .map(x -> (ContextualImpl<?>) x)
-            .filter(x -> x.types().contains(type))
-            .filter(x -> x.qualifiers().equals(orDefault))
-            .findFirst()
+            .filter(x -> {
+                return x.types().equals(type);
+            })
+            .filter(x -> {
+                return x.qualifiers().equals(orDefault);
+            })
             .map(this.proxies::get)
-            .orElseThrow();
+            .toList();
+        return (T) qualified.getFirst();
     }
 
     @Override

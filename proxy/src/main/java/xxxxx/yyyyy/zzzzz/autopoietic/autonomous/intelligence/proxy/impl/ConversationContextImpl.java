@@ -1,6 +1,5 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.ConversationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,17 +9,20 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Conversation;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
 
-@ApplicationScoped
-public class ConversationContextImpl implements Context, Conversation {
+public class ConversationContextImpl implements Context {
     private static final Logger logger = LoggerFactory.getLogger(ConversationContextImpl.class);
     private final ThreadLocal<Map<Contextual<?>, Object>> instances;
+    private final ReadWriteLock lock;
+    private final Conversation conversation;
 
-    public ConversationContextImpl() {
+    public ConversationContextImpl(ReadWriteLock lock,
+                                   Conversation conversation) {
         this.instances = new InheritableThreadLocal<>();
+        this.lock = lock;
+        this.conversation = conversation;
     }
 
     @Override
@@ -30,47 +32,23 @@ public class ConversationContextImpl implements Context, Conversation {
 
     @Override
     public <T> T get(Contextual<T> contextual) {
-        /// this.lock.readLock().lock();
+        this.lock.readLock().lock();
         try {
             return this.resolve(contextual);
         } finally {
-            /// this.lock.readLock().unlock();
+            this.lock.readLock().unlock();
         }
     }
 
     @SuppressWarnings("unchecked")
     private <T> T resolve(Contextual<T> contextual) {
-        var instances = this.instances.get();
-        if (Objects.isNull(instances)) {
+        if (this.conversation.isTransient()) {
             throw new IllegalStateException();
         }
-        return (T) instances.computeIfAbsent(
+        if (this.instances.get() == null) {
+            this.instances.set(new ConcurrentHashMap<>());
+        }
+        return (T) this.instances.get().computeIfAbsent(
             contextual, x -> contextual.create(null));
-    }
-
-    @Override
-    public void begin() {
-        this.begin(UUID.randomUUID().toString());
-    }
-
-    @Override
-    public void begin(String id) {
-        if (!this.isTransient()) {
-            throw new IllegalStateException();
-        }
-        this.instances.set(new ConcurrentHashMap<>());
-    }
-
-    @Override
-    public void end() {
-        if (this.isTransient()) {
-            throw new IllegalStateException();
-        }
-        this.instances.remove();
-    }
-
-    @Override
-    public boolean isTransient() {
-        return this.instances.get() == null;
     }
 }

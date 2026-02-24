@@ -46,20 +46,26 @@ public class DriveImpl implements Drive {
     }
 
     private void fire() {
-        var encoding = this.encoder.drive();
-        var output = this.nucleus.compute(encoding, Urge.class);
-        logger.debug("[NUCLEUS] Computing: ({}) [{}], ShouldFire: {}",
-            output.confidence(),
-            output.reasoning(),
-            output.shouldFire());
-        if (output.shouldFire()) {
-            var percept = this.cortex.perceive(
-                this.thalamus.relay(new ImpulseImpl(output.answer(), null)));
-            System.out.printf("%s> %s%n",
-                percept.neuron(),
-                percept.answer());
+        try {
+            var encoding = this.encoder.drive();
+            var output = this.nucleus.compute(encoding, Urge.class);
+            logger.debug("[NUCLEUS] Computing: ({}) [{}], ShouldFire: {}",
+                output.confidence(),
+                output.reasoning(),
+                output.shouldFire());
+            if (output.shouldFire()) {
+                this.cortex.tryPerceive(
+                        this.thalamus.relay(
+                            new ImpulseImpl(output.answer(), null)))
+                    .ifPresent(percept -> System.out.printf("%n\u001B[90m[introspection] %s>%n%s\u001B[0m%n",
+                        percept.neuron(),
+                        percept.answer()));
+            }
+        } catch (Exception e) {
+            logger.error("[DRIVE] fire failed", e);
+        } finally {
+            this.schedule();
         }
-        this.schedule();
     }
 
     private void schedule() {

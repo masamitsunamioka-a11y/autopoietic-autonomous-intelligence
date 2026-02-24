@@ -7,11 +7,14 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Context;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Contextual;
 
 import java.lang.annotation.Annotation;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class DependentContextImpl implements Context {
     private static final Logger logger = LoggerFactory.getLogger(DependentContextImpl.class);
+    private final ReadWriteLock lock;
 
-    public DependentContextImpl() {
+    public DependentContextImpl(ReadWriteLock lock) {
+        this.lock = lock;
     }
 
     @Override
@@ -21,11 +24,11 @@ public class DependentContextImpl implements Context {
 
     @Override
     public <T> T get(Contextual<T> contextual) {
-        /// this.lock.readLock().lock();
+        this.lock.readLock().lock();
         try {
             return this.resolve(contextual);
         } finally {
-            /// this.lock.readLock().unlock();
+            this.lock.readLock().unlock();
         }
     }
 

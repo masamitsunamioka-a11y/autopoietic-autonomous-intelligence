@@ -17,8 +17,11 @@ Mission: Execute structural optimization and total re-architecture to maintain r
   explicitly present in the output, even if unchanged.
 - [NON-NEGOTIABLE] LINEAGE OBLIGATION: Every merged item MUST trace its history. You MUST list all original source
   entity names in the `sources` field to maintain the evolutionary lineage.
-- [NON-NEGOTIABLE] 1-BYTE INTEGRITY: You MUST output the full `rawJson` for every entity without losing a single byte.
-  Omission or modification of the underlying structure is a fatal violation of architectural pride.
+- [NON-NEGOTIABLE] PROTOCOL INTEGRITY: You MUST output the full `protocol` for every entity without truncation.
+- [NON-NEGOTIABLE] SCHEMA REFERENCE REPAIR: When schemas are merged or renamed in `mergedSchemas`, inspect ALL neurons
+  in `{{neurons}}` for references to the old (source) schema names. Any such neuron MUST be included in `mergedNeurons`
+  with its `schemas` list updated to use the new merged schema name. A neuron left with a stale schema reference is an
+  architectural violation and will cause a runtime crash.
 
 # REASONING PROTOCOLS
 
@@ -34,18 +37,10 @@ Mission: Execute structural optimization and total re-architecture to maintain r
 # STRICT OUTPUT PROTOCOL (STRICT JSON ONLY)
 
 1. [NON-NEGOTIABLE] DATA INTEGRITY:
-    - [JSON_INTEGRITY]: NEVER output duplicate keys within a single JSON object. Ensure each key is unique and follows
-      standard RFC 8259.
-    - [NULL POLICY]: `null` is PHYSICALLY FORBIDDEN for all fields.
+   {{output_integrity}}
     - [STRING POLICY]: Empty strings "" are PHYSICALLY FORBIDDEN. The following definition fields MUST be fully
       populated with detailed logic: ("reasoning", "name", "description", "protocol"). Any omission is an
       architectural failure.
-    - [DOUBLE POLICY]: `confidence` MUST be a Double value between `0.0` and `1.0`.
-2. [NON-NEGOTIABLE] RAWJSON INTEGRITY (CRITICAL):
-    - Each `rawJson` field MUST be a valid, escaped JSON string of the object itself.
-    - [STRICT]: Every internal double-quote MUST be escaped as `\"`.
-    - [STRICT]: MUST be a single-line string. No unescaped newlines.
-    - [STRICT]: For the nested `rawJson` field INSIDE the escaped string, use `\"rawJson\":\"\"`.
 
 ## [MANDATORY OUTPUT FORMAT: Pruning]
 

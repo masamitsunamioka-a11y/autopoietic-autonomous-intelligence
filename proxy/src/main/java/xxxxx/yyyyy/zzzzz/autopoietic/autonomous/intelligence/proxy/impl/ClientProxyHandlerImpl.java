@@ -45,13 +45,14 @@ public class ClientProxyHandlerImpl implements InvocationHandler {
             });
     }
 
+    /// @formatter:off
     private static record InvocationContext(
-        Object proxy,
-        Method method,
-        Object[] arguments,
-        Object instance) {
+            Object proxy,
+            Method method,
+            Object[] arguments,
+            Object instance) {
     }
-
+    /// @formatter:on
     private Object invoke(InvocationContext ic, Function<Object, Object> f) {
         var unwrapped = (ContextualImpl<?>) this.contextual;
         logger.trace(String.format(

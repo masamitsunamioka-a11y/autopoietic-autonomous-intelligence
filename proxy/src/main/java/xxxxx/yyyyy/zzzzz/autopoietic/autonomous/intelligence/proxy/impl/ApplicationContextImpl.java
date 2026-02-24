@@ -9,13 +9,16 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Contextual;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class ApplicationContextImpl implements Context {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationContextImpl.class);
     private final Map<Contextual<?>, Object> instances;
+    private final ReadWriteLock lock;
 
-    public ApplicationContextImpl() {
+    public ApplicationContextImpl(ReadWriteLock lock) {
         this.instances = new ConcurrentHashMap<>();
+        this.lock = lock;
     }
 
     @Override
@@ -25,11 +28,11 @@ public class ApplicationContextImpl implements Context {
 
     @Override
     public <T> T get(Contextual<T> contextual) {
-        /// this.lock.readLock().lock();
+        this.lock.readLock().lock();
         try {
             return this.resolve(contextual);
         } finally {
-            /// this.lock.readLock().unlock();
+            this.lock.readLock().unlock();
         }
     }
 

@@ -50,4 +50,5 @@ buildNumber.properties
 ## -----
 tmp/
 .idea/
+filesystem/hippocampus/*/
 
