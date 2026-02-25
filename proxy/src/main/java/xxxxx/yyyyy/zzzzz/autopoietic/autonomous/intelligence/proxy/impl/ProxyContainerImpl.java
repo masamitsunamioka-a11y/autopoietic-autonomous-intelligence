@@ -34,7 +34,7 @@ public class ProxyContainerImpl implements ProxyContainer {
         this.reconcile();
     }
 
-    /// In the future, this container will implement a reconciliation loop.
+    /// In the future, this will be called in a continuous reconciliation loop.
     private void reconcile() {
         this.lock.writeLock().lock();
         try {
@@ -53,11 +53,10 @@ public class ProxyContainerImpl implements ProxyContainer {
             .filter(AnnotatedTypeImpl::isInjectable)
             .map(x -> new ContextualImpl<>(x, this))
             .collect(toSet());
-        contextuals
-            .forEach(x -> {
-                this.proxies.put(x,
-                    this.clientProxyProvider.provide(x));
-            });
+        contextuals.forEach(x -> {
+            this.proxies.put(x,
+                this.clientProxyProvider.provide(x));
+        });
     }
 
     private void activate() {
@@ -91,7 +90,7 @@ public class ProxyContainerImpl implements ProxyContainer {
         var qualified = this.proxies.keySet().stream()
             .map(x -> (ContextualImpl<?>) x)
             .filter(x -> {
-                return x.types().equals(type);
+                return x.types().contains(type);
             })
             .filter(x -> {
                 return x.qualifiers().equals(orDefault);
