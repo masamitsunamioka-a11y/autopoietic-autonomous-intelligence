@@ -86,6 +86,9 @@ public class AnnotatedTypeImpl<T> implements AnnotatedType<T> {
         return (Constructor<T>) stream(constructors)
             .filter(x -> x.isAnnotationPresent(Inject.class))
             .findFirst()
-            .orElse(constructors[0]);
+            .or(() -> stream(constructors)
+                .filter(x -> x.getParameterCount() == 0)
+                .findFirst())
+            .orElseThrow();
     }
 }

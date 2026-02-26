@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.JsonCodec;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Neuron;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Schema;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Module;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -19,21 +19,21 @@ import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorrupti
 @ApplicationScoped
 public class NeuronProxyProvider implements ProxyProvider<Neuron> {
     private static final Logger logger = LoggerFactory.getLogger(NeuronProxyProvider.class);
-    private final Repository<Schema> schemaRepository;
+    private final Repository<Module> moduleRepository;
     private final JsonCodec jsonCodec;
 
     @Inject
-    public NeuronProxyProvider(Repository<Schema> schemaRepository,
+    public NeuronProxyProvider(Repository<Module> moduleRepository,
                                JsonCodec jsonCodec) {
-        this.schemaRepository = schemaRepository;
+        this.moduleRepository = moduleRepository;
         this.jsonCodec = jsonCodec;
     }
 
     private static record InternalNeuron(
         String name,
-        String description,
-        String protocol,
-        List<String> schemas) {
+        String function,
+        String disposition,
+        List<String> modules) {
     }
 
     @Override
@@ -48,14 +48,13 @@ public class NeuronProxyProvider implements ProxyProvider<Neuron> {
                     case "toString" -> this.jsonCodec.marshal(neuron);
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> this.equals(proxy, args);
-                    case "schemas" -> {
-                        yield neuron.schemas().stream()
-                            .map(this.schemaRepository::find)
+                    case "modules" -> {
+                        yield neuron.modules().stream()
+                            .map(this.moduleRepository::find)
                             .distinct()
                             .toList();
                     }
-                    default ->
-                        InternalNeuron.class.getMethod(method.getName()).invoke(neuron);
+                    default -> InternalNeuron.class.getMethod(method.getName()).invoke(neuron);
                 };
             }
         );

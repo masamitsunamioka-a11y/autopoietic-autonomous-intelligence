@@ -2,11 +2,12 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
 import com.google.genai.Client;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Nucleus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Nucleus;
 
 import static java.util.stream.Collectors.joining;
 
@@ -18,6 +19,7 @@ public class NucleusImpl implements Nucleus {
     private final Validator validator;
     private static final String MODEL = "gemini-2.0-flash";
 
+    @Inject
     public NucleusImpl(JsonCodec jsonCodec) {
         this.jsonCodec = jsonCodec;
         try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
@@ -26,11 +28,11 @@ public class NucleusImpl implements Nucleus {
     }
 
     @Override
-    public <T> T compute(String encoding, Class<T> type) {
+    public <T> T compute(String signal, Class<T> type) {
         if (logger.isTraceEnabled()) {
-            logger.trace("\n{}", encoding);
+            logger.trace("\n{}", signal);
         }
-        var text = this.generate(encoding);
+        var text = this.generate(signal);
         if (logger.isTraceEnabled()) {
             logger.trace("\n{}", text);
         }

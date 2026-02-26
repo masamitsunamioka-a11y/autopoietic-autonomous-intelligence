@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Effector;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -75,11 +75,11 @@ public class FileSystemEffectorAdapter implements Adapter<Effector, String> {
     @Override
     public void publish(String id, String json) {
         Map<String, Object> definition = this.jsonCodec.unmarshal(json);
-        var description = (String) definition.get("description");
+        var function = (String) definition.get("function");
         var effector = new Effector() {
             /// @formatter:off
-            @Override public String name()        { return id; }
-            @Override public String description() { return description; }
+            @Override public String name()     { return id; }
+            @Override public String function() { return function; }
             /// @formatter:on
             @Override
             public Map<String, Object> fire(Map<String, Object> input) {

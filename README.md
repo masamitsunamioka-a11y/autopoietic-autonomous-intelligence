@@ -8,7 +8,7 @@ grounded in Maturana & Varela's autopoiesis theory.
 AAI operates through a continuous recursive loop:
 
 1. **Perceive**: Analyzes inputs and routes to specialized Neurons.
-2. **Potentiate**: Self-generates new Neurons, Schemas, and Effectors when capability gaps are detected.
+2. **Potentiate**: Self-generates new Neurons, Modules, and Effectors when capability gaps are detected.
 3. **Prune**: Consolidates and removes redundant cognitive structures (analogous to apoptosis).
 4. **Drive**: Fires autonomously without user input — an internal introspection loop analogous to the brain's Default
    Mode Network.
@@ -21,7 +21,7 @@ This framework asks not *"what can the system do?"* but *"what kind of entity is
 | Level | Name | Definition |
 |---|---|---|
 | **L1** | Operational Closure | The system completes tasks autonomously without human intervention |
-| **L2** | Structural Self-Production | The system generates and evolves its own cognitive structures (Neurons, Schemas,
+| **L2** | Structural Self-Production | The system generates and evolves its own cognitive structures (Neurons, Modules,
 Effectors) |
 | **L3** | Organizational Self-Production | The system creates its own inference substrate — the LLM itself |
 | **L4** | Structural Coupling Maturity | The system genuinely co-evolves with its environment, transcending its initial
@@ -38,17 +38,17 @@ implementation substrate |
 | Level  | Status         | Evidence                                                                                      |
 |--------|----------------|-----------------------------------------------------------------------------------------------|
 | **L1** | ✅ Complete     | Autonomous task routing, perception, memory persistence                                       |
-| **L2** | 🟡 ~80%        | Runtime self-generation of Neurons, Schemas, Effectors confirmed; multi-LLM selection pending |
+| **L2** | 🟡 ~80%        | Runtime self-generation of Neurons, Modules, Effectors confirmed; multi-LLM selection pending |
 | **L3** | 🔴 Not started | Intentional boundary — see below                                                              |
 | **L4** | ⬜ Theoretical  | —                                                                                             |
 
 ### L2 Highlights
 
-- **Plasticity** autonomously generates new Neurons and Schemas when capability gaps are detected during introspection
+- **Plasticity** autonomously generates new Neurons and Modules when capability gaps are detected during introspection
 - **EffectorCompiler** dynamically compiles new Java classes at runtime via `javax.tools`, loading them without restart
 - **Drive** fires proactively on a schedule without user input, analogous to the brain's Default Mode Network
-- **Guardian-type Neurons** emerged spontaneously during unattended overnight operation, including self-monitoring and
-  cognitive load measurement schemas
+- **Guardian-type Neurons** emerged spontaneously during unattended overnight operation (observed in experimental runs),
+  including self-monitoring and cognitive load measurement modules
 
 ### Intentional Boundary at L3
 

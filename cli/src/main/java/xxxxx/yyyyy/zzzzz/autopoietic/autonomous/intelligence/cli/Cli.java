@@ -6,12 +6,12 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.Conversation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.TypeLiteral;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ClassScannerImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ProxyContainerImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Cortex;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Drive;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Memory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Thalamus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Drive;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Thalamus;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
 
 public class Cli {
@@ -22,7 +22,7 @@ public class Cli {
     private final Thalamus thalamus;
     private final Cortex cortex;
     private final Drive drive;
-    private final Memory memory;
+    private final xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Conversation memory;
 
     public static void main(String[] args) {
         new Cli().launch();
@@ -33,7 +33,9 @@ public class Cli {
     }
 
     public Cli(Iterable<String> inputSource, boolean isInteractive) {
-        var classScanner = new ClassScannerImpl("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence");
+        var classScanner = new ClassScannerImpl(
+            List.of("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence"),
+            List.of("xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors"));
         var proxyContainer = new ProxyContainerImpl(classScanner);
         this.inputSource = inputSource;
         this.isInteractive = isInteractive;
@@ -47,23 +49,19 @@ public class Cli {
         this.conversation = proxyContainer.get(
             new TypeLiteral<Conversation>() {}.type());
         this.memory = proxyContainer.get(
-            new TypeLiteral<Memory>() {}.type());
+            new TypeLiteral<xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Conversation>() {}.type());
         /// @formatter:on
     }
 
     public void launch() {
         this.conversation.begin();
         try {
-            if (this.isInteractive) {
-                this.drive.start();
-            }
+            this.drive.start();
             this.interact();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            if (this.isInteractive) {
-                this.drive.stop();
-            }
+            this.drive.stop();
             this.conversation.end();
         }
     }
@@ -76,13 +74,17 @@ public class Cli {
             if ("exit".equalsIgnoreCase(input)) {
                 break;
             }
-            this.memory.record("user", input);
-            var percept = this.cortex.perceive(
-                this.thalamus.relay(
-                    new ImpulseImpl(input, null)));
-            System.out.printf("%n%s>%n%s%n",
-                percept.neuron(),
-                percept.answer());
+            this.memory.encode("user", input);
+            try {
+                var percept = this.cortex.perceive(
+                    this.thalamus.relay(
+                        new StimulusImpl(input, null)));
+                System.out.printf("%n%s>%n%s%n",
+                    percept.neuron(),
+                    percept.answer());
+            } catch (Exception e) {
+                logger.error("[CLI] perceive failed", e);
+            }
             if (this.isInteractive) {
                 System.out.print("> ");
             }

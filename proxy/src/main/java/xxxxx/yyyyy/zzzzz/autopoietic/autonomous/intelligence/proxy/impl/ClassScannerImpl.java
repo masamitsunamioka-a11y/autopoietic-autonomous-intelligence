@@ -18,24 +18,32 @@ import static java.util.Collections.list;
 
 public class ClassScannerImpl implements ClassScanner {
     private static final Logger logger = LoggerFactory.getLogger(ClassScannerImpl.class);
-    private final String basePackage;
+    private final List<String> includes;
+    private final List<String> excludes;
 
-    public ClassScannerImpl(String basePackage) {
-        this.basePackage = basePackage;
+    public ClassScannerImpl(List<String> includes, List<String> excludes) {
+        this.includes = includes;
+        this.excludes = excludes;
     }
 
     @Override
     public List<Class<?>> scan() {
         var classLoader = Thread.currentThread().getContextClassLoader();
-        var name = this.basePackage.replace('.', '/');
+        return this.includes.stream()
+            .flatMap(x -> this.scanPackage(classLoader, x))
+            .filter(x -> this.excludes.stream().noneMatch(x::startsWith))
+            .<Class<?>>map(this::toClass)
+            .distinct()
+            .toList();
+    }
+
+    private Stream<String> scanPackage(ClassLoader loader, String target) {
+        var name = target.replace('.', '/');
         try {
-            return list(classLoader.getResources(name)).stream()
+            return list(loader.getResources(name)).stream()
                 .flatMap(this::toPath)
-                .map(this::toClassName)
-                .filter(x -> x.startsWith(this.basePackage))
-                .<Class<?>>map(this::toClass)
-                .distinct()
-                .toList();
+                .map(path -> this.toClassName(path, target))
+                .filter(x -> x.startsWith(target));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -70,11 +78,11 @@ public class ClassScannerImpl implements ClassScanner {
         }
     }
 
-    private String toClassName(Path path) {
+    private String toClassName(Path path, String pkg) {
         return path.toString()
             .replaceFirst(
-                "^.*?" + this.basePackage.replace(".", "[/\\\\]"),
-                this.basePackage)
+                "^.*?" + pkg.replace(".", "[/\\\\]"),
+                pkg)
             .replaceAll("[/\\\\]", ".")
             .replace(".class", "");
     }

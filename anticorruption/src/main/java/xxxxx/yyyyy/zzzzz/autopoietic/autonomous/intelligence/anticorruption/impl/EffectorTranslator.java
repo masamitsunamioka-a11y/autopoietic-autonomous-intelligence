@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Translator;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Effector;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 
 @ApplicationScoped
 public class EffectorTranslator implements Translator<Effector, String> {
@@ -26,11 +26,11 @@ public class EffectorTranslator implements Translator<Effector, String> {
     public String translateTo(String id, Effector effector) {
         return """
             package %s;
-            import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Effector;
+            import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
             import java.util.Map;
             public class %s implements Effector {
                 @Override public String name() { return "%s"; }
-                @Override public String description() { return "%s"; }
+                @Override public String function() { return "%s"; }
                 @Override
                 public Map<String, Object> fire(Map<String, Object> input) {
                     return Map.of(
@@ -39,6 +39,6 @@ public class EffectorTranslator implements Translator<Effector, String> {
                 }
             }
             """
-            .formatted(this.effectorPackage, id, id, effector.description(), id);
+            .formatted(this.effectorPackage, id, id, effector.function(), id);
     }
 }

@@ -20,7 +20,13 @@ public class ConversationContextImpl implements Context {
 
     public ConversationContextImpl(ReadWriteLock lock,
                                    Conversation conversation) {
-        this.instances = new InheritableThreadLocal<>();
+        this.instances = new InheritableThreadLocal<>() {
+            @Override
+            protected Map<Contextual<?>, Object> initialValue() {
+                return new ConcurrentHashMap<>();
+            }
+        };
+        this.instances.get();
         this.lock = lock;
         this.conversation = conversation;
     }
@@ -44,9 +50,6 @@ public class ConversationContextImpl implements Context {
     private <T> T resolve(Contextual<T> contextual) {
         if (this.conversation.isTransient()) {
             throw new IllegalStateException();
-        }
-        if (this.instances.get() == null) {
-            this.instances.set(new ConcurrentHashMap<>());
         }
         return (T) this.instances.get().computeIfAbsent(
             contextual, x -> contextual.create(null));

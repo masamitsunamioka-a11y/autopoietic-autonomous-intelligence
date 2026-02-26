@@ -7,12 +7,12 @@ anticorruption:
       classpath:
         strategy: "system"
   encodings:
-    phased: "../filesystem/encodings/phased"
-    shared: "../filesystem/encodings/shared"
+    phase: "../filesystem/signal/phase"
+    shared: "../filesystem/signal/shared"
   neurons:
-    source: "../filesystem/cortex/neurons"
-  schemas:
-    source: "../filesystem/cortex/schemas"
+    source: "../filesystem/neural/neurons"
+  modules:
+    source: "../filesystem/neural/modules"
   memory:
     source: "../filesystem/hippocampus"
-    sessions: "1"
+    sessions: "0"

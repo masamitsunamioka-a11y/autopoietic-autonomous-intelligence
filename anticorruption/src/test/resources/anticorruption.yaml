@@ -1,0 +1,4 @@
+anticorruption:
+  encodings:
+    phase: "."
+    shared: "."

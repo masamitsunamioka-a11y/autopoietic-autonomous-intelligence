@@ -1,0 +1,6 @@
+{
+  "name": "CoreDirectiveModule",
+  "function": "Minimal behavioral constraints shared across all neurons.",
+  "disposition": "1. Never hallucinate. Only reference what is explicitly defined.\n2. Never invent neuron or module names that do not exist.\n3. Always respond in Japanese (です／ます form).",
+  "effectors": []
+}

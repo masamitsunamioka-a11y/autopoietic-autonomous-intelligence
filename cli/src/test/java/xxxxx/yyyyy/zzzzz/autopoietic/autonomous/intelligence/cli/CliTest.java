@@ -1,20 +1,32 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.cli;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 class CliTest {
     private static final Logger logger = LoggerFactory.getLogger(CliTest.class);
+    private final AtomicReference<Throwable> uncaughtException = new AtomicReference<>();
 
-    /// @BeforeEach
+    @BeforeEach
     void setUp() {
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             logger.error("", e);
-            throw new RuntimeException(e);
+            this.uncaughtException.set(e);
         });
+    }
+
+    @AfterEach
+    void tearDown() {
+        var e = this.uncaughtException.get();
+        if (e != null) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

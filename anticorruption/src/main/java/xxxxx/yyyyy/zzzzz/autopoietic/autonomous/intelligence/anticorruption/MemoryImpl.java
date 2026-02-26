@@ -5,8 +5,10 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Memory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Conversation;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.State;
 
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -17,7 +19,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ConversationScoped
-public class MemoryImpl implements Memory {
+public class MemoryImpl implements Conversation, State, Serializable {
     private static final Logger logger = LoggerFactory.getLogger(MemoryImpl.class);
     private final Map<String, Object> conversations;
     private final Map<String, Object> states;
@@ -31,7 +33,8 @@ public class MemoryImpl implements Memory {
         this.jsonCodec = jsonCodec;
         var configuration = new Configuration("anticorruption.yaml");
         var base = Path.of(configuration.get("anticorruption.memory.source"), "");
-        var sessions = Integer.parseInt(configuration.get("anticorruption.memory.sessions"));
+        var raw = Integer.parseInt(configuration.get("anticorruption.memory.sessions"));
+        var sessions = raw < 0 ? Long.MAX_VALUE : raw;
         this.sessionDir = base.resolve(
             LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
         this.conversations = new ConcurrentHashMap<>();
@@ -40,7 +43,7 @@ public class MemoryImpl implements Memory {
     }
 
     @Override
-    public void record(String role, String text) {
+    public void encode(String role, String text) {
         Objects.requireNonNull(role);
         Objects.requireNonNull(text);
         this.conversations.put(String.format("%s@%s", role, LocalDateTime.now()), text);
@@ -74,26 +77,29 @@ public class MemoryImpl implements Memory {
         return Map.copyOf(this.states);
     }
 
-    private void loadPastSessions(Path base, int sessions) {
+    @Override
+    public void decay() {
+        /// TODO: implement memory decay
+    }
+
+    private void loadPastSessions(Path base, long sessions) {
         if (!this.fileSystem.exists(base)) {
             return;
         }
         this.fileSystem.list(base)
             .sorted(Comparator.reverseOrder())
             .limit(sessions)
-            .forEach(dir -> {
-                var conversation = base.resolve(dir).resolve("conversation.json");
-                var state = base.resolve(dir).resolve("state.json");
+            .forEach(x -> {
+                var conversation = base.resolve(x).resolve("conversation.json");
+                var state = base.resolve(x).resolve("state.json");
                 if (this.fileSystem.exists(conversation)) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> map = (Map<String, Object>) this.jsonCodec.unmarshal(
-                        this.fileSystem.read(conversation, StandardCharsets.UTF_8), Map.class);
+                    Map<String, Object> map = this.jsonCodec.unmarshal(
+                        this.fileSystem.read(conversation, StandardCharsets.UTF_8));
                     this.conversations.putAll(map);
                 }
                 if (this.fileSystem.exists(state)) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> map = (Map<String, Object>) this.jsonCodec.unmarshal(
-                        this.fileSystem.read(state, StandardCharsets.UTF_8), Map.class);
+                    Map<String, Object> map = this.jsonCodec.unmarshal(
+                        this.fileSystem.read(state, StandardCharsets.UTF_8));
                     this.states.putAll(map);
                 }
             });
