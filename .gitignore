@@ -50,5 +50,6 @@ buildNumber.properties
 ## -----
 tmp/
 .idea/
-filesystem/hippocampus/*/
+filesystem/hippocampus/*
+!filesystem/hippocampus/.gitkeep
 
