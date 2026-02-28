@@ -1,15 +1,12 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
 import org.junit.jupiter.api.Test;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Transducer;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.plasticity.PlasticityImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.plasticity.Potentiation;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Nucleus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engram;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Module;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.homeostatic.plasticity.PlasticityImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.homeostatic.plasticity.Potentiation;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.*;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,98 +17,91 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PlasticityImplTest {
     @Test
-    void sproutSkipsNeuronWithMissingModuleReference() {
-        var storedNeurons = new ArrayList<String>();
+    void sproutSkipsAreaWithMissingNeuronReference() {
+        var storedAreas = new ArrayList<String>();
         var plasticity = new PlasticityImpl(
             nucleus(new Potentiation("r", 1.0, "",
-                List.of(new Potentiation.Neuron("N1", "f", "d", List.of("M-missing"))),
+                List.of(new Potentiation.Area("A1", "t", List.of("N-missing"), List.of())),
                 List.of(), List.of())),
-            transducer(),
-            trackingNeuronRepository(storedNeurons),
-            staticModuleRepository(List.of()),
-            staticEffectorRepository(List.of())
-        );
-        plasticity.potentiate(stimulus());
-        assertFalse(storedNeurons.contains("N1"), "Neuron referencing missing module must not be stored");
-    }
-
-    @Test
-    void sproutSkipsModuleWithMissingEffectorReference() {
-        var storedModules = new ArrayList<String>();
-        var plasticity = new PlasticityImpl(
-            nucleus(new Potentiation("r", 1.0, "",
-                List.of(),
-                List.of(new Potentiation.Module("M1", "f", "d", List.of("E-missing"))),
-                List.of())),
-            transducer(),
+            encoder(),
+            trackingAreaRepository(storedAreas),
             staticNeuronRepository(List.of()),
-            trackingModuleRepository(storedModules),
             staticEffectorRepository(List.of())
         );
-        plasticity.potentiate(stimulus());
-        assertFalse(storedModules.contains("M1"), "Module referencing missing effector must not be stored");
+        plasticity.potentiate(impulse());
+        assertFalse(storedAreas.contains("A1"), "Area referencing missing neuron must not be stored");
     }
 
     @Test
-    void sproutStoresNeuronReferencingNewModuleInSameResponse() {
-        var storedModules = new ArrayList<String>();
-        var storedNeurons = new ArrayList<String>();
+    void sproutSkipsAreaWithMissingEffectorReference() {
+        var storedAreas = new ArrayList<String>();
         var plasticity = new PlasticityImpl(
             nucleus(new Potentiation("r", 1.0, "",
-                List.of(new Potentiation.Neuron("N1", "f", "d", List.of("M1"))),
-                List.of(new Potentiation.Module("M1", "f", "d", List.of("E1"))),
-                List.of())),
-            transducer(),
-            trackingNeuronRepository(storedNeurons),
-            trackingModuleRepository(storedModules),
-            staticEffectorRepository(List.of(effector("E1")))
-        );
-        plasticity.potentiate(stimulus());
-        assertTrue(storedModules.contains("M1"), "M1 created in same response must be stored");
-        assertTrue(storedNeurons.contains("N1"), "N1 referencing same-response M1 must be stored");
-    }
-
-    @Test
-    void sproutStoresNeuronWithAllExistingModules() {
-        var storedNeurons = new ArrayList<String>();
-        var plasticity = new PlasticityImpl(
-            nucleus(new Potentiation("r", 1.0, "",
-                List.of(new Potentiation.Neuron("N1", "f", "d", List.of("M-existing"))),
+                List.of(new Potentiation.Area("A1", "t", List.of(), List.of("E-missing"))),
                 List.of(), List.of())),
-            transducer(),
-            trackingNeuronRepository(storedNeurons),
-            staticModuleRepository(List.of(module("M-existing"))),
+            encoder(),
+            trackingAreaRepository(storedAreas),
+            staticNeuronRepository(List.of()),
             staticEffectorRepository(List.of())
         );
-        plasticity.potentiate(stimulus());
-        assertTrue(storedNeurons.contains("N1"), "Neuron with all existing module refs must be stored");
+        plasticity.potentiate(impulse());
+        assertFalse(storedAreas.contains("A1"), "Area referencing missing effector must not be stored");
+    }
+
+    @Test
+    void sproutStoresAreaReferencingNewNeuronInSameResponse() {
+        var storedNeurons = new ArrayList<String>();
+        var storedAreas = new ArrayList<String>();
+        var plasticity = new PlasticityImpl(
+            nucleus(new Potentiation("r", 1.0, "",
+                List.of(new Potentiation.Area("A1", "t", List.of("N1"), List.of())),
+                List.of(new Potentiation.Neuron("N1", "tuning")),
+                List.of())),
+            encoder(),
+            trackingAreaRepository(storedAreas),
+            trackingNeuronRepository(storedNeurons),
+            staticEffectorRepository(List.of())
+        );
+        plasticity.potentiate(impulse());
+        assertTrue(storedNeurons.contains("N1"), "N1 created in same response must be stored");
+        assertTrue(storedAreas.contains("A1"), "A1 referencing same-response N1 must be stored");
+    }
+
+    @Test
+    void sproutStoresAreaWithAllExistingRefs() {
+        var storedAreas = new ArrayList<String>();
+        var plasticity = new PlasticityImpl(
+            nucleus(new Potentiation("r", 1.0, "",
+                List.of(new Potentiation.Area("A1", "t", List.of("N-existing"), List.of())),
+                List.of(), List.of())),
+            encoder(),
+            trackingAreaRepository(storedAreas),
+            staticNeuronRepository(List.of(neuron("N-existing"))),
+            staticEffectorRepository(List.of())
+        );
+        plasticity.potentiate(impulse());
+        assertTrue(storedAreas.contains("A1"), "Area with all existing neuron refs must be stored");
     }
 
     /// @formatter:off
     private static Nucleus nucleus(Potentiation potentiation) {
         return new Nucleus() {
             @SuppressWarnings("unchecked")
-            public <T> T compute(String signal, Class<T> type) { return (T) potentiation; }
+            public <T> T integrate(String signal, Class<T> type) { return (T) potentiation; }
         };
     }
-    private static Transducer transducer() {
-        return new Transducer() {
-            public String perception(Stimulus s) { return ""; }
-            public String relay(Stimulus s) { return ""; }
-            public String potentiation(Stimulus s) { return ""; }
-            public String pruning() { return ""; }
-            public String drive() { return ""; }
-        };
+    private static Encoder encoder() {
+        return (impulse, caller) -> "";
     }
-    private static Stimulus stimulus() {
-        return new Stimulus() {
-            public String input() { return "test"; }
-            public Neuron neuron() {
-                return new Neuron() {
+    private static Impulse impulse() {
+        return new Impulse() {
+            public String signal() { return "test"; }
+            public Area area() {
+                return new Area() {
                     public String name() { return "current"; }
-                    public String function() { return ""; }
-                    public String disposition() { return ""; }
-                    public List<Module> modules() { return List.of(); }
+                    public String tuning() { return ""; }
+                    public List<Neuron> neurons() { return List.of(); }
+                    public List<Effector> effectors() { return List.of(); }
                 };
             }
         };
@@ -119,65 +109,53 @@ class PlasticityImplTest {
     private static Effector effector(String name) {
         return new Effector() {
             public String name() { return name; }
-            public String function() { return ""; }
+            public String tuning() { return ""; }
             public Map<String, Object> fire(Map<String, Object> input) { return Map.of(); }
         };
     }
-    private static Module module(String name) {
-        return new Module() {
+    private static Neuron neuron(String name) {
+        return new Neuron() {
             public String name() { return name; }
-            public String function() { return ""; }
-            public String disposition() { return ""; }
-            public List<Effector> effectors() { return List.of(); }
+            public String tuning() { return ""; }
         };
     }
-    private static Repository<Neuron> staticNeuronRepository(List<Neuron> items) {
+    private static Repository<Area, Engram> trackingAreaRepository(List<String> stored) {
+        return new Repository<>() {
+            public Area find(String id) { throw new UnsupportedOperationException(); }
+            public List<Area> findAll() { return List.of(); }
+            public void store(Engram engram) { stored.add(engram.name()); }
+            public void remove(String id) {}
+        };
+    }
+    private static Repository<Neuron, Engram> staticNeuronRepository(List<Neuron> items) {
         return new Repository<>() {
             public Neuron find(String id) { throw new UnsupportedOperationException(); }
             public List<Neuron> findAll() { return items; }
-            public void store(Engram e) {}
+            public void store(Engram engram) {}
             public void remove(String id) {}
         };
     }
-    private static Repository<Neuron> trackingNeuronRepository(List<String> stored) {
+    private static Repository<Neuron, Engram> trackingNeuronRepository(List<String> stored) {
+        var neurons = new ArrayList<Neuron>();
         return new Repository<>() {
             public Neuron find(String id) { throw new UnsupportedOperationException(); }
-            public List<Neuron> findAll() { return List.of(); }
-            public void store(Engram e) { stored.add(e.name()); }
-            public void remove(String id) {}
-        };
-    }
-    private static Repository<Module> staticModuleRepository(List<Module> items) {
-        return new Repository<>() {
-            public Module find(String id) { throw new UnsupportedOperationException(); }
-            public List<Module> findAll() { return items; }
-            public void store(Engram e) {}
-            public void remove(String id) {}
-        };
-    }
-    private static Repository<Module> trackingModuleRepository(List<String> stored) {
-        var modules = new ArrayList<Module>();
-        return new Repository<>() {
-            public Module find(String id) { throw new UnsupportedOperationException(); }
-            public List<Module> findAll() { return List.copyOf(modules); }
-            public void store(Engram e) {
-                stored.add(e.name());
-                var n = e.name();
-                modules.add(new Module() {
+            public List<Neuron> findAll() { return List.copyOf(neurons); }
+            public void store(Engram engram) {
+                stored.add(engram.name());
+                var n = engram.name();
+                neurons.add(new Neuron() {
                     public String name() { return n; }
-                    public String function() { return ""; }
-                    public String disposition() { return ""; }
-                    public List<Effector> effectors() { return List.of(); }
+                    public String tuning() { return ""; }
                 });
             }
             public void remove(String id) {}
         };
     }
-    private static Repository<Effector> staticEffectorRepository(List<Effector> items) {
+    private static Repository<Effector, Organ> staticEffectorRepository(List<Effector> items) {
         return new Repository<>() {
             public Effector find(String id) { throw new UnsupportedOperationException(); }
             public List<Effector> findAll() { return items; }
-            public void store(Engram e) {}
+            public void store(Organ organ) {}
             public void remove(String id) {}
         };
     }

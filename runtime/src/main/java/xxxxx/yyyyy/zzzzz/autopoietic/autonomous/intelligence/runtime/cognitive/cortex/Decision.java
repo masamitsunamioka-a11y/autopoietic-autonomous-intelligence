@@ -12,15 +12,15 @@ public record Decision(
     @NotBlank String mode,
     String response,
     String effector,
-    String neuron) {
+    String area) {
     public Decision {
         switch (mode.toUpperCase()) {
-            case "EMIT", "INHIBIT" -> Objects.requireNonNull(response,
+            case "VOCALIZE", "INHIBIT" -> Objects.requireNonNull(response,
                 "`response` is required for this mode.");
             case "FIRE" -> Objects.requireNonNull(effector,
                 "`effector` is required for FIRE mode.");
-            case "PROJECT" -> Objects.requireNonNull(neuron,
-                "`neuron` is required for PROJECT mode.");
+            case "PROJECT" -> Objects.requireNonNull(area,
+                "`area` is required for PROJECT mode.");
             default -> {
             }
         }

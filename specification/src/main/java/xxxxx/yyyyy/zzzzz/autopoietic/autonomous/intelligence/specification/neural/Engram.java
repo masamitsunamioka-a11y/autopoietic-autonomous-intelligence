@@ -3,9 +3,11 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neur
 import java.util.function.Function;
 
 public interface Engram {
+    /// [Engineering] No Kandel equivalent — required for system addressing.
     String name();
 
-    default String transcribe(Function<Engram, String> f) {
+    /// [Engineering] Java functional pattern — no Kandel method equivalent.
+    default String encode(Function<Engram, String> f) {
         return f.apply(this);
     }
 }

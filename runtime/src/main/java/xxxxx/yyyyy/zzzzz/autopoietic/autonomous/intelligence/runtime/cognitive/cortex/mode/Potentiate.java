@@ -7,30 +7,27 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.cortex.Decision;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.cortex.Mode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Plasticity;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Thalamus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Percept;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Plasticity;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 
 @PotentiateMode
 @ApplicationScoped
 public final class Potentiate implements Mode {
     private static final Logger logger = LoggerFactory.getLogger(Potentiate.class);
-    private final Plasticity plasticity;
     private final Cortex cortex;
-    private final Thalamus thalamus;
+    private final Plasticity plasticity;
 
     @Inject
-    public Potentiate(Plasticity plasticity, Cortex cortex, Thalamus thalamus) {
-        this.plasticity = plasticity;
+    public Potentiate(Cortex cortex, Plasticity plasticity) {
         this.cortex = cortex;
-        this.thalamus = thalamus;
+        this.plasticity = plasticity;
     }
 
     @Override
-    public Percept handle(Stimulus stimulus, Decision decision) {
-        this.plasticity.potentiate(stimulus);
+    public Percept handle(Impulse impulse, Decision decision) {
+        this.plasticity.potentiate(impulse);
         this.plasticity.prune();
-        return this.cortex.perceive(this.thalamus.relay(stimulus));
+        return this.cortex.respond(impulse);
     }
 }

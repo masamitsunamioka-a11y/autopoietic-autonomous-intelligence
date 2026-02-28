@@ -9,10 +9,10 @@ anticorruption:
   encodings:
     phase: "../filesystem/signal/phase"
     shared: "../filesystem/signal/shared"
+  areas:
+    source: "../filesystem/neural/areas"
   neurons:
     source: "../filesystem/neural/neurons"
-  modules:
-    source: "../filesystem/neural/modules"
   memory:
     source: "../filesystem/hippocampus"
     sessions: "0"

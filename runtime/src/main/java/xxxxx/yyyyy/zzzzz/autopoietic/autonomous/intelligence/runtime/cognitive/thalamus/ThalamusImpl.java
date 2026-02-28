@@ -5,42 +5,37 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Transducer;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.StimulusImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Nucleus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Thalamus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engram;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
 @ApplicationScoped
 public class ThalamusImpl implements Thalamus {
     private static final Logger logger = LoggerFactory.getLogger(ThalamusImpl.class);
     private final Nucleus nucleus;
-    private final Transducer transducer;
-    private final Repository<Neuron> neuronRepository;
+    private final Encoder encoder;
+    private final Repository<Area, Engram> areaRepository;
 
     @Inject
-    public ThalamusImpl(Nucleus nucleus,
-                        Transducer transducer,
-                        Repository<Neuron> neuronRepository) {
+    public ThalamusImpl(Nucleus nucleus, Encoder encoder,
+                        Repository<Area, Engram> areaRepository) {
         this.nucleus = nucleus;
-        this.transducer = transducer;
-        this.neuronRepository = neuronRepository;
+        this.encoder = encoder;
+        this.areaRepository = areaRepository;
     }
 
     @Override
-    public Stimulus relay(Stimulus stimulus) {
-        var signal = this.transducer.relay(stimulus);
-        var output = this.nucleus.compute(signal, Projection.class);
-        logger.debug("[NUCLEUS] Computing: ({}) [{}], SelectedNeuron: {}",
-            output.confidence(),
-            output.reasoning(),
-            output.neuron()
-        );
-        var neuron = this.neuronRepository.find(output.neuron());
-        if (neuron == null) {
+    public Impulse relay(Impulse impulse) {
+        var signal = this.encoder.encode(impulse, Thalamus.class);
+        var output = this.nucleus.integrate(signal, Projection.class);
+        var area = this.areaRepository.find(output.area());
+        if (area == null) {
             throw new IllegalStateException();
         }
-        return new StimulusImpl(stimulus.input(), neuron);
+        return new ImpulseImpl(impulse.signal(), area);
     }
 }

@@ -1,15 +1,13 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engram;
-
 import java.util.List;
 
-public interface Repository<T> {
-    T find(String id);
+public interface Repository<I, E> {
+    I find(String id);
 
-    List<T> findAll();
+    List<I> findAll();
 
-    void store(Engram engram);
+    void store(E e);
 
     void remove(String id);
 }

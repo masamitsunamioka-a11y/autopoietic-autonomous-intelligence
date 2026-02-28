@@ -7,8 +7,11 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.TypeLiteral;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ClassScannerImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ProxyContainerImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Drive;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Thalamus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Drive;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Salience;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Transducer;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
 
 import java.util.Iterator;
 import java.util.List;
@@ -19,10 +22,12 @@ public class Cli {
     private final Iterable<String> inputSource;
     private final boolean isInteractive;
     private final Conversation conversation;
+    private final Transducer transducer;
     private final Thalamus thalamus;
     private final Cortex cortex;
     private final Drive drive;
-    private final xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Conversation memory;
+    private final Salience salience;
+    private final Episode episode;
 
     public static void main(String[] args) {
         new Cli().launch();
@@ -40,28 +45,32 @@ public class Cli {
         this.inputSource = inputSource;
         this.isInteractive = isInteractive;
         /// @formatter:off
+        this.transducer = proxyContainer.get(
+            new TypeLiteral<Transducer>() {}.type());
         this.thalamus = proxyContainer.get(
             new TypeLiteral<Thalamus>() {}.type());
         this.cortex = proxyContainer.get(
             new TypeLiteral<Cortex>() {}.type());
         this.drive = proxyContainer.get(
             new TypeLiteral<Drive>() {}.type());
+        this.salience = proxyContainer.get(
+            new TypeLiteral<Salience>() {}.type());
         this.conversation = proxyContainer.get(
             new TypeLiteral<Conversation>() {}.type());
-        this.memory = proxyContainer.get(
-            new TypeLiteral<xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Conversation>() {}.type());
+        this.episode = proxyContainer.get(
+            new TypeLiteral<Episode>() {}.type());
         /// @formatter:on
     }
 
     public void launch() {
         this.conversation.begin();
         try {
-            this.drive.start();
+            this.drive.activate();
             this.interact();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            this.drive.stop();
+            this.drive.deactivate();
             this.conversation.end();
         }
     }
@@ -74,16 +83,21 @@ public class Cli {
             if ("exit".equalsIgnoreCase(input)) {
                 break;
             }
-            this.memory.encode("user", input);
+            this.episode.encode("user", input);
+            this.salience.orient();
             try {
-                var percept = this.cortex.perceive(
-                    this.thalamus.relay(
-                        new StimulusImpl(input, null)));
+                var stimulus = new StimulusImpl(input);
+                var impulse = this.transducer.transduce(stimulus);
+                var routed = this.thalamus.relay(impulse);
+                var percept = this.cortex.respond(routed);
                 System.out.printf("%n%s>%n%s%n",
-                    percept.neuron(),
-                    percept.answer());
+                    percept.location(),
+                    percept.content());
+                logger.info("[{}] {}", percept.location(), percept.content());
             } catch (Exception e) {
-                logger.error("[CLI] perceive failed", e);
+                logger.error("[CLI] respond failed", e);
+            } finally {
+                this.salience.release();
             }
             if (this.isInteractive) {
                 System.out.print("> ");
