@@ -292,17 +292,31 @@ becomes active (Ch.62). |
 Working memory layer — active in-session maintenance of declarative memory
 (prefrontal cortex; Kandel Ch.65).
 
+### `Trace`
+
+**Kandel Ch.63-67** — "The physical basis of memory is called the engram" (Semon, 1904;
+cited by Kandel). A memory trace is the fundamental unit of memory encoding — one
+`encode()` call produces one Trace. Shared by both episodic and semantic memory systems.
+| Method | Kandel basis |
+|--------|-------------|
+| `key(): String` | ⚙️ Identifier for the memory trace. No direct Kandel equivalent; required for retrieval
+addressing. |
+| `value(): Object` | The content of the memory trace — the encoded information. |
+| `of(String, Object): Trace` | ⚙️ Factory method. |
+---
+
 ### `Memory`
 
 **Kandel Ch.63-67** — declarative (explicit) memory: encoding, retrieval,
-and forgetting. Base interface for all in-session memory stores.
+and forgetting. Base interface for all in-session memory stores. All operations
+use `Trace` as the fundamental unit.
 | Method | Kandel basis |
 |--------|-------------|
-| `encode(String, Object): void` | Ch.65-67 — "encoding is the process by which a perceived item is committed to
-memory." |
-| `retrieve(String): Object` | Ch.65 — memory retrieval. "Retrieve" is the general umbrella term (vs "recall" = specific
-free-recall subtype). |
-| `retrieve(): Map<String,Object>` | Retrieval of all stored contents. |
+| `encode(Trace): void` | Ch.65-67 — "encoding is the process by which a perceived item is committed to
+memory." One Trace = one encoding event. |
+| `retrieve(String): Trace` | Ch.65 — memory retrieval by cue. "Retrieve" is the general umbrella term (vs "recall" =
+specific free-recall subtype). |
+| `retrieve(): List<Trace>` | Retrieval of all stored traces. |
 | `decay(): void` | Ch.65 "Forgetting" — memories weaken over time without reinforcement or consolidation. |
 ---
 
@@ -311,7 +325,8 @@ free-recall subtype). |
 **Kandel Ch.65-67** — episodic memory (Tulving; cited by Kandel): autobiographical,
 time-stamped, context-rich memory of specific events. In AAI, holds the per-session
 conversational history. Stored as `{session}/episode.json`.
-Marker interface — inherits all `Memory` capabilities.
+Marker interface — inherits all `Memory` capabilities. Distinguished from Knowledge
+via `@Episodic` CDI qualifier on the `Repository<Trace, Trace>` injection point.
 ---
 
 ### `Knowledge`
@@ -320,7 +335,8 @@ Marker interface — inherits all `Memory` capabilities.
 knowledge and facts, not tied to a specific time or context. In AAI, holds the
 agent's persistent self-model, goals, and accumulated knowledge across sessions.
 Stored as `knowledge.json` (single persistent file shared across sessions).
-Marker interface — inherits all `Memory` capabilities.
+Marker interface — inherits all `Memory` capabilities. Distinguished from Episode
+via `@Semantic` CDI qualifier on the `Repository<Trace, Trace>` injection point.
 ---
 
 ## Comparison with Agentforce

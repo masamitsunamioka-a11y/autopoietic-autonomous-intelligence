@@ -2,7 +2,7 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neur
 
 import java.util.Map;
 
-public interface Effector extends Organ {
+public interface Effector extends Engravable {
     String tuning();
 
     /// [Engineering] KV map models effector I/O; biology uses synaptic signals.

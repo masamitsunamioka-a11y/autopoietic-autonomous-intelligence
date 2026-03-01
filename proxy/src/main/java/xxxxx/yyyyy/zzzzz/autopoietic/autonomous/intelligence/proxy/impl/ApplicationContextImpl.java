@@ -38,7 +38,12 @@ public class ApplicationContextImpl implements Context {
 
     @SuppressWarnings("unchecked")
     private <T> T resolve(Contextual<T> contextual) {
-        return (T) this.instances.computeIfAbsent(
-            contextual, x -> contextual.create(null));
+        var existing = (T) this.instances.get(contextual);
+        if (existing != null) {
+            return existing;
+        }
+        var created = contextual.create(null);
+        this.instances.putIfAbsent(contextual, created);
+        return (T) this.instances.get(contextual);
     }
 }

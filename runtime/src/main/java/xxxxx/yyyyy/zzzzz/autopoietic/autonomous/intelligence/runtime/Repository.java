@@ -10,4 +10,8 @@ public interface Repository<I, E> {
     void store(E e);
 
     void remove(String id);
+
+    default boolean exists(String id) {
+        return false;
+    }
 }

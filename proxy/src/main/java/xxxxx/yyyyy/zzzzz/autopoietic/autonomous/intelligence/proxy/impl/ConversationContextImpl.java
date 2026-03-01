@@ -51,7 +51,13 @@ public class ConversationContextImpl implements Context {
         if (this.conversation.isTransient()) {
             throw new IllegalStateException();
         }
-        return (T) this.instances.get().computeIfAbsent(
-            contextual, x -> contextual.create(null));
+        var map = this.instances.get();
+        var existing = (T) map.get(contextual);
+        if (existing != null) {
+            return existing;
+        }
+        var created = contextual.create(null);
+        map.putIfAbsent(contextual, created);
+        return (T) map.get(contextual);
     }
 }

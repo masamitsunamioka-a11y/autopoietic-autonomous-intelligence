@@ -1,0 +1,19 @@
+anticorruption:
+  effectors:
+    package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors.effector"
+    source: "adapters/driven/services/src/main/java"
+    target: "adapters/driven/services/target/classes"
+    compiler:
+      classpath:
+        strategy: "manual"
+        value: "adapters/driven/services/target/classes:specification/target/classes:adapters/driven/anticorruption/target/classes"
+  encodings:
+    phase: "filesystem/signaling/phase"
+    shared: "filesystem/signaling/shared"
+  areas:
+    source: "filesystem/neural/areas"
+  neurons:
+    source: "filesystem/neural/neurons"
+  memory:
+    source: "filesystem/hippocampal"
+    sessions: "-1"

@@ -2,7 +2,7 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neur
 
 import java.util.List;
 
-public interface Area extends Engram {
+public interface Area extends Engravable {
     String tuning();
 
     List<Neuron> neurons();

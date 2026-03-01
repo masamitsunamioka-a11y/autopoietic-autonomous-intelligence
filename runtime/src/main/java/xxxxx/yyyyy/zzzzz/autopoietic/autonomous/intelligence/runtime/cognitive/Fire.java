@@ -1,0 +1,58 @@
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Knowledge;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
+
+import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
+
+@Mode.Fire
+@ApplicationScoped
+public final class Fire implements Mode {
+    private static final Logger logger = LoggerFactory.getLogger(Fire.class);
+    private final Cortex cortex;
+    private final Knowledge knowledge;
+    private final Episode episode;
+    private final Repository<Effector, Engravable> effectorRepository;
+    private final RefractoryGuard refractoryGuard;
+
+    @Inject
+    public Fire(Cortex cortex, Knowledge knowledge, Episode episode,
+                Repository<Effector, Engravable> effectorRepository) {
+        this.cortex = cortex;
+        this.knowledge = knowledge;
+        this.episode = episode;
+        this.effectorRepository = effectorRepository;
+        this.refractoryGuard = new RefractoryGuard();
+    }
+
+    @Override
+    public Percept handle(Impulse impulse, Decision decision) {
+        var effectorName = decision.effector();
+        if (this.refractoryGuard.observe(effectorName)) {
+            this.refractoryGuard.reset();
+            this.episode.encode(Trace.of("[SYSTEM]",
+                "[SYSTEM WARNING] Effector " + effectorName + " fired 3+ consecutive times. Do not FIRE again."));
+        }
+        var context = this.knowledge.retrieve().stream()
+            .collect(Collectors.toMap(
+                Trace::key, Trace::value, (a, b) -> b, LinkedHashMap::new));
+        var output = this.effectorRepository.find(effectorName)
+            .fire(context);
+        output.forEach((k, v) ->
+            this.knowledge.encode(Trace.of("results." + effectorName + "." + k, v)));
+        logger.debug("--- fire: {}", effectorName);
+        return this.cortex.respond(impulse);
+    }
+}

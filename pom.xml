@@ -79,7 +79,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>effectors</artifactId>
+                <artifactId>services</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -117,10 +117,11 @@
     </build>
     <modules>
         <module>specification</module>
-        <module>effectors</module>
+        <module>adapters/driven/services</module>
         <module>runtime</module>
-        <module>anticorruption</module>
-        <module>cli</module>
+        <module>adapters/driven/anticorruption</module>
+        <module>adapters/driving/cli</module>
+        <module>adapters/driving/api</module>
         <module>proxy</module>
     </modules>
 </project>

@@ -7,4 +7,10 @@ public interface Impulse {
 
     /// [Engineering] Null before relay(); biology routes by axonal connections.
     Area area();
+
+    static Impulse of(String signal, Area area) {
+        record Instance(String signal, Area area) implements Impulse {
+        }
+        return new Instance(signal, area);
+    }
 }

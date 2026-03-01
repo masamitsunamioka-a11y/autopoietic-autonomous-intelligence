@@ -1,14 +1,13 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working;
 
-import java.util.Map;
+import java.util.List;
 
 public interface Memory {
-    void encode(String key, Object value);
+    void encode(Trace trace);
 
-    Object retrieve(String key);
+    Trace retrieve(String cue);
 
-    /// [Engineering] Full state dump for prompt assembly; no Kandel equivalent.
-    Map<String, Object> retrieve();
+    List<Trace> retrieve();
 
     void decay();
 }
