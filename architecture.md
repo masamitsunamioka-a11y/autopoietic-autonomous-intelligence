@@ -16,11 +16,7 @@ Stimulus.input()
   → Thalamus.relay()                Ch.23,26,46  thalamic relay → Area selection
   → Impulse(area != null)
   → Cortex.respond()               Part VII  cortical perception
-      → Encoder.encode()            Ch.21  neural coding
-          [Area.tuning()]           Ch.26,30  area-level feature selectivity
-          [Neuron.tuning()]         Ch.26  cell-level orientation/feature tuning
-          [Episode / Knowledge]     Ch.65-67  declarative memory
-          [Impulse.signal()]        Ch.7  signal content
+      → Encoder.encode()            Ch.21  neural coding (called by each engine)
       → Nucleus.integrate()         Ch.12  synaptic integration
   → Percept
   → Effector.tuning() → select
@@ -57,31 +53,15 @@ projection). Thalamus is only needed for bottom-up sensory routing (CEN path).
 
 ## Package: `neural`
 
-Two parallel base interfaces — structurally independent biological domains:
+### `Engravable`
 
-- **`Engram`**: neural tissue memory traces (Ch.67) — `Area`, `Neuron` implement this
-- **`Organ`**: peripheral effector structures (Ch.35) — `Effector` implements this
-
-### `Engram`
-
-**Kandel Ch.67** — "The physical basis of memory is called the engram" (Semon, 1904;
-cited by Kandel). Base interface for neural structural memory traces (Area, Neuron).
-Independent of `Organ` — both reside in different biological domains.
+Base interface for all neural structures capable of being modified by experience
+through synaptic plasticity (**Kandel Ch.63**). Area, Neuron, and Effector all
+extend Engravable — Plasticity engraves their tuning at runtime.
 | Method | Kandel basis |
 |--------|-------------|
 | `name(): String` | ⚙️ Identifier. No direct Kandel equivalent; required for system addressing. |
-| `encode(Function<Engram,String>): String` | ⚙️ Java functional pattern. Conceptually: memory encoding Ch.65-67. |
----
-
-### `Organ`
-
-**Kandel Ch.35** "The Motor System" — "effector organs" are the peripheral target
-structures (muscles, glands) that receive motor commands from the nervous system.
-Outside neural tissue; distinct from Engram. Base interface for `Effector`.
-| Method | Kandel basis |
-|--------|-------------|
-| `name(): String` | ⚙️ Identifier. No direct Kandel equivalent; required for system addressing. |
-| `encode(Function<Organ,String>): String` | ⚙️ Java functional pattern. No Kandel method equivalent. |
+| `encode(Function<Engravable,String>): String` | ⚙️ Java functional pattern. No Kandel method equivalent. |
 ---
 
 ### `Area`
@@ -116,7 +96,7 @@ neuron-specific behavioral layer in the prompt. |
 ### `Effector`
 
 **Kandel Ch.35-36** "The Motor System" — effectors are the peripheral structures that
-execute motor commands (muscles, glands). Extends `Organ`. In AAI, Effectors are
+execute motor commands (muscles, glands). Extends `Engravable`. In AAI, Effectors are
 compiled capabilities that execute actions in the external environment.
 | Method | Kandel basis |
 |--------|-------------|
@@ -131,10 +111,9 @@ executing the Effector's action and returning its result. |
 Synaptic transmission — the universal neural computation substrate shared by all
 processing layers (Kandel Part II Ch.8-12). Used by Cortex, Thalamus, Plasticity,
 and Drive implementations alike.
-Two-step structure mirrors synaptic transmission:
 
-- **Encoder**: presynaptic preparation (signal → transmittable representation)
-- **Nucleus**: postsynaptic integration (representation → structured output)
+- **Encoder**: presynaptic encoding (signal → transmittable representation). Each engine calls Encoder directly.
+- **Nucleus**: postsynaptic integration (encoded signal → structured output). Receives already-encoded Impulse.
 
 ### `Encoder`
 
@@ -158,7 +137,7 @@ In AAI, Nucleus is the universal LLM integration point — used by all processin
 layers, mirroring the brain-wide distribution of integrative nuclei.
 | Method | Kandel basis |
 |--------|-------------|
-| `integrate(String, Class<T>): T` | Ch.12 synaptic integration — integrates the encoded signal and produces a typed
+| `integrate(Impulse, Class<T>): T` | Ch.12 synaptic integration — integrates the encoded Impulse and produces a typed
 output. |
 ---
 
@@ -218,9 +197,8 @@ Cortical perception — the conscious experience produced from a routed Impulse
 and executive function.
 | Method | Kandel basis |
 |--------|-------------|
-| `respond(Impulse): Percept` | Receives a routed Impulse, encodes it via Encoder (Area.tuning + Neuron.tuning),
-integrates via Nucleus, dispatches to the appropriate Mode (VOCALIZE/FIRE/POTENTIATE/PROJECT/INHIBIT), and returns a
-Percept. |
+| `respond(Impulse): Percept` | Receives a routed Impulse, integrates via Encoder + Nucleus, dispatches to the
+appropriate Mode (VOCALIZE/FIRE/POTENTIATE/PROJECT/INHIBIT), and returns a Percept. |
 ---
 
 ### `Percept`
@@ -238,11 +216,10 @@ stimulus intensity. |
 | `duration(): double` | Ch.21 — persistence of the percept over time. |
 ---
 
-## Package: `homeostatic`
+## Package: `learning`
 
-System-level regulation — structural self-maintenance and internally driven activity.
-Neither Plasticity nor Drive is purely cortical; both regulate the system from the
-cellular/molecular or network level (Kandel Part IX and Ch.48/62 respectively).
+Synaptic plasticity — the cellular/molecular mechanisms of learning and memory
+(Kandel Part IX Ch.63-64).
 
 ### `Plasticity`
 
@@ -258,6 +235,12 @@ Engineering simplification; Kandel LTP requires repeated co-activation (Hebb's r
 | `prune(): void` | Synaptic pruning; Ch.55-56 (developmental), Ch.65 (synaptic elimination). In AAI, removes redundant
 cognitive structures. |
 ---
+
+## Package: `homeostatic`
+
+System-level regulation — arousal, motivation, and internally driven activity.
+Drive and Salience regulate the system from the subcortical/network level
+(Kandel Ch.48/62).
 
 ### `Salience`
 
@@ -294,15 +277,18 @@ Working memory layer — active in-session maintenance of declarative memory
 
 ### `Trace`
 
-**Kandel Ch.63-67** — "The physical basis of memory is called the engram" (Semon, 1904;
-cited by Kandel). A memory trace is the fundamental unit of memory encoding — one
+**Kandel Ch.63-67** — a memory trace is the fundamental unit of memory encoding — one
 `encode()` call produces one Trace. Shared by both episodic and semantic memory systems.
 | Method | Kandel basis |
 |--------|-------------|
 | `key(): String` | ⚙️ Identifier for the memory trace. No direct Kandel equivalent; required for retrieval
 addressing. |
 | `value(): Object` | The content of the memory trace — the encoded information. |
-| `of(String, Object): Trace` | ⚙️ Factory method. |
+| `timestamp(): Instant` | ⚙️ Explicit timestamp for chronological retrieval; biology infers temporality from
+decay/context. |
+| `of(String, Object): Trace` | ⚙️ Factory method (auto-stamps with `Instant.now()`). |
+| `of(String, Object, Instant): Trace` | ⚙️ Factory method with explicit timestamp (for reconstruction from storage). |
+| `decode(String, Object): Trace` | ⚙️ Reconstruct from encoded identity (key@timestamp). |
 ---
 
 ### `Memory`

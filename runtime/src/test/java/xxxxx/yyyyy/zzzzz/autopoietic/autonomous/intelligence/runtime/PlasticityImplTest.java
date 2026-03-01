@@ -8,6 +8,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
 import java.util.ArrayList;
@@ -25,9 +26,9 @@ class PlasticityImplTest {
             trackingAreaRepository(storedAreas),
             staticNeuronRepository(List.of()),
             staticEffectorRepository(List.of()),
-            nucleus(new Potentiation("r", 1.0, "",
-                List.of(new Potentiation.Area("A1", "t", List.of("N-missing"), List.of())),
-                List.of(), List.of()))
+            encoder(), nucleus(new Potentiation("r", 1.0, "",
+            List.of(new Potentiation.Area("A1", "t", List.of("N-missing"), List.of())),
+            List.of(), List.of()))
         );
         plasticity.potentiate(impulse());
         assertFalse(storedAreas.contains("A1"), "Area referencing missing neuron must not be stored");
@@ -40,9 +41,9 @@ class PlasticityImplTest {
             trackingAreaRepository(storedAreas),
             staticNeuronRepository(List.of()),
             staticEffectorRepository(List.of()),
-            nucleus(new Potentiation("r", 1.0, "",
-                List.of(new Potentiation.Area("A1", "t", List.of(), List.of("E-missing"))),
-                List.of(), List.of()))
+            encoder(), nucleus(new Potentiation("r", 1.0, "",
+            List.of(new Potentiation.Area("A1", "t", List.of(), List.of("E-missing"))),
+            List.of(), List.of()))
         );
         plasticity.potentiate(impulse());
         assertFalse(storedAreas.contains("A1"), "Area referencing missing effector must not be stored");
@@ -56,10 +57,10 @@ class PlasticityImplTest {
             trackingAreaRepository(storedAreas),
             trackingNeuronRepository(storedNeurons),
             staticEffectorRepository(List.of()),
-            nucleus(new Potentiation("r", 1.0, "",
-                List.of(new Potentiation.Area("A1", "t", List.of("N1"), List.of())),
-                List.of(new Potentiation.Neuron("N1", "tuning")),
-                List.of()))
+            encoder(), nucleus(new Potentiation("r", 1.0, "",
+            List.of(new Potentiation.Area("A1", "t", List.of("N1"), List.of())),
+            List.of(new Potentiation.Neuron("N1", "tuning")),
+            List.of()))
         );
         plasticity.potentiate(impulse());
         assertTrue(storedNeurons.contains("N1"), "N1 created in same response must be stored");
@@ -73,19 +74,22 @@ class PlasticityImplTest {
             trackingAreaRepository(storedAreas),
             staticNeuronRepository(List.of(neuron("N-existing"))),
             staticEffectorRepository(List.of()),
-            nucleus(new Potentiation("r", 1.0, "",
-                List.of(new Potentiation.Area("A1", "t", List.of("N-existing"), List.of())),
-                List.of(), List.of()))
+            encoder(), nucleus(new Potentiation("r", 1.0, "",
+            List.of(new Potentiation.Area("A1", "t", List.of("N-existing"), List.of())),
+            List.of(), List.of()))
         );
         plasticity.potentiate(impulse());
         assertTrue(storedAreas.contains("A1"), "Area with all existing neuron refs must be stored");
     }
 
     /// @formatter:off
+    private static Encoder encoder() {
+        return (impulse, caller) -> "";
+    }
     private static Nucleus nucleus(Potentiation potentiation) {
         return new Nucleus() {
             @SuppressWarnings("unchecked")
-            public <T> T integrate(Impulse impulse, Class<?> caller, Class<T> type) { return (T) potentiation; }
+            public <T> T integrate(Impulse impulse, Class<T> type) { return (T) potentiation; }
         };
     }
     private static Impulse impulse() {

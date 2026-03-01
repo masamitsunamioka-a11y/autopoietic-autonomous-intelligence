@@ -11,6 +11,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeo
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
 import java.util.concurrent.Executors;
@@ -24,16 +25,18 @@ public class DriveImpl implements Drive {
     private final Salience salience;
     private final Cortex cortex;
     private final Repository<Area, Engravable> areaRepository;
+    private final Encoder encoder;
     private final Nucleus nucleus;
     private final ScheduledExecutorService executorService;
 
     @Inject
     public DriveImpl(Salience salience, Cortex cortex,
                      Repository<Area, Engravable> areaRepository,
-                     Nucleus nucleus) {
+                     Encoder encoder, Nucleus nucleus) {
         this.salience = salience;
         this.cortex = cortex;
         this.areaRepository = areaRepository;
+        this.encoder = encoder;
         this.nucleus = nucleus;
         this.executorService = Executors.newSingleThreadScheduledExecutor();
     }
@@ -53,7 +56,7 @@ public class DriveImpl implements Drive {
             if (this.salience.isOriented()) {
                 return;
             }
-            var output = this.nucleus.integrate(null, Drive.class, Urge.class);
+            var output = this.integrate();
             if (output.aroused()) {
                 var area = this.areaRepository.find(output.area());
                 var impulse = Impulse.of(output.signal(), area);
@@ -73,6 +76,11 @@ public class DriveImpl implements Drive {
         } finally {
             this.schedule();
         }
+    }
+
+    private Urge integrate() {
+        var signal = this.encoder.encode(null, Drive.class);
+        return this.nucleus.integrate(Impulse.of(signal, null), Urge.class);
     }
 
     private void schedule() {

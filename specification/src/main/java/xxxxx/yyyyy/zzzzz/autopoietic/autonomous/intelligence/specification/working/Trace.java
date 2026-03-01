@@ -2,7 +2,6 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.work
 
 import java.time.Instant;
 
-/// One memory trace — the fundamental unit of memory encoding (Kandel Ch.63-67).
 public interface Trace {
     String key();
 

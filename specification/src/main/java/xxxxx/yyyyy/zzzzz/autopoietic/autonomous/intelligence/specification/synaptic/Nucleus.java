@@ -3,6 +3,6 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.syna
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 
 public interface Nucleus {
-    /// [Engineering] Impulse = afferent signal; Class<?> caller = encoding phase dispatch; Class<T> = output type.
-    <T> T integrate(Impulse impulse, Class<?> caller, Class<T> type);
+    /// [Engineering] Class<T> = output type; biology has no explicit type dispatch.
+    <T> T integrate(Impulse impulse, Class<T> type);
 }

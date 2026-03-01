@@ -11,6 +11,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
 import static java.util.stream.Collectors.toSet;
@@ -21,31 +22,43 @@ public class PlasticityImpl implements Plasticity {
     private final Repository<Area, Engravable> areaRepository;
     private final Repository<Neuron, Engravable> neuronRepository;
     private final Repository<Effector, Engravable> effectorRepository;
+    private final Encoder encoder;
     private final Nucleus nucleus;
 
     @Inject
     public PlasticityImpl(Repository<Area, Engravable> areaRepository,
                           Repository<Neuron, Engravable> neuronRepository,
                           Repository<Effector, Engravable> effectorRepository,
-                          Nucleus nucleus) {
+                          Encoder encoder, Nucleus nucleus) {
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
+        this.encoder = encoder;
         this.nucleus = nucleus;
     }
 
     @Override
     public void potentiate(Impulse impulse) {
-        var output = this.nucleus.integrate(impulse, Plasticity.class, Potentiation.class);
+        var output = this.integrate(impulse);
         this.reinforce(output, impulse.area());
         this.sprout(output);
     }
 
     @Override
     public void prune() {
-        var output = this.nucleus.integrate(null, Plasticity.class, Pruning.class);
+        var output = this.integrate();
         this.eliminate(output);
         this.consolidate(output);
+    }
+
+    private Potentiation integrate(Impulse impulse) {
+        var signal = this.encoder.encode(impulse, Plasticity.class);
+        return this.nucleus.integrate(Impulse.of(signal, impulse.area()), Potentiation.class);
+    }
+
+    private Pruning integrate() {
+        var signal = this.encoder.encode(null, Plasticity.class);
+        return this.nucleus.integrate(Impulse.of(signal, null), Pruning.class);
     }
 
     private void reinforce(Potentiation potentiation, Area area) {

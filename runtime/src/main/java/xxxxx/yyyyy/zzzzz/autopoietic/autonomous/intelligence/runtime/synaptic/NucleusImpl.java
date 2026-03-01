@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Serializer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
 import static java.util.stream.Collectors.joining;
@@ -17,14 +16,12 @@ import static java.util.stream.Collectors.joining;
 @ApplicationScoped
 public class NucleusImpl implements Nucleus {
     private static final Logger logger = LoggerFactory.getLogger(NucleusImpl.class);
-    private final Encoder encoder;
     private final Serializer serializer;
     private final Service<String, String> service;
     private final Validator validator;
 
     @Inject
-    public NucleusImpl(Encoder encoder, Serializer serializer, Service<String, String> service) {
-        this.encoder = encoder;
+    public NucleusImpl(Serializer serializer, Service<String, String> service) {
         this.serializer = serializer;
         this.service = service;
         try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
@@ -33,12 +30,11 @@ public class NucleusImpl implements Nucleus {
     }
 
     @Override
-    public <T> T integrate(Impulse impulse, Class<?> caller, Class<T> type) {
-        var signal = this.encoder.encode(impulse, caller);
+    public <T> T integrate(Impulse impulse, Class<T> type) {
         if (logger.isTraceEnabled()) {
-            logger.trace("\n{}", signal);
+            logger.trace("\n{}", impulse.signal());
         }
-        var text = this.service.call(signal);
+        var text = this.service.call(impulse.signal());
         if (logger.isTraceEnabled()) {
             logger.trace("\n{}", text);
         }
