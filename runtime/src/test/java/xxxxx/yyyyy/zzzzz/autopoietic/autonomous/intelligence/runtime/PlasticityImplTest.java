@@ -82,6 +82,39 @@ class PlasticityImplTest {
         assertTrue(storedAreas.contains("A1"), "Area with all existing neuron refs must be stored");
     }
 
+    @Test
+    void reconcileStripsDanglingEffectorReference() {
+        var stored = new ArrayList<String>();
+        var removed = new ArrayList<String>();
+        var existingArea = area("A1", List.of("N1"), List.of("E-gone"));
+        var plasticity = new PlasticityImpl(
+            reconcilingAreaRepository(List.of(existingArea), stored, removed),
+            staticNeuronRepository(List.of(neuron("N1"))),
+            staticEffectorRepository(List.of()),
+            encoder(), nucleus(new Potentiation("r", 1.0, "",
+            List.of(), List.of(), List.of()))
+        );
+        plasticity.potentiate(impulse());
+        assertTrue(stored.contains("A1"), "Area must be re-stored with valid references");
+        assertFalse(removed.contains("A1"), "Area with valid neurons must not be removed");
+    }
+
+    @Test
+    void reconcileRemovesAreaWithNoValidNeurons() {
+        var stored = new ArrayList<String>();
+        var removed = new ArrayList<String>();
+        var existingArea = area("A1", List.of("N-gone"), List.of());
+        var plasticity = new PlasticityImpl(
+            reconcilingAreaRepository(List.of(existingArea), stored, removed),
+            staticNeuronRepository(List.of()),
+            staticEffectorRepository(List.of()),
+            encoder(), nucleus(new Potentiation("r", 1.0, "",
+            List.of(), List.of(), List.of()))
+        );
+        plasticity.potentiate(impulse());
+        assertTrue(removed.contains("A1"), "Area with no valid neurons must be removed");
+    }
+
     /// @formatter:off
     private static Encoder encoder() {
         return (impulse, caller) -> "";
@@ -156,6 +189,25 @@ class PlasticityImplTest {
             public List<Effector> findAll() { return items; }
             public void store(Engravable engravable) {}
             public void remove(String id) {}
+        };
+    }
+    private static Area area(String name, List<String> neuronNames, List<String> effectorNames) {
+        var neurons = neuronNames.stream().map(PlasticityImplTest::neuron).toList();
+        var effectors = effectorNames.stream().map(PlasticityImplTest::effector).toList();
+        return new Area() {
+            public String name() { return name; }
+            public String tuning() { return "t"; }
+            public List<Neuron> neurons() { return neurons; }
+            public List<Effector> effectors() { return effectors; }
+        };
+    }
+    private static Repository<Area, Engravable> reconcilingAreaRepository(
+            List<Area> existing, List<String> stored, List<String> removed) {
+        return new Repository<>() {
+            public Area find(String id) { throw new UnsupportedOperationException(); }
+            public List<Area> findAll() { return existing; }
+            public void store(Engravable engravable) { stored.add(engravable.name()); }
+            public void remove(String id) { removed.add(id); }
         };
     }
     /// @formatter:on

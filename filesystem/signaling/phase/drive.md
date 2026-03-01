@@ -62,12 +62,13 @@ You MUST return a valid JSON object strictly following this structure:
   "confidence": 0.85,
   "aroused": true,
   "vocalize": false,
-  "area": "Exact name of the Active Area this signal belongs to (null if aroused is false)",
-  "signal": "The autonomous thought, question, or reflection (null if aroused is false)"
+  "area": "REQUIRED if aroused is true. Exact area name. null ONLY if aroused is false.",
+  "signal": "REQUIRED if aroused is true. The thought. null ONLY if aroused is false."
 }
 ```
 
-- `aroused: false` — silence; no signal expressed (`area` and `signal` are null)
+- `aroused: false` — silence; no signal expressed (`area` and `signal` MUST be null)
+- `aroused: true` — `area` and `signal` MUST NOT be null
 - `aroused: true, vocalize: false` — introspection; internal only (default)
 - `aroused: true, vocalize: true` — proactive vocalization to user; use sparingly
   CRITICAL: Return ONLY the raw JSON object. No conversational filler.

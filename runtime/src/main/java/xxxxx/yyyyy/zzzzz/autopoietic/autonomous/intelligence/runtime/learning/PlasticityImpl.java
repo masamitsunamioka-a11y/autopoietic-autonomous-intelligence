@@ -42,6 +42,7 @@ public class PlasticityImpl implements Plasticity {
         var output = this.integrate(impulse);
         this.reinforce(output, impulse.area());
         this.sprout(output);
+        this.reconcile();
     }
 
     @Override
@@ -49,6 +50,7 @@ public class PlasticityImpl implements Plasticity {
         var output = this.integrate();
         this.eliminate(output);
         this.consolidate(output);
+        this.reconcile();
     }
 
     private Potentiation integrate(Impulse impulse) {
@@ -79,7 +81,7 @@ public class PlasticityImpl implements Plasticity {
         potentiation.newEffectors().forEach(this.effectorRepository::store);
         potentiation.newNeurons().forEach(this.neuronRepository::store);
         potentiation.newAreas().stream()
-            .filter(a -> this.allNeuronsExist(a) && this.allEffectorsExist(a))
+            .filter(this::allReferencesExist)
             .forEach(this.areaRepository::store);
     }
 
@@ -92,32 +94,49 @@ public class PlasticityImpl implements Plasticity {
 
     private void consolidate(Pruning pruning) {
         pruning.mergedAreas().stream()
-            .map(Pruning.MergedArea::result).forEach(this.areaRepository::store);
+            .map(Pruning.MergedArea::result)
+            .filter(this::allReferencesExist)
+            .forEach(this.areaRepository::store);
         pruning.mergedNeurons().stream()
             .map(Pruning.MergedNeuron::result).forEach(this.neuronRepository::store);
     }
 
-    private boolean allNeuronsExist(Potentiation.Area area) {
-        var known = this.neuronRepository.findAll().stream()
-            .map(Neuron::name)
-            .collect(toSet());
-        var missing = area.neurons().stream()
-            .filter(n -> !known.contains(n))
-            .toList();
-        if (!missing.isEmpty())
-            logger.warn("[PLASTICITY] Area '{}' skipped: missing neurons {}", area.name(), missing);
-        return missing.isEmpty();
+    private void reconcile() {
+        var knownNeurons = this.neuronRepository.findAll().stream()
+            .map(Neuron::name).collect(toSet());
+        var knownEffectors = this.effectorRepository.findAll().stream()
+            .map(Effector::name).collect(toSet());
+        for (var area : this.areaRepository.findAll()) {
+            var validNeurons = area.neurons().stream()
+                .map(Neuron::name).filter(knownNeurons::contains).toList();
+            var validEffectors = area.effectors().stream()
+                .map(Effector::name).filter(knownEffectors::contains).toList();
+            if (validNeurons.size() == area.neurons().size()
+                && validEffectors.size() == area.effectors().size()) continue;
+            if (validNeurons.isEmpty()) {
+                logger.warn("[PLASTICITY] Removing '{}': no valid neurons", area.name());
+                this.areaRepository.remove(area.name());
+            } else {
+                logger.warn("[PLASTICITY] Reconciling '{}': stripping dangling references", area.name());
+                this.areaRepository.store(new Potentiation.Area(
+                    area.name(), area.tuning(), validNeurons, validEffectors));
+            }
+        }
     }
 
-    private boolean allEffectorsExist(Potentiation.Area area) {
-        var known = this.effectorRepository.findAll().stream()
-            .map(Effector::name)
-            .collect(toSet());
-        var missing = area.effectors().stream()
-            .filter(n -> !known.contains(n))
-            .toList();
-        if (!missing.isEmpty())
-            logger.warn("[PLASTICITY] Area '{}' skipped: missing effectors {}", area.name(), missing);
-        return missing.isEmpty();
+    private boolean allReferencesExist(Potentiation.Area area) {
+        var knownNeurons = this.neuronRepository.findAll().stream()
+            .map(Neuron::name).collect(toSet());
+        var knownEffectors = this.effectorRepository.findAll().stream()
+            .map(Effector::name).collect(toSet());
+        var missingNeurons = area.neurons().stream()
+            .filter(n -> !knownNeurons.contains(n)).toList();
+        var missingEffectors = area.effectors().stream()
+            .filter(n -> !knownEffectors.contains(n)).toList();
+        if (!missingNeurons.isEmpty())
+            logger.warn("[PLASTICITY] Area '{}': missing neurons {}", area.name(), missingNeurons);
+        if (!missingEffectors.isEmpty())
+            logger.warn("[PLASTICITY] Area '{}': missing effectors {}", area.name(), missingEffectors);
+        return missingNeurons.isEmpty() && missingEffectors.isEmpty();
     }
 }
