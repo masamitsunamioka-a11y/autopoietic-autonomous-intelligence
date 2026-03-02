@@ -6,11 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Salience;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Transducer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -53,11 +51,11 @@ class ChatHandler implements HttpHandler {
             exchange.sendResponseHeaders(400, -1);
             return;
         }
-        this.episode.encode(Trace.of("user", input));
+        this.episode.encode(new TraceImpl("user", input));
         this.salience.orient();
         this.registry.broadcast(SsePrintStream.buildJson("user", "user", input));
         try {
-            var stimulus = Stimulus.of(input);
+            var stimulus = new StimulusImpl(input);
             var impulse = this.transducer.transduce(stimulus);
             var routed = this.thalamus.relay(impulse);
             var percept = this.cortex.respond(routed);

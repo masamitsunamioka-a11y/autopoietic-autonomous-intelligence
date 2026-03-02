@@ -18,6 +18,6 @@ public class TransducerImpl implements Transducer {
 
     @Override
     public Impulse transduce(Stimulus stimulus) {
-        return Impulse.of(stimulus.input(), null);
+        return new ImpulseImpl(stimulus.input(), null);
     }
 }

@@ -8,11 +8,9 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.proxy.impl.ProxyCon
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Drive;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Salience;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Transducer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 import java.util.Iterator;
 import java.util.List;
@@ -76,13 +74,13 @@ public class Cli {
             if ("exit".equalsIgnoreCase(input)) {
                 break;
             }
-            this.episode.encode(Trace.of("user", input));
+            this.episode.encode(new TraceImpl("user", input));
             this.salience.orient();
             try {
                 var percept = this.cortex.respond(
                     this.thalamus.relay(
                         this.transducer.transduce(
-                            Stimulus.of(input))));
+                            new StimulusImpl(input))));
                 System.out.printf("%n%s>%n%s%n",
                     percept.location(),
                     percept.content());

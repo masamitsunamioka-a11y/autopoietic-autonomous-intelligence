@@ -9,44 +9,45 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.worki
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @ConversationScoped
 public class KnowledgeImpl implements Knowledge, Serializable {
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeImpl.class);
-    private final List<Trace> memory;
     private final Repository<Trace, Trace> repository;
 
     @Inject
     public KnowledgeImpl(@Semantic Repository<Trace, Trace> repository) {
         this.repository = repository;
-        this.memory = new CopyOnWriteArrayList<>(this.repository.findAll());
     }
 
     @Override
     public void encode(Trace trace) {
         Objects.requireNonNull(trace);
-        var stamped = Trace.of(trace.key(), trace.value());
-        this.memory.add(stamped);
-        this.repository.store(stamped);
+        this.repository.store(trace);
     }
 
     @Override
     public Trace retrieve(String cue) {
-        return this.memory.stream()
-            .filter(t -> t.key().equals(cue))
-            .max(Comparator.comparing(Trace::timestamp))
+        return this.repository.findAll().stream()
+            .filter(t -> t.cue().contains(cue))
+            .max(Comparator.comparing(this::timestampOf))
             .orElse(null);
     }
 
     @Override
     public List<Trace> retrieve() {
-        return this.memory.stream()
-            .sorted(Comparator.comparing(Trace::timestamp))
+        return this.repository.findAll().stream()
+            .sorted(Comparator.comparing(this::timestampOf))
             .toList();
+    }
+
+    private Instant timestampOf(Trace trace) {
+        var at = trace.cue().lastIndexOf('@');
+        return Instant.parse(trace.cue().substring(at + 1));
     }
 
     @Override

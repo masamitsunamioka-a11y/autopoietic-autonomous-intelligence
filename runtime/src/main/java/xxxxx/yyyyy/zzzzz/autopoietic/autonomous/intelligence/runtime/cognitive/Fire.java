@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
@@ -42,16 +43,16 @@ public final class Fire implements Mode {
         var effectorName = decision.effector();
         if (this.refractoryGuard.observe(effectorName)) {
             this.refractoryGuard.reset();
-            this.episode.encode(Trace.of("[SYSTEM]",
+            this.episode.encode(new TraceImpl("[SYSTEM]",
                 "[SYSTEM WARNING] Effector " + effectorName + " fired 3+ consecutive times. Do not FIRE again."));
         }
         var context = this.knowledge.retrieve().stream()
             .collect(Collectors.toMap(
-                Trace::key, Trace::value, (a, b) -> b, LinkedHashMap::new));
+                Trace::cue, Trace::content, (a, b) -> b, LinkedHashMap::new));
         var output = this.effectorRepository.find(effectorName)
             .fire(context);
         output.forEach((k, v) ->
-            this.knowledge.encode(Trace.of("results." + effectorName + "." + k, v)));
+            this.knowledge.encode(new TraceImpl("results." + effectorName + "." + k, v)));
         logger.debug("--- fire: {}", effectorName);
         return this.cortex.respond(impulse);
     }

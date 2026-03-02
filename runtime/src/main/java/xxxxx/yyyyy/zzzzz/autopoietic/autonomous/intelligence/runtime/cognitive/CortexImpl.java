@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
@@ -50,7 +51,7 @@ public class CortexImpl implements Cortex {
 
     private Decision integrate(Impulse impulse) {
         var signal = this.encoder.encode(impulse, Cortex.class);
-        return this.nucleus.integrate(Impulse.of(signal, impulse.area()), Decision.class);
+        return this.nucleus.integrate(new ImpulseImpl(signal, impulse.area()), Decision.class);
     }
 
     private Percept doRespond(Impulse impulse) {

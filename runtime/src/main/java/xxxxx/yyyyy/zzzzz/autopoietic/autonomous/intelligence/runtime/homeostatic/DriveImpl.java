@@ -5,12 +5,12 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Drive;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Salience;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
@@ -59,7 +59,7 @@ public class DriveImpl implements Drive {
             var output = this.integrate();
             if (output.aroused()) {
                 var area = this.areaRepository.find(output.area());
-                var impulse = Impulse.of(output.signal(), area);
+                var impulse = new ImpulseImpl(output.signal(), area);
                 var percept = this.cortex.respond(impulse);
                 if (output.vocalize()) {
                     System.out.printf("%n%s>%n%s%n",
@@ -80,7 +80,7 @@ public class DriveImpl implements Drive {
 
     private Urge integrate() {
         var signal = this.encoder.encode(null, Drive.class);
-        return this.nucleus.integrate(Impulse.of(signal, null), Urge.class);
+        return this.nucleus.integrate(new ImpulseImpl(signal, null), Urge.class);
     }
 
     private void schedule() {

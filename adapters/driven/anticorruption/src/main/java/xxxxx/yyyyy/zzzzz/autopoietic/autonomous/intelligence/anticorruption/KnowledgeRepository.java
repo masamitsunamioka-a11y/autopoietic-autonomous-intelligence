@@ -8,6 +8,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configurati
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Serializer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.Semantic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 import java.nio.charset.StandardCharsets;
@@ -38,7 +39,7 @@ public class KnowledgeRepository implements Repository<Trace, Trace> {
     @Override
     public Trace find(String id) {
         return this.traces.stream()
-            .filter(t -> t.key().equals(id))
+            .filter(t -> t.cue().contains(id))
             .findFirst()
             .orElse(null);
     }
@@ -48,35 +49,34 @@ public class KnowledgeRepository implements Repository<Trace, Trace> {
         if (!this.storage.exists(this.knowledgeFile)) {
             return List.of();
         }
-        Map<String, Object> map = this.serializer.deserialize(
-            this.storage.read(this.knowledgeFile, StandardCharsets.UTF_8));
-        return map.entrySet().stream()
-            .map(this::decode)
+        List<Map<String, Object>> list = this.serializer.deserialize(
+            this.storage.read(this.knowledgeFile, StandardCharsets.UTF_8),
+            List.class);
+        return list.stream()
+            .map(m -> (Trace) new TraceImpl(
+                (String) m.get("cue"), m.get("content")))
             .toList();
     }
 
     @Override
     public boolean exists(String id) {
-        return this.traces.stream().anyMatch(t -> t.key().equals(id));
+        return this.traces.stream().anyMatch(t -> t.cue().contains(id));
     }
 
     @Override
     public void store(Trace trace) {
         this.traces.add(trace);
-        var map = new java.util.LinkedHashMap<String, Object>();
-        this.traces.forEach(t -> map.put(t.encoded(), t.value()));
+        var list = this.traces.stream()
+            .map(t -> Map.of("cue", (Object) t.cue(), "content", t.content()))
+            .toList();
         this.storage.write(
             this.knowledgeFile,
-            this.serializer.serialize(map),
+            this.serializer.serialize(list),
             StandardCharsets.UTF_8);
     }
 
     @Override
     public void remove(String id) {
-        this.traces.removeIf(t -> t.key().equals(id));
-    }
-
-    private Trace decode(Map.Entry<String, Object> entry) {
-        return Trace.decode(entry.getKey(), entry.getValue());
+        this.traces.removeIf(t -> t.cue().contains(id));
     }
 }

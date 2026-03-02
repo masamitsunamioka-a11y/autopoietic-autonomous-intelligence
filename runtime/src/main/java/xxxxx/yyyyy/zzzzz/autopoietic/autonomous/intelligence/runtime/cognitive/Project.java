@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
@@ -27,7 +28,7 @@ public final class Project implements Mode {
     @Override
     public Percept handle(Impulse impulse, Decision decision) {
         var targetArea = this.areaRepository.find(decision.area());
-        var projected = Impulse.of(impulse.signal(), targetArea);
+        var projected = new ImpulseImpl(impulse.signal(), targetArea);
         return this.cortex.respond(projected);
     }
 }

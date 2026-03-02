@@ -34,11 +34,11 @@ public class ThalamusImpl implements Thalamus {
         if (area == null) {
             throw new IllegalStateException();
         }
-        return Impulse.of(impulse.signal(), area);
+        return new ImpulseImpl(impulse.signal(), area);
     }
 
     private Projection integrate(Impulse impulse) {
         var signal = this.encoder.encode(impulse, Thalamus.class);
-        return this.nucleus.integrate(Impulse.of(signal, impulse.area()), Projection.class);
+        return this.nucleus.integrate(new ImpulseImpl(signal, impulse.area()), Projection.class);
     }
 }

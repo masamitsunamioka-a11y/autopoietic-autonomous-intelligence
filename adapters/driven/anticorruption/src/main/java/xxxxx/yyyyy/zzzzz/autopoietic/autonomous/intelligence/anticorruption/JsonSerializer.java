@@ -36,8 +36,17 @@ public class JsonSerializer implements Serializer {
         if (data == null || data.isBlank()) {
             return "{}";
         }
-        int start = data.indexOf("{");
-        int end = data.lastIndexOf("}");
+        var trimmed = data.trim();
+        if (trimmed.startsWith("[")) {
+            var start = data.indexOf("[");
+            var end = data.lastIndexOf("]");
+            if (start == -1 || end == -1 || start >= end) {
+                return "[]";
+            }
+            return data.substring(start, end + 1).trim();
+        }
+        var start = data.indexOf("{");
+        var end = data.lastIndexOf("}");
         if (start == -1 || end == -1 || start >= end) {
             return "{}";
         }

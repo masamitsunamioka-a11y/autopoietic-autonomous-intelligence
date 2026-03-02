@@ -4,10 +4,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 @Mode.Inhibit
 @ApplicationScoped
@@ -24,7 +24,7 @@ public final class Inhibit implements Mode {
     public Percept handle(Impulse impulse, Decision decision) {
         var area = impulse.area();
         logger.warn("[CORTEX] INHIBIT on {}: {}", area.name(), decision.response());
-        this.episode.encode(Trace.of("[INHIBIT]", decision.response()));
-        return Percept.of(decision.response(), area.name());
+        this.episode.encode(new TraceImpl("[INHIBIT]", decision.response()));
+        return new PerceptImpl(decision.response(), area.name());
     }
 }

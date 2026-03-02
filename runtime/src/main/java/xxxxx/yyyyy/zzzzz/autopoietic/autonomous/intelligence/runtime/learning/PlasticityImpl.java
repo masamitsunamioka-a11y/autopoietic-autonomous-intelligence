@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.learning.Plasticity;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
@@ -55,12 +56,12 @@ public class PlasticityImpl implements Plasticity {
 
     private Potentiation integrate(Impulse impulse) {
         var signal = this.encoder.encode(impulse, Plasticity.class);
-        return this.nucleus.integrate(Impulse.of(signal, impulse.area()), Potentiation.class);
+        return this.nucleus.integrate(new ImpulseImpl(signal, impulse.area()), Potentiation.class);
     }
 
     private Pruning integrate() {
         var signal = this.encoder.encode(null, Plasticity.class);
-        return this.nucleus.integrate(Impulse.of(signal, null), Pruning.class);
+        return this.nucleus.integrate(new ImpulseImpl(signal, null), Pruning.class);
     }
 
     private void reinforce(Potentiation potentiation, Area area) {

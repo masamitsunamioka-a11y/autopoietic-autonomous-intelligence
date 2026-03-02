@@ -134,7 +134,7 @@ public class EncoderImpl implements Encoder {
     private String traces(List<Trace> traces) {
         return this.serializer.serialize(
             traces.stream().collect(Collectors.toMap(
-                Trace::key, Trace::value, (a, b) -> b, LinkedHashMap::new)));
+                Trace::cue, Trace::content, (a, b) -> b, LinkedHashMap::new)));
     }
 
     private String areaNames() {

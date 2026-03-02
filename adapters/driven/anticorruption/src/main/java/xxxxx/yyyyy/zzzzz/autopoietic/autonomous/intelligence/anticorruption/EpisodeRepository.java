@@ -8,6 +8,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configurati
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Serializer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.Episodic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class EpisodeRepository implements Repository<Trace, Trace>, Serializable
     @Override
     public Trace find(String id) {
         return this.traces.stream()
-            .filter(t -> t.key().equals(id))
+            .filter(t -> t.cue().contains(id))
             .findFirst()
             .orElse(null);
     }
@@ -67,11 +68,13 @@ public class EpisodeRepository implements Repository<Trace, Trace>, Serializable
                 .limit(this.sessions)
                 .map(dir -> dir.resolve("episode.json"))
                 .filter(this.storage::exists)
-                .<Map<String, Object>>map(file ->
+                .<List<Map<String, Object>>>map(file ->
                     this.serializer.deserialize(
-                        this.storage.read(file, StandardCharsets.UTF_8)))
-                .flatMap(map -> map.entrySet().stream())
-                .map(this::decode)
+                        this.storage.read(file, StandardCharsets.UTF_8),
+                        List.class))
+                .flatMap(List::stream)
+                .map(m -> (Trace) new TraceImpl(
+                    (String) m.get("cue"), m.get("content")))
                 .toList();
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to list sessions: " + this.base, e);
@@ -80,26 +83,23 @@ public class EpisodeRepository implements Repository<Trace, Trace>, Serializable
 
     @Override
     public boolean exists(String id) {
-        return this.traces.stream().anyMatch(t -> t.key().equals(id));
+        return this.traces.stream().anyMatch(t -> t.cue().contains(id));
     }
 
     @Override
     public void store(Trace trace) {
         this.traces.add(trace);
-        var map = new java.util.LinkedHashMap<String, Object>();
-        this.traces.forEach(t -> map.put(t.encoded(), t.value()));
+        var list = this.traces.stream()
+            .map(t -> Map.of("cue", (Object) t.cue(), "content", t.content()))
+            .toList();
         this.storage.write(
             this.sessionDir.resolve("episode.json"),
-            this.serializer.serialize(map),
+            this.serializer.serialize(list),
             StandardCharsets.UTF_8);
     }
 
     @Override
     public void remove(String id) {
-        this.traces.removeIf(t -> t.key().equals(id));
-    }
-
-    private Trace decode(Map.Entry<String, Object> entry) {
-        return Trace.decode(entry.getKey(), entry.getValue());
+        this.traces.removeIf(t -> t.cue().contains(id));
     }
 }
