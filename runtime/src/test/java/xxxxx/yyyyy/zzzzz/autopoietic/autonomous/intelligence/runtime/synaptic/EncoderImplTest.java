@@ -6,6 +6,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Serializer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
@@ -27,8 +28,8 @@ class EncoderImplTest {
         var e2 = effector("E2");
         var n1 = neuron("N1");
         var n2 = neuron("N2");
-        var a1 = area("A1", List.of(n1), List.of(e1));
-        var a2 = area("A2", List.of(n2), List.of(e2));
+        var a1 = area("A1", List.of("N1"), List.of("E1"));
+        var a2 = area("A2", List.of("N2"), List.of("E2"));
         var encoder = new EncoderImpl(
             knowledge(), episode(),
             repository(a1, a2), repository(n1, n2), repository(e1, e2),
@@ -52,20 +53,23 @@ class EncoderImplTest {
             public String tuning() { return name + "-tuning"; }
         };
     }
-    private static Area area(String name, List<Neuron> neurons, List<Effector> effectors) {
+    private static Area area(String name, List<String> neurons, List<String> effectors) {
         return new Area() {
             public String name() { return name; }
             public String tuning() { return name + "-tuning"; }
-            public List<Neuron> neurons() { return neurons; }
-            public List<Effector> effectors() { return effectors; }
+            public List<String> neurons() { return neurons; }
+            public List<String> effectors() { return effectors; }
         };
     }
     @SafeVarargs
-    private static <T, E> Repository<T, E> repository(T... items) {
-        return new Repository<T, E>() {
-            public T find(String id) { throw new UnsupportedOperationException(); }
+    private static <T extends Engravable> Repository<T, Engravable> repository(T... items) {
+        var map = java.util.Arrays.stream(items)
+            .collect(java.util.stream.Collectors.toMap(Engravable::name, x -> x));
+        return new Repository<>() {
+            @SuppressWarnings("unchecked")
+            public T find(String id) { return (T) map.get(id); }
             public List<T> findAll() { return List.of(items); }
-            public void store(E e) { }
+            public void store(Engravable e) { }
             public void remove(String id) { }
         };
     }

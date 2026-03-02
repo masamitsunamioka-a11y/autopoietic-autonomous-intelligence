@@ -36,7 +36,7 @@ public class NeuronRepository implements Repository<Neuron, Engravable> {
     @Override
     public void store(Engravable engravable) {
         this.adapter.publish(
-            engravable.name(), engravable.encode(this.serializer::serialize));
+            engravable.name(), this.serializer.serialize(engravable));
     }
 
     @Override

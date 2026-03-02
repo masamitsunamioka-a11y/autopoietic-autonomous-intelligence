@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.processual.Process;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
@@ -18,17 +19,17 @@ import java.util.concurrent.locks.ReentrantLock;
 @ApplicationScoped
 public class CortexImpl implements Cortex {
     private static final Logger logger = LoggerFactory.getLogger(CortexImpl.class);
-    private final Map<String, Mode> modes;
+    private final Map<String, Process> processes;
     private final Encoder encoder;
     private final Nucleus nucleus;
     private final ReentrantLock focus;
 
     @Inject
-    public CortexImpl(@Mode.Vocalize Mode vocalize, @Mode.Fire Mode fire,
-                      @Mode.Potentiate Mode potentiate, @Mode.Project Mode project,
-                      @Mode.Inhibit Mode inhibit,
+    public CortexImpl(@Process.Vocalize Process vocalize, @Process.Fire Process fire,
+                      @Process.Potentiate Process potentiate, @Process.Project Process project,
+                      @Process.Inhibit Process inhibit,
                       Encoder encoder, Nucleus nucleus) {
-        this.modes = Map.of(
+        this.processes = Map.of(
             "VOCALIZE", vocalize,
             "FIRE", fire,
             "POTENTIATE", potentiate,
@@ -57,8 +58,8 @@ public class CortexImpl implements Cortex {
     private Percept doRespond(Impulse impulse) {
         Objects.requireNonNull(impulse.area());
         var output = this.integrate(impulse);
-        var mode = this.modes.get(output.mode().toUpperCase());
-        Objects.requireNonNull(mode, "Unknown mode: " + output.mode());
-        return mode.handle(impulse, output);
+        var process = this.processes.get(output.process().toUpperCase());
+        Objects.requireNonNull(process, "Unknown process: " + output.process());
+        return process.handle(impulse, output);
     }
 }

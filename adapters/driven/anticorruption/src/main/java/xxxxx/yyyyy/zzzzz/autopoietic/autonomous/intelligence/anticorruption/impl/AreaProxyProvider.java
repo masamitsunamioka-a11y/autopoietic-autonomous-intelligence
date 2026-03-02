@@ -5,12 +5,8 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Serializer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -21,16 +17,10 @@ import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorrupti
 @ApplicationScoped
 public class AreaProxyProvider implements ProxyProvider<Area> {
     private static final Logger logger = LoggerFactory.getLogger(AreaProxyProvider.class);
-    private final Repository<Neuron, Engravable> neuronRepository;
-    private final Repository<Effector, Engravable> effectorRepository;
     private final Serializer serializer;
 
     @Inject
-    public AreaProxyProvider(Repository<Neuron, Engravable> neuronRepository,
-                             Repository<Effector, Engravable> effectorRepository,
-                             Serializer serializer) {
-        this.neuronRepository = neuronRepository;
-        this.effectorRepository = effectorRepository;
+    public AreaProxyProvider(Serializer serializer) {
         this.serializer = serializer;
     }
 
@@ -53,18 +43,6 @@ public class AreaProxyProvider implements ProxyProvider<Area> {
                     case "toString" -> this.serializer.serialize(area);
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> this.equals(proxy, args);
-                    case "neurons" -> {
-                        yield area.neurons().stream()
-                            .map(this.neuronRepository::find)
-                            .distinct()
-                            .toList();
-                    }
-                    case "effectors" -> {
-                        yield area.effectors().stream()
-                            .map(this.effectorRepository::find)
-                            .distinct()
-                            .toList();
-                    }
                     default -> InternalArea.class.getMethod(method.getName()).invoke(area);
                 };
             }

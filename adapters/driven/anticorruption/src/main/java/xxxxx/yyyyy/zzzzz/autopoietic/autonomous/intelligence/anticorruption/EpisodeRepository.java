@@ -33,7 +33,6 @@ public class EpisodeRepository implements Repository<Trace, Trace>, Serializable
     private final Path base;
     private final Path sessionDir;
     private final long sessions;
-    private final List<Trace> traces;
 
     @Inject
     public EpisodeRepository(Storage storage, Serializer serializer) {
@@ -44,13 +43,13 @@ public class EpisodeRepository implements Repository<Trace, Trace>, Serializable
         var raw = Integer.parseInt(configuration.get("anticorruption.memory.sessions"));
         this.sessions = raw < 0 ? Long.MAX_VALUE : raw;
         this.sessionDir = this.base.resolve(
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
-        this.traces = new ArrayList<>();
+            LocalDateTime.now().format(
+                DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
     }
 
     @Override
     public Trace find(String id) {
-        return this.traces.stream()
+        return this.findAll().stream()
             .filter(t -> t.cue().contains(id))
             .findFirst()
             .orElse(null);
@@ -77,29 +76,77 @@ public class EpisodeRepository implements Repository<Trace, Trace>, Serializable
                     (String) m.get("cue"), m.get("content")))
                 .toList();
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to list sessions: " + this.base, e);
+            throw new UncheckedIOException(
+                "Failed to list sessions: " + this.base, e);
         }
     }
 
     @Override
-    public boolean exists(String id) {
-        return this.traces.stream().anyMatch(t -> t.cue().contains(id));
+    public void store(Trace trace) {
+        var all = new ArrayList<>(this.findSession());
+        all.add(trace);
+        this.persist(all);
     }
 
     @Override
-    public void store(Trace trace) {
-        this.traces.add(trace);
-        var list = this.traces.stream()
-            .map(t -> Map.of("cue", (Object) t.cue(), "content", t.content()))
+    public void removeAll(List<String> ids) {
+        try (var dirs = Files.list(this.base)) {
+            dirs.filter(Files::isDirectory)
+                .sorted(Comparator.reverseOrder())
+                .limit(this.sessions)
+                .forEach(dir -> this.removeFrom(
+                    dir.resolve("episode.json"), ids));
+        } catch (IOException e) {
+            throw new UncheckedIOException(
+                "Failed to list sessions: " + this.base, e);
+        }
+    }
+
+    private void removeFrom(Path file, List<String> ids) {
+        if (!this.storage.exists(file)) return;
+        List<Map<String, Object>> list = this.serializer.deserialize(
+            this.storage.read(file, StandardCharsets.UTF_8),
+            List.class);
+        var filtered = list.stream()
+            .filter(m -> !ids.contains((String) m.get("cue")))
+            .toList();
+        if (filtered.size() < list.size()) {
+            this.storage.write(file,
+                this.serializer.serialize(filtered),
+                StandardCharsets.UTF_8);
+        }
+    }
+
+    @Override
+    public void remove(String id) {
+        var all = new ArrayList<>(this.findSession());
+        all.removeIf(t -> t.cue().contains(id));
+        this.persist(all);
+    }
+
+    private List<Trace> findSession() {
+        var file = this.sessionDir.resolve("episode.json");
+        if (!this.storage.exists(file)) {
+            return List.of();
+        }
+        List<Map<String, Object>> list = this.serializer.deserialize(
+            this.storage.read(file, StandardCharsets.UTF_8),
+            List.class);
+        return list.stream()
+            .map(m -> (Trace) new TraceImpl(
+                (String) m.get("cue"), m.get("content")))
+            .toList();
+    }
+
+    private void persist(List<Trace> traces) {
+        var list = traces.stream()
+            .map(t -> Map.of(
+                "cue", (Object) t.cue(),
+                "content", t.content()))
             .toList();
         this.storage.write(
             this.sessionDir.resolve("episode.json"),
             this.serializer.serialize(list),
             StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void remove(String id) {
-        this.traces.removeIf(t -> t.cue().contains(id));
     }
 }

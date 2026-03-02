@@ -17,6 +17,7 @@ import java.util.Objects;
 @ConversationScoped
 public class EpisodeImpl implements Episode, Serializable {
     private static final Logger logger = LoggerFactory.getLogger(EpisodeImpl.class);
+    private static final int CAPACITY = 50;
     private final Repository<Trace, Trace> repository;
 
     @Inject
@@ -40,18 +41,28 @@ public class EpisodeImpl implements Episode, Serializable {
 
     @Override
     public List<Trace> retrieve() {
+        this.decay();
         return this.repository.findAll().stream()
             .sorted(Comparator.comparing(this::timestampOf))
             .toList();
     }
 
+    @Override
+    public void decay() {
+        var all = this.repository.findAll();
+        if (all.size() <= CAPACITY) return;
+        var expired = all.stream()
+            .sorted(Comparator.comparing(this::timestampOf))
+            .limit(all.size() - CAPACITY)
+            .map(Trace::cue)
+            .toList();
+        logger.debug("[DECAY] episode: {} → {}",
+            all.size(), all.size() - expired.size());
+        this.repository.removeAll(expired);
+    }
+
     private Instant timestampOf(Trace trace) {
         var at = trace.cue().lastIndexOf('@');
         return Instant.parse(trace.cue().substring(at + 1));
-    }
-
-    @Override
-    public void decay() {
-        /// TODO: implement episode decay
     }
 }

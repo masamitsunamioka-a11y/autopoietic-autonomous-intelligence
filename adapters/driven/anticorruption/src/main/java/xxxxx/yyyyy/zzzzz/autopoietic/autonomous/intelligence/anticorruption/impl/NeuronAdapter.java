@@ -33,11 +33,12 @@ public class NeuronAdapter implements Adapter<Neuron, String> {
 
     @Override
     public Neuron fetch(String id) {
+        var path = this.neuronsSource.resolve(Utility.toSnakeCase(id) + ".json");
+        if (!this.storage.exists(path)) {
+            return null;
+        }
         return this.translator.translateFrom(
-            id,
-            this.storage.read(
-                this.neuronsSource.resolve(Utility.toSnakeCase(id) + ".json"),
-                StandardCharsets.UTF_8));
+            id, this.storage.read(path, StandardCharsets.UTF_8));
     }
 
     @Override

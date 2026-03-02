@@ -59,6 +59,10 @@ public class DriveImpl implements Drive {
             var output = this.integrate();
             if (output.aroused()) {
                 var area = this.areaRepository.find(output.area());
+                if (area == null) {
+                    logger.debug("[DRIVE] subthreshold — area not found: {}", output.area());
+                    return;
+                }
                 var impulse = new ImpulseImpl(output.signal(), area);
                 var percept = this.cortex.respond(impulse);
                 if (output.vocalize()) {

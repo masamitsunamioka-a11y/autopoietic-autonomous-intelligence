@@ -132,8 +132,8 @@ class PlasticityImplTest {
                 return new Area() {
                     public String name() { return "current"; }
                     public String tuning() { return ""; }
-                    public List<Neuron> neurons() { return List.of(); }
-                    public List<Effector> effectors() { return List.of(); }
+                    public List<String> neurons() { return List.of(); }
+                    public List<String> effectors() { return List.of(); }
                 };
             }
         };
@@ -192,13 +192,11 @@ class PlasticityImplTest {
         };
     }
     private static Area area(String name, List<String> neuronNames, List<String> effectorNames) {
-        var neurons = neuronNames.stream().map(PlasticityImplTest::neuron).toList();
-        var effectors = effectorNames.stream().map(PlasticityImplTest::effector).toList();
         return new Area() {
             public String name() { return name; }
             public String tuning() { return "t"; }
-            public List<Neuron> neurons() { return neurons; }
-            public List<Effector> effectors() { return effectors; }
+            public List<String> neurons() { return neuronNames; }
+            public List<String> effectors() { return effectorNames; }
         };
     }
     private static Repository<Area, Engravable> reconcilingAreaRepository(

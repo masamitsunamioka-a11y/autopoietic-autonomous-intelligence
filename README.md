@@ -55,17 +55,21 @@ ULCDI exists because autopoiesis demands organizational closure.
 | Level  | Name                           | Status               |
 |--------|--------------------------------|----------------------|
 | **L1** | Operational Closure            | Done                 |
-| **L2** | Structural Self-Production     | ~80%                 |
+| **L2** | Structural Self-Production     | ~85%                 |
 | **L3** | Organizational Self-Production | Intentional boundary |
 | **L4** | Structural Coupling Maturity   | Theoretical          |
+
+**L2 note**: ~95% achievable within L3 boundary — prompt/configuration self-modification
+(Plasticity meta-learning, Drive self-reconfiguration) does not require code execution.
+Only runtime Mode plugin registration requires crossing L3.
 
 **L3 boundary**: `Effector.fire()` authored by humans — system identifies *what*, humans decide *how*.
 
 ## Documentation
 
-- [Signal flows & package overview](docs/architecture.md)
-- [Kandel interface citations](docs/kandel.md)
-- [Module structure & dependencies](docs/modules.md)
+- [Signal flows](docs/architecture.md) — CEN, DMN, SN
+- [Kandel interface reference](docs/kandel.md) — specification packages & interface details
+- [Module structure](docs/modules.md) — Maven modules, filesystem, configuration
 - [Agentforce comparison](docs/agentforce.md)
 
 ## References

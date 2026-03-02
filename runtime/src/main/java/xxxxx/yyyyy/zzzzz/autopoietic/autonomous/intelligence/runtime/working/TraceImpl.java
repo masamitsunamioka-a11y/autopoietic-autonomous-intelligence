@@ -6,7 +6,7 @@ import java.time.Instant;
 
 public record TraceImpl(String cue, Object content) implements Trace {
     public TraceImpl(String cue, Object content) {
-        this.cue = cue + "@" + Instant.now();
+        this.cue = cue.contains("@") ? cue : cue + "@" + Instant.now();
         this.content = content;
     }
 }

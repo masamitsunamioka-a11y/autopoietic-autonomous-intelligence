@@ -1,17 +1,19 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.processual;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.PerceptImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
 
-@Mode.Inhibit
+@Process.Inhibit
 @ApplicationScoped
-public final class Inhibit implements Mode {
+public final class Inhibit implements Process {
     private static final Logger logger = LoggerFactory.getLogger(Inhibit.class);
     private final Episode episode;
 

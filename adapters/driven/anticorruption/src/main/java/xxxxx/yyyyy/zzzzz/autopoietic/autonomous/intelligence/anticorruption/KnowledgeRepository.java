@@ -24,21 +24,20 @@ public class KnowledgeRepository implements Repository<Trace, Trace> {
     private final Storage storage;
     private final Serializer serializer;
     private final Path knowledgeFile;
-    private final List<Trace> traces;
 
     @Inject
     public KnowledgeRepository(Storage storage, Serializer serializer) {
         this.storage = storage;
         this.serializer = serializer;
         var configuration = new Configuration();
-        var base = Path.of(configuration.get("anticorruption.memory.source"), "");
+        var base = Path.of(
+            configuration.get("anticorruption.memory.source"), "");
         this.knowledgeFile = base.resolve("knowledge.json");
-        this.traces = new ArrayList<>();
     }
 
     @Override
     public Trace find(String id) {
-        return this.traces.stream()
+        return this.findAll().stream()
             .filter(t -> t.cue().contains(id))
             .findFirst()
             .orElse(null);
@@ -50,7 +49,8 @@ public class KnowledgeRepository implements Repository<Trace, Trace> {
             return List.of();
         }
         List<Map<String, Object>> list = this.serializer.deserialize(
-            this.storage.read(this.knowledgeFile, StandardCharsets.UTF_8),
+            this.storage.read(
+                this.knowledgeFile, StandardCharsets.UTF_8),
             List.class);
         return list.stream()
             .map(m -> (Trace) new TraceImpl(
@@ -59,24 +59,34 @@ public class KnowledgeRepository implements Repository<Trace, Trace> {
     }
 
     @Override
-    public boolean exists(String id) {
-        return this.traces.stream().anyMatch(t -> t.cue().contains(id));
+    public void store(Trace trace) {
+        var all = new ArrayList<>(this.findAll());
+        all.add(trace);
+        this.persist(all);
     }
 
     @Override
-    public void store(Trace trace) {
-        this.traces.add(trace);
-        var list = this.traces.stream()
-            .map(t -> Map.of("cue", (Object) t.cue(), "content", t.content()))
-            .toList();
-        this.storage.write(
-            this.knowledgeFile,
-            this.serializer.serialize(list),
-            StandardCharsets.UTF_8);
+    public void removeAll(List<String> ids) {
+        var all = new ArrayList<>(this.findAll());
+        all.removeIf(t -> ids.contains(t.cue()));
+        this.persist(all);
     }
 
     @Override
     public void remove(String id) {
-        this.traces.removeIf(t -> t.cue().contains(id));
+        var all = new ArrayList<>(this.findAll());
+        all.removeIf(t -> t.cue().contains(id));
+        this.persist(all);
+    }
+
+    private void persist(List<Trace> traces) {
+        var list = traces.stream()
+            .map(t -> Map.of(
+                "cue", (Object) t.cue(),
+                "content", t.content()))
+            .toList();
+        this.storage.write(this.knowledgeFile,
+            this.serializer.serialize(list),
+            StandardCharsets.UTF_8);
     }
 }

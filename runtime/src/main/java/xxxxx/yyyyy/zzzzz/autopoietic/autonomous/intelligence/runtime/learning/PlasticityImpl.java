@@ -69,12 +69,8 @@ public class PlasticityImpl implements Plasticity {
             this.areaRepository.store(new Potentiation.Area(
                 area.name(),
                 potentiation.newTuning(),
-                area.neurons().stream()
-                    .map(Neuron::name)
-                    .toList(),
-                area.effectors().stream()
-                    .map(Effector::name)
-                    .toList()));
+                area.neurons(),
+                area.effectors()));
         }
     }
 
@@ -94,12 +90,12 @@ public class PlasticityImpl implements Plasticity {
     }
 
     private void consolidate(Pruning pruning) {
+        pruning.mergedNeurons().stream()
+            .map(Pruning.MergedNeuron::result).forEach(this.neuronRepository::store);
         pruning.mergedAreas().stream()
             .map(Pruning.MergedArea::result)
             .filter(this::allReferencesExist)
             .forEach(this.areaRepository::store);
-        pruning.mergedNeurons().stream()
-            .map(Pruning.MergedNeuron::result).forEach(this.neuronRepository::store);
     }
 
     private void reconcile() {
@@ -109,9 +105,9 @@ public class PlasticityImpl implements Plasticity {
             .map(Effector::name).collect(toSet());
         for (var area : this.areaRepository.findAll()) {
             var validNeurons = area.neurons().stream()
-                .map(Neuron::name).filter(knownNeurons::contains).toList();
+                .filter(knownNeurons::contains).toList();
             var validEffectors = area.effectors().stream()
-                .map(Effector::name).filter(knownEffectors::contains).toList();
+                .filter(knownEffectors::contains).toList();
             if (validNeurons.size() == area.neurons().size()
                 && validEffectors.size() == area.effectors().size()) continue;
             if (validNeurons.isEmpty()) {

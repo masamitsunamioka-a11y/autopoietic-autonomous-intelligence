@@ -46,7 +46,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 - **Constructor param order** (fields follow same order):
   Kandel macro→micro, then system foundational→specific:
     1. homeostatic (Salience → Plasticity)
-    2. cognitive (Cortex → Mode)
+    2. cognitive (Cortex → Process)
     3. working (Knowledge → Episode)
     4. neural (Area → Neuron → Effector)
     5. synaptic (Nucleus → Encoder)
@@ -74,7 +74,7 @@ SLF4J 2 + Logback · SnakeYAML 2 · Gson 2
 
 # Reference
 
-- [Signal flows & package overview](docs/architecture.md)
-- [Kandel interface citations](docs/kandel.md)
-- [Module structure & dependencies](docs/modules.md)
+- [Signal flows](docs/architecture.md) — CEN, DMN, SN
+- [Kandel interface reference](docs/kandel.md) — specification packages & interface details
+- [Module structure](docs/modules.md) — Maven modules, filesystem, configuration
 - [Agentforce comparison](docs/agentforce.md)

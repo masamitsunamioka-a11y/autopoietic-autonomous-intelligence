@@ -5,7 +5,7 @@ import java.util.List;
 public interface Area extends Engravable {
     String tuning();
 
-    List<Neuron> neurons();
+    List<String> neurons();
 
-    List<Effector> effectors();
+    List<String> effectors();
 }

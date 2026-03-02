@@ -17,6 +17,9 @@ Stimulus.input()
   → Effector.fire()                 Ch.35-36
 ```
 
+Corticocortical projection (PROJECT process) re-enters Cortex.respond()
+recursively via association fibers (Ch.20), bypassing Thalamus.
+
 ## DMN — Default Mode Network (internal)
 
 ```
@@ -29,26 +32,16 @@ Drive.activate()                    Ch.48,62
 DMN bypasses Thalamus. Area selection is internal (Ch.62: DMN activates
 medial PFC, posterior cingulate spontaneously).
 
-## PROJECT — Corticocortical Projection
+## SN — Salience Network (gating)
 
 ```
-Cortex.respond() → PROJECT mode
-  → AreaRepository.find()           Ch.20 association fibers
-  → Impulse(signal, targetArea)
-  → Cortex.respond()                recursive, no Thalamus
-  → Percept
+[External stimulus arrives]
+  → Salience.orient()               Seeley 2007; Ch.63
+  → [DMN suppressed, CEN engaged]
+  → [CEN processes stimulus]
+  → Salience.release()
+  → [CEN disengaged, DMN resumes]
 ```
 
-## Package Overview
-
-| Package       | Kandel          | Role                                                     |
-|---------------|-----------------|----------------------------------------------------------|
-| `neural`      | Ch.1, 26-27     | Cortical structure: Engravable, Area, Neuron, Effector   |
-| `signaling`   | Ch.7, 20-21, 23 | Sensory pathway: Stimulus, Impulse, Transducer, Thalamus |
-| `synaptic`    | Ch.8-12         | Universal computation: Encoder, Nucleus                  |
-| `cognitive`   | Part VII        | Cortical response: Cortex, Percept                       |
-| `homeostatic` | Ch.48, 62       | Regulation: Drive, Salience                              |
-| `learning`    | Ch.63-64        | Plasticity                                               |
-| `working`     | Ch.65-67        | Memory: Trace, Episode, Knowledge                        |
-
-Full interface-level Kandel citations: [kandel.md](kandel.md)
+Anterior insula + ACC. Gates DMN↔CEN switch (Seeley 2007).
+orient() suppresses DMN; release() re-engages DMN.

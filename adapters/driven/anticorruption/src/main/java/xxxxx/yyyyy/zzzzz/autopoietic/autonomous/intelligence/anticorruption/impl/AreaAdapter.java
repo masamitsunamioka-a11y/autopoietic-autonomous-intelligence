@@ -33,11 +33,12 @@ public class AreaAdapter implements Adapter<Area, String> {
 
     @Override
     public Area fetch(String id) {
+        var path = this.areasSource.resolve(Utility.toSnakeCase(id) + ".json");
+        if (!this.storage.exists(path)) {
+            return null;
+        }
         return this.translator.translateFrom(
-            id,
-            this.storage.read(
-                this.areasSource.resolve(Utility.toSnakeCase(id) + ".json"),
-                StandardCharsets.UTF_8));
+            id, this.storage.read(path, StandardCharsets.UTF_8));
     }
 
     @Override

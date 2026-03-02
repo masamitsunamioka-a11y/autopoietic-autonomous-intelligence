@@ -19,6 +19,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.worki
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -73,13 +74,21 @@ public class EncoderImpl implements Encoder {
             "knowledge",    this.traces(this.knowledge.retrieve()),
             "self",         this.self(self),
             "area_names",   this.areaNames(),
-            "neurons",      this.serialize(self.neurons(), x -> Map.of(
-                "name",         x.name(),
-                "tuning",       x.tuning()
-            )),
-            "effectors",    this.serialize(self.effectors(), x -> Map.of(
-                "name",         x.name(),
-                "tuning",       x.tuning()))
+            "neurons",      this.serialize(self.neurons().stream()
+                .map(this.neuronRepository::find)
+                .filter(Objects::nonNull).toList(), x -> Map.of(
+                    "name",         x.name(),
+                    "tuning",       x.tuning())),
+            "effectors",    this.serialize(self.effectors().stream()
+                .map(this.effectorRepository::find)
+                .filter(Objects::nonNull).toList(), x -> Map.of(
+                    "name",         x.name(),
+                    "tuning",       x.tuning())),
+            "effector_names", self.effectors().stream()
+                .map(this.effectorRepository::find)
+                .filter(Objects::nonNull)
+                .map(Effector::name)
+                .collect(joining(", "))
         ));
         /// @formatter:on
     }
@@ -161,12 +170,8 @@ public class EncoderImpl implements Encoder {
         return this.serialize(this.areaRepository.findAll(), x -> Map.of(
             "name", x.name(),
             "tuning", x.tuning(),
-            "neurons", x.neurons().stream()
-                .map(Neuron::name)
-                .toList(),
-            "effectors", x.effectors().stream()
-                .map(Effector::name)
-                .toList()));
+            "neurons", x.neurons(),
+            "effectors", x.effectors()));
     }
 
     private String neurons() {

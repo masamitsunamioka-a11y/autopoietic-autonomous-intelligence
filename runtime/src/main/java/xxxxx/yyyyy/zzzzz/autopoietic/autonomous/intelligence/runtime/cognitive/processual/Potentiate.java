@@ -1,17 +1,18 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.processual;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.learning.Plasticity;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 
-@Mode.Potentiate
+@Process.Potentiate
 @ApplicationScoped
-public final class Potentiate implements Mode {
+public final class Potentiate implements Process {
     private static final Logger logger = LoggerFactory.getLogger(Potentiate.class);
     private final Plasticity plasticity;
     private final Cortex cortex;
