@@ -13,7 +13,7 @@ public class EffectorTranslator implements Translator<Effector, String> {
     private final String effectorPackage;
 
     public EffectorTranslator() {
-        var configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration();
         this.effectorPackage = configuration.get("anticorruption.effectors.package");
     }
 

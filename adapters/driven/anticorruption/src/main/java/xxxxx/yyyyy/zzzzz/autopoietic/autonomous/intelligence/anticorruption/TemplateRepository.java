@@ -20,7 +20,7 @@ public class TemplateRepository implements Repository<String, String> {
 
     @Inject
     public TemplateRepository(Storage fs) {
-        var configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration();
         var phaseSource = Path.of(
             configuration.get("anticorruption.encodings.phase"), "");
         var sharedSource = Path.of(

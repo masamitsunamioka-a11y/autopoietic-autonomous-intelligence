@@ -8,8 +8,12 @@ import java.util.Map;
 public class Configuration {
     private final Map<String, Object> yaml;
 
+    public Configuration() {
+        this("configuration.yaml");
+    }
+
     @SuppressWarnings("unchecked")
-    public Configuration(String name) {
+    private Configuration(String name) {
         var classLoader = Thread.currentThread().getContextClassLoader();
         try (InputStream is = classLoader.getResourceAsStream(name)) {
             if (is == null) {

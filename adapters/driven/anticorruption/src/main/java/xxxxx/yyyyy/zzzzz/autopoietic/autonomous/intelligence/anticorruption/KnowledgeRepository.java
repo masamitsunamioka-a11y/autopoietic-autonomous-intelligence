@@ -30,7 +30,7 @@ public class KnowledgeRepository implements Repository<Trace, Trace> {
     public KnowledgeRepository(Storage storage, Serializer serializer) {
         this.storage = storage;
         this.serializer = serializer;
-        var configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration();
         var base = Path.of(configuration.get("anticorruption.memory.source"), "");
         this.knowledgeFile = base.resolve("knowledge.json");
         this.traces = new ArrayList<>();

@@ -63,6 +63,6 @@ filesystem/
   hippocampal/       {session}/episode.json + knowledge.json
 ```
 
-Config: `adapters/driving/{cli,api}/src/main/resources/anticorruption.yaml`
+Config: `adapters/driving/{cli,api}/src/main/resources/configuration.yaml`
 Keys: `anticorruption.{neurons,areas}.source`, `anticorruption.encodings.{phase,shared}`,
 `anticorruption.memory.{source,sessions}`, `anticorruption.effectors.*`

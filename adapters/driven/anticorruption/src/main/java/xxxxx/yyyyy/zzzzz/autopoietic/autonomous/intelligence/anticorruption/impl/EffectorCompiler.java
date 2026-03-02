@@ -20,7 +20,7 @@ public class EffectorCompiler implements Compiler {
     private final String classpath;
 
     public EffectorCompiler() {
-        var configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration();
         this.classpath = "manual".equals(configuration.get("anticorruption.effectors.compiler.classpath.strategy"))
             ? configuration.get("anticorruption.effectors.compiler.classpath.value")
             : System.getProperty("java.class.path");

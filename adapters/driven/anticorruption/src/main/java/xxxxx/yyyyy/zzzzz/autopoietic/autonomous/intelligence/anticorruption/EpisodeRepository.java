@@ -39,7 +39,7 @@ public class EpisodeRepository implements Repository<Trace, Trace>, Serializable
     public EpisodeRepository(Storage storage, Serializer serializer) {
         this.storage = storage;
         this.serializer = serializer;
-        var configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration();
         this.base = Path.of(configuration.get("anticorruption.memory.source"), "");
         var raw = Integer.parseInt(configuration.get("anticorruption.memory.sessions"));
         this.sessions = raw < 0 ? Long.MAX_VALUE : raw;

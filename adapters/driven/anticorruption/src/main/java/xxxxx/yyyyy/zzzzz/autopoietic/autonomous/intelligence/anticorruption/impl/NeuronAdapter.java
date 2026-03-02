@@ -27,7 +27,7 @@ public class NeuronAdapter implements Adapter<Neuron, String> {
                          Storage storage) {
         this.translator = translator;
         this.storage = storage;
-        var configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration();
         this.neuronsSource = Path.of(configuration.get("anticorruption.neurons.source"), "");
     }
 

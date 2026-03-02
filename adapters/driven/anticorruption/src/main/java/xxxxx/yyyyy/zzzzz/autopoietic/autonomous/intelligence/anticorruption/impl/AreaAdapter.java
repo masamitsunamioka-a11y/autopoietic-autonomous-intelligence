@@ -27,7 +27,7 @@ public class AreaAdapter implements Adapter<Area, String> {
                        Storage storage) {
         this.translator = translator;
         this.storage = storage;
-        var configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration();
         this.areasSource = Path.of(configuration.get("anticorruption.areas.source"), "");
     }
 

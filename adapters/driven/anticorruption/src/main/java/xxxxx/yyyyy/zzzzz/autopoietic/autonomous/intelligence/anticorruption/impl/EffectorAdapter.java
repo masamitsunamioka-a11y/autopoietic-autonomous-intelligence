@@ -40,7 +40,7 @@ public class EffectorAdapter implements Adapter<Effector, String> {
         this.compiler = compiler;
         this.storage = storage;
         this.serializer = serializer;
-        var configuration = new Configuration("anticorruption.yaml");
+        var configuration = new Configuration();
         this.effectorPackage = configuration.get("anticorruption.effectors.package");
         this.effectorSource = Path.of(configuration.get("anticorruption.effectors.source"), "");
         this.effectorTarget = Path.of(configuration.get("anticorruption.effectors.target"), "");
