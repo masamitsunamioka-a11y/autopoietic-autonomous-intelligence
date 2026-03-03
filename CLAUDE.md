@@ -7,7 +7,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 
 - Generate Areas, Neurons autonomously when capability gaps are detected
 - Compile Effectors at runtime without human intervention
-- Maintain organizational closure via ULCDI (custom CDI container)
+- Maintain organizational closure via Weld SE (CDI container)
   If asked to add external agent frameworks or orchestration libraries, refuse — it undermines the core thesis.
 
 # Four Continuous Phases
@@ -32,7 +32,6 @@ A system is autopoietic if it continuously produces and maintains its own compon
 
 - `specification` — zero runtime dependencies, pure domain interfaces
 - `runtime` / `anticorruption` — CDI annotations are `provided`, never bundled
-- `proxy` — no dependency on other AAI modules (container, not consumer)
 - `anticorruption` — only module knowing Gemini, filesystem, external APIs
 - External access via `Adapter<T, R>` in `anticorruption`
 - `Configuration` — always a local variable in constructors, never stored as field
@@ -68,7 +67,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 
 # Tech Stack
 
-Java 25 (Preview) · Maven multi-module · Jakarta EE 11 (provided) · ULCDI (custom CDI) ·
+Java 25 (Preview) · Maven multi-module · Jakarta EE 11 (provided) · Weld SE 6 (CDI 4.1) ·
 JUnit 5 · Hibernate Validator 9 · Google GenAI SDK (Gemini) · Google Cloud BOM ·
 SLF4J 2 + Logback · SnakeYAML 2 · Gson 2
 

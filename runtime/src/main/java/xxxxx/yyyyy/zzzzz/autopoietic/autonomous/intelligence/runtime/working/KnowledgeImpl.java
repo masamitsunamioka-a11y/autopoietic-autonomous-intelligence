@@ -1,6 +1,6 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working;
 
-import jakarta.enterprise.context.ConversationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -17,8 +16,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ConversationScoped
-public class KnowledgeImpl implements Knowledge, Serializable {
+@ApplicationScoped
+public class KnowledgeImpl implements Knowledge {
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeImpl.class);
     private final Repository<Trace, Trace> repository;
 
@@ -31,6 +30,7 @@ public class KnowledgeImpl implements Knowledge, Serializable {
     public void encode(Trace trace) {
         Objects.requireNonNull(trace);
         this.repository.store(trace);
+        this.decay();
     }
 
     @Override
@@ -43,7 +43,6 @@ public class KnowledgeImpl implements Knowledge, Serializable {
 
     @Override
     public List<Trace> retrieve() {
-        this.decay();
         return this.repository.findAll().stream()
             .sorted(Comparator.comparing(this::timestampOf))
             .toList();

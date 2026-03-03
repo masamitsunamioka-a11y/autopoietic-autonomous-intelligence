@@ -53,17 +53,17 @@ class ChatHandler implements HttpHandler {
         }
         this.episode.encode(new TraceImpl("user", input));
         this.salience.orient();
-        this.registry.broadcast(SsePrintStream.buildJson("user", "user", input));
+        this.registry.broadcast(SseRegistry.buildJson("user", "user", input));
         try {
             var stimulus = new StimulusImpl(input);
             var impulse = this.transducer.transduce(stimulus);
             var routed = this.thalamus.relay(impulse);
             var percept = this.cortex.respond(routed);
             this.registry.broadcast(
-                SsePrintStream.buildJson("message", percept.location(), percept.content()));
+                SseRegistry.buildJson("message", percept.location(), percept.content()));
         } catch (Exception e) {
             logger.error("[UI] respond failed", e);
-            this.registry.broadcast(SsePrintStream.buildJson("error", "system", e.getMessage()));
+            this.registry.broadcast(SseRegistry.buildJson("error", "system", e.getMessage()));
         } finally {
             this.salience.release();
         }

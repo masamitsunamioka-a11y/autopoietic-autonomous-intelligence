@@ -41,14 +41,10 @@ specification        Domain interfaces — Kandel-grounded, zero dependencies
 runtime              Core engines — Cortex, Thalamus, Plasticity, Drive
 anticorruption       ACL — Gemini, filesystem, all external systems
 services             Effector implementations (may be runtime-generated)
-proxy (ULCDI)        Custom CDI container — organizational closure
 cli / api / web      Driving adapters — CLI, HTTP+SSE, Vue 3 SPA
 ```
 
-### Why a Custom CDI Container?
-
-Standard CDI (Weld, etc.) cannot `reconcile()` — dynamically re-wire beans while running.
-ULCDI exists because autopoiesis demands organizational closure.
+CDI container: **Weld SE 6** (CDI 4.1 reference implementation).
 
 ## Autonomy Levels
 

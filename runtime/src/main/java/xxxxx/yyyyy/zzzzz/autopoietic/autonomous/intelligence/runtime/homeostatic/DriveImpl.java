@@ -1,6 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.homeostatic;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +28,20 @@ public class DriveImpl implements Drive {
     private final Repository<Area, Engravable> areaRepository;
     private final Encoder encoder;
     private final Nucleus nucleus;
+    private final Event<Expression> event;
     private final ScheduledExecutorService executorService;
 
     @Inject
     public DriveImpl(Salience salience, Cortex cortex,
                      Repository<Area, Engravable> areaRepository,
-                     Encoder encoder, Nucleus nucleus) {
+                     Encoder encoder, Nucleus nucleus,
+                     Event<Expression> event) {
         this.salience = salience;
         this.cortex = cortex;
         this.areaRepository = areaRepository;
         this.encoder = encoder;
         this.nucleus = nucleus;
+        this.event = event;
         this.executorService = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -65,15 +69,8 @@ public class DriveImpl implements Drive {
                 }
                 var impulse = new ImpulseImpl(output.signal(), area);
                 var percept = this.cortex.respond(impulse);
-                if (output.vocalize()) {
-                    System.out.printf("%n%s>%n%s%n",
-                        percept.location(),
-                        percept.content());
-                } else {
-                    System.out.printf("%n\u001B[90m[introspection] %s>%n%s\u001B[0m%n",
-                        percept.location(),
-                        percept.content());
-                }
+                this.event.fire(
+                    new Expression(percept, output.vocalize()));
             }
         } catch (Exception e) {
             logger.error("[DRIVE] fire failed", e);

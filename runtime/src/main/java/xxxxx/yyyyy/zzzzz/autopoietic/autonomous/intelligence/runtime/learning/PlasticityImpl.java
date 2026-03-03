@@ -14,12 +14,12 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
-
-import static java.util.stream.Collectors.toSet;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
 
 @ApplicationScoped
 public class PlasticityImpl implements Plasticity {
     private static final Logger logger = LoggerFactory.getLogger(PlasticityImpl.class);
+    private final Episode episode;
     private final Repository<Area, Engravable> areaRepository;
     private final Repository<Neuron, Engravable> neuronRepository;
     private final Repository<Effector, Engravable> effectorRepository;
@@ -27,10 +27,12 @@ public class PlasticityImpl implements Plasticity {
     private final Nucleus nucleus;
 
     @Inject
-    public PlasticityImpl(Repository<Area, Engravable> areaRepository,
+    public PlasticityImpl(Episode episode,
+                          Repository<Area, Engravable> areaRepository,
                           Repository<Neuron, Engravable> neuronRepository,
                           Repository<Effector, Engravable> effectorRepository,
                           Encoder encoder, Nucleus nucleus) {
+        this.episode = episode;
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
@@ -43,7 +45,6 @@ public class PlasticityImpl implements Plasticity {
         var output = this.integrate(impulse);
         this.reinforce(output, impulse.area());
         this.sprout(output);
-        this.reconcile();
     }
 
     @Override
@@ -51,7 +52,7 @@ public class PlasticityImpl implements Plasticity {
         var output = this.integrate();
         this.eliminate(output);
         this.consolidate(output);
-        this.reconcile();
+        this.episode.decay();
     }
 
     private Potentiation integrate(Impulse impulse) {
@@ -77,9 +78,7 @@ public class PlasticityImpl implements Plasticity {
     private void sprout(Potentiation potentiation) {
         potentiation.newEffectors().forEach(this.effectorRepository::store);
         potentiation.newNeurons().forEach(this.neuronRepository::store);
-        potentiation.newAreas().stream()
-            .filter(this::allReferencesExist)
-            .forEach(this.areaRepository::store);
+        potentiation.newAreas().forEach(this.areaRepository::store);
     }
 
     private void eliminate(Pruning pruning) {
@@ -94,46 +93,6 @@ public class PlasticityImpl implements Plasticity {
             .map(Pruning.MergedNeuron::result).forEach(this.neuronRepository::store);
         pruning.mergedAreas().stream()
             .map(Pruning.MergedArea::result)
-            .filter(this::allReferencesExist)
             .forEach(this.areaRepository::store);
-    }
-
-    private void reconcile() {
-        var knownNeurons = this.neuronRepository.findAll().stream()
-            .map(Neuron::name).collect(toSet());
-        var knownEffectors = this.effectorRepository.findAll().stream()
-            .map(Effector::name).collect(toSet());
-        for (var area : this.areaRepository.findAll()) {
-            var validNeurons = area.neurons().stream()
-                .filter(knownNeurons::contains).toList();
-            var validEffectors = area.effectors().stream()
-                .filter(knownEffectors::contains).toList();
-            if (validNeurons.size() == area.neurons().size()
-                && validEffectors.size() == area.effectors().size()) continue;
-            if (validNeurons.isEmpty()) {
-                logger.warn("[PLASTICITY] Removing '{}': no valid neurons", area.name());
-                this.areaRepository.remove(area.name());
-            } else {
-                logger.warn("[PLASTICITY] Reconciling '{}': stripping dangling references", area.name());
-                this.areaRepository.store(new Potentiation.Area(
-                    area.name(), area.tuning(), validNeurons, validEffectors));
-            }
-        }
-    }
-
-    private boolean allReferencesExist(Potentiation.Area area) {
-        var knownNeurons = this.neuronRepository.findAll().stream()
-            .map(Neuron::name).collect(toSet());
-        var knownEffectors = this.effectorRepository.findAll().stream()
-            .map(Effector::name).collect(toSet());
-        var missingNeurons = area.neurons().stream()
-            .filter(n -> !knownNeurons.contains(n)).toList();
-        var missingEffectors = area.effectors().stream()
-            .filter(n -> !knownEffectors.contains(n)).toList();
-        if (!missingNeurons.isEmpty())
-            logger.warn("[PLASTICITY] Area '{}': missing neurons {}", area.name(), missingNeurons);
-        if (!missingEffectors.isEmpty())
-            logger.warn("[PLASTICITY] Area '{}': missing effectors {}", area.name(), missingEffectors);
-        return missingNeurons.isEmpty() && missingEffectors.isEmpty();
     }
 }

@@ -22,6 +22,13 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>org.jboss.weld</groupId>
+                <artifactId>weld-core-bom</artifactId>
+                <version>6.0.4.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>6.0.3</version>
@@ -53,6 +60,11 @@
                 <version>1.40.0</version>
             </dependency>
             <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.13.2</version>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>2.0.17</version>
@@ -66,11 +78,6 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>2.5</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.13.2</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -90,11 +97,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>anticorruption</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>proxy</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
@@ -122,6 +124,5 @@
         <module>adapters/driven/anticorruption</module>
         <module>adapters/driving/cli</module>
         <module>adapters/driving/api</module>
-        <module>proxy</module>
     </modules>
 </project>

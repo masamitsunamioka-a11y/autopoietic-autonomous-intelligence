@@ -1,6 +1,6 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
-import jakarta.enterprise.context.ConversationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.Tra
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -25,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 @Episodic
-@ConversationScoped
-public class EpisodeRepository implements Repository<Trace, Trace>, Serializable {
+@ApplicationScoped
+public class EpisodeRepository implements Repository<Trace, Trace> {
     private static final Logger logger = LoggerFactory.getLogger(EpisodeRepository.class);
     private final Storage storage;
     private final Serializer serializer;
