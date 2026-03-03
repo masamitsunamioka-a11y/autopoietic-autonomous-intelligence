@@ -35,7 +35,7 @@ filesystem/
   synaptic/function/ Function prompt templates (perception, relay, potentiation, pruning, drive)
   synaptic/shared/   Shared templates (executive_control, output_integrity)
   hippocampal/episode/  episode_yyyyMMddHHmmss.json
-  hippocampal/knowledge/  knowledge.json
+  neocortical/knowledge/  knowledge.json
 ```
 
 ## Configuration
@@ -50,7 +50,7 @@ filesystem/
 | `anticorruption.synaptic.shared.source`                       | Shared prompt templates directory        |
 | `anticorruption.hippocampal.episode.target`                   | Episode memory directory                 |
 | `anticorruption.hippocampal.episode.limit`                    | Past sessions to load (-1 = all)         |
-| `anticorruption.hippocampal.knowledge.target`                 | Knowledge memory directory               |
+| `anticorruption.neocortical.knowledge.target`                 | Knowledge memory directory               |
 | `anticorruption.neural.effectors.package`                     | Effector Java package name               |
 | `anticorruption.neural.effectors.source`                      | Effector .java source directory          |
 | `anticorruption.neural.effectors.target`                      | Effector .class target directory         |

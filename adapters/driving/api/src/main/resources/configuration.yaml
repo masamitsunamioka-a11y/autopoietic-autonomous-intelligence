@@ -21,5 +21,6 @@ anticorruption:
     episode:
       target: "filesystem/hippocampal/episode"
       limit: "-1"
+  neocortical:
     knowledge:
-      target: "filesystem/hippocampal/knowledge"
+      target: "filesystem/neocortical/knowledge"

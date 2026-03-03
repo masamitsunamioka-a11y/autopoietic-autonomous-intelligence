@@ -31,7 +31,7 @@ public class KnowledgeRepository implements Repository<Trace, Trace> {
         this.storage = storage;
         this.serializer = serializer;
         var configuration = new Configuration().anticorruption();
-        var target = Path.of(configuration.get("hippocampal.knowledge.target"), "");
+        var target = Path.of(configuration.get("neocortical.knowledge.target"), "");
         this.file = target.resolve("knowledge.json");
     }
 
