@@ -9,12 +9,10 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.worki
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
 
 @ApplicationScoped
 public class KnowledgeImpl implements Knowledge {
@@ -28,55 +26,49 @@ public class KnowledgeImpl implements Knowledge {
 
     @Override
     public void encode(Trace trace) {
-        Objects.requireNonNull(trace);
         this.repository.store(trace);
         this.decay();
     }
 
     @Override
     public Trace retrieve(String cue) {
-        return this.repository.findAll().stream()
-            .filter(t -> t.cue().contains(cue))
-            .max(Comparator.comparing(this::timestampOf))
-            .orElse(null);
+        return this.repository.find(cue);
     }
 
     @Override
     public List<Trace> retrieve() {
         return this.repository.findAll().stream()
-            .sorted(Comparator.comparing(this::timestampOf))
+            .sorted(comparing(this::timestampOf))
             .toList();
     }
 
     @Override
     public void decay() {
         var all = this.repository.findAll();
-        if (all.size() <= 1) return;
-        var latest = all.stream()
-            .collect(Collectors.toMap(
-                t -> this.prefixOf(t.cue()),
-                Function.identity(),
-                (a, b) -> this.timestampOf(a).isAfter(
-                    this.timestampOf(b)) ? a : b,
-                LinkedHashMap::new));
-        if (latest.size() >= all.size()) return;
-        var kept = latest.values().stream()
-            .map(Trace::cue)
-            .collect(Collectors.toSet());
+        if (all.size() <= 1) {
+            return;
+        }
+        var seen = new HashSet<String>();
         var expired = all.stream()
+            .sorted(comparing(this::timestampOf).reversed())
+            .filter(x -> !seen.add(this.prefixOf(x.cue())))
             .map(Trace::cue)
-            .filter(cue -> !kept.contains(cue))
             .toList();
+        if (expired.isEmpty()) {
+            return;
+        }
         logger.debug("[DECAY] knowledge: {} → {}",
-            all.size(), latest.size());
+            all.size(), all.size() - expired.size());
         this.repository.removeAll(expired);
     }
 
+    /// [Engineering] As detailed in docs/kandel.md
     private String prefixOf(String cue) {
         var at = cue.lastIndexOf('@');
         return at >= 0 ? cue.substring(0, at) : cue;
     }
 
+    /// [Engineering] As detailed in docs/kandel.md
     private Instant timestampOf(Trace trace) {
         var at = trace.cue().lastIndexOf('@');
         return Instant.parse(trace.cue().substring(at + 1));

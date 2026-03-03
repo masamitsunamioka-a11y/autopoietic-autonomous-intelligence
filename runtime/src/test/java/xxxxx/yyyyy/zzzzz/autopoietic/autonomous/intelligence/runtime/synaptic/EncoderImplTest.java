@@ -71,6 +71,8 @@ class EncoderImplTest {
             public List<T> findAll() { return List.of(items); }
             public void store(Engravable e) { }
             public void remove(String id) { }
+            public void removeAll(java.util.List<String> ids) { throw new UnsupportedOperationException(); }
+            public boolean exists(String id) { throw new UnsupportedOperationException(); }
         };
     }
     private static Repository<String, String> templateRepository() {
@@ -79,6 +81,8 @@ class EncoderImplTest {
             public List<String> findAll() { return List.of(); }
             public void store(String content) { }
             public void remove(String id) { }
+            public void removeAll(java.util.List<String> ids) { throw new UnsupportedOperationException(); }
+            public boolean exists(String id) { throw new UnsupportedOperationException(); }
         };
     }
     private static Serializer serializer() {

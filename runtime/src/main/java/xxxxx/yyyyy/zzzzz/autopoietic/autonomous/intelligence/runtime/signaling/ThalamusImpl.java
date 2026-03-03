@@ -16,15 +16,15 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synap
 public class ThalamusImpl implements Thalamus {
     private static final Logger logger = LoggerFactory.getLogger(ThalamusImpl.class);
     private final Repository<Area, Engravable> areaRepository;
-    private final Encoder encoder;
     private final Nucleus nucleus;
+    private final Encoder encoder;
 
     @Inject
     public ThalamusImpl(Repository<Area, Engravable> areaRepository,
-                        Encoder encoder, Nucleus nucleus) {
+                        Nucleus nucleus, Encoder encoder) {
         this.areaRepository = areaRepository;
-        this.encoder = encoder;
         this.nucleus = nucleus;
+        this.encoder = encoder;
     }
 
     @Override
@@ -39,6 +39,7 @@ public class ThalamusImpl implements Thalamus {
 
     private Projection integrate(Impulse impulse) {
         var signal = this.encoder.encode(impulse, Thalamus.class);
-        return this.nucleus.integrate(new ImpulseImpl(signal, impulse.area()), Projection.class);
+        return this.nucleus.integrate(
+            new ImpulseImpl(signal, impulse.area()), Projection.class);
     }
 }

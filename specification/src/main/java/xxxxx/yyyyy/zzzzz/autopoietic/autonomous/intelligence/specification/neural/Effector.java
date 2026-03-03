@@ -5,6 +5,6 @@ import java.util.Map;
 public interface Effector extends Engravable {
     String tuning();
 
-    /// [Engineering] KV map models effector I/O; biology uses synaptic signals.
+    /// [Engineering] As detailed in docs/kandel.md
     Map<String, Object> fire(Map<String, Object> input);
 }

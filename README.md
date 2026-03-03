@@ -22,15 +22,15 @@ through its own operations (Maturana & Varela, 1980). AAI implements this litera
 
 Every spec package maps to Kandel's *Principles of Neural Science*:
 
-| Package       | Kandel       | Concepts                                |
-|---------------|--------------|-----------------------------------------|
-| `neural`      | Ch.1, 26-27  | Engravable, Area, Neuron, Effector      |
-| `signaling`   | Ch.8, 24, 27 | Stimulus, Impulse, Transducer, Thalamus |
-| `synaptic`    | Ch.8-12      | Encoder, Nucleus                        |
-| `cognitive`   | Ch.21-25     | Cortex, Percept                         |
-| `homeostatic` | Ch.47-48     | Drive, Salience                         |
-| `learning`    | Ch.63-64     | Plasticity                              |
-| `working`     | Ch.65-67     | Memory, Episode, Knowledge, Trace       |
+| Package       | Kandel          | Concepts                                |
+|---------------|-----------------|-----------------------------------------|
+| `neural`      | Ch.1, 26-27     | Engravable, Area, Neuron, Effector      |
+| `signaling`   | Ch.7, 20-21, 23 | Stimulus, Impulse, Transducer, Thalamus |
+| `synaptic`    | Ch.8-12         | Encoder, Nucleus                        |
+| `cognitive`   | Ch.21-25        | Cortex, Percept                         |
+| `homeostatic` | Ch.48, 62       | Drive, Salience                         |
+| `learning`    | Ch.63-64        | Plasticity                              |
+| `working`     | Ch.65-67        | Memory, Episode, Knowledge, Trace       |
 
 Where implementation diverges from neuroscience, we mark it with `[Engineering]`.
 

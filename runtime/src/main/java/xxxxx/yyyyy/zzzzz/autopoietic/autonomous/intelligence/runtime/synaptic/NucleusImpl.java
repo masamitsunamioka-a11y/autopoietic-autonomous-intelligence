@@ -30,7 +30,7 @@ public class NucleusImpl implements Nucleus {
     }
 
     @Override
-    public <T> T integrate(Impulse impulse, Class<T> type) {
+    public <T> T integrate(Impulse impulse, Class<T> response) {
         if (logger.isTraceEnabled()) {
             logger.trace("\n{}", impulse.signal());
         }
@@ -38,11 +38,17 @@ public class NucleusImpl implements Nucleus {
         if (logger.isTraceEnabled()) {
             logger.trace("\n{}", text);
         }
-        T result = this.serializer.deserialize(text, type);
-        this.validate(result);
-        return result;
+        try {
+            T result = this.serializer.deserialize(text, response);
+            this.validate(result);
+            return result;
+        } catch (Exception e) {
+            logger.warn("root cause:\n{}", text);
+            throw e;
+        }
     }
 
+    /// [Engineering] As detailed in docs/kandel.md
     private <T> void validate(T result) {
         var violations = this.validator.validate(result);
         if (!violations.isEmpty()) {

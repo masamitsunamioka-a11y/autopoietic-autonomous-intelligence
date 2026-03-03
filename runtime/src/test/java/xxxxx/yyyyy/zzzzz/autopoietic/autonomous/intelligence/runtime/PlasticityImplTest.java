@@ -28,10 +28,11 @@ class PlasticityImplTest {
             trackingAreaRepository(storedAreas),
             trackingNeuronRepository(storedNeurons),
             staticEffectorRepository(List.of()),
-            encoder(), nucleus(new Potentiation("r", 1.0, "",
-            List.of(new Potentiation.Area("A1", "t", List.of("N1"), List.of())),
-            List.of(new Potentiation.Neuron("N1", "tuning")),
-            List.of()))
+            nucleus(new Potentiation("r", 1.0, "",
+                List.of(new Potentiation.Area("A1", "t", List.of("N1"), List.of())),
+                List.of(new Potentiation.Neuron("N1", "tuning")),
+                List.of())),
+            encoder()
         );
         plasticity.potentiate(impulse());
         assertTrue(storedNeurons.contains("N1"), "Neuron must be stored");
@@ -75,6 +76,8 @@ class PlasticityImplTest {
             public List<Area> findAll() { return List.of(); }
             public void store(Engravable engravable) { stored.add(engravable.name()); }
             public void remove(String id) {}
+            public void removeAll(List<String> ids) {}
+            public boolean exists(String id) { throw new UnsupportedOperationException(); }
         };
     }
     private static Repository<Neuron, Engravable> trackingNeuronRepository(List<String> stored) {
@@ -83,6 +86,8 @@ class PlasticityImplTest {
             public List<Neuron> findAll() { return List.of(); }
             public void store(Engravable engravable) { stored.add(engravable.name()); }
             public void remove(String id) {}
+            public void removeAll(List<String> ids) {}
+            public boolean exists(String id) { return stored.contains(id); }
         };
     }
     private static Repository<Effector, Engravable> staticEffectorRepository(List<Effector> items) {
@@ -91,6 +96,8 @@ class PlasticityImplTest {
             public List<Effector> findAll() { return items; }
             public void store(Engravable engravable) {}
             public void remove(String id) {}
+            public void removeAll(List<String> ids) { throw new UnsupportedOperationException(); }
+            public boolean exists(String id) { return items.stream().anyMatch(e -> e.name().equals(id)); }
         };
     }
     /// @formatter:on

@@ -1,8 +1,9 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Storage;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,7 +20,7 @@ public class LocalFileSystem implements Storage {
     private final ReadWriteLock lock;
 
     public LocalFileSystem() {
-        lock = new ReentrantReadWriteLock(true);
+        this.lock = new ReentrantReadWriteLock(true);
     }
 
     @Override
@@ -61,13 +62,12 @@ public class LocalFileSystem implements Storage {
     }
 
     @Override
-    public Stream<String> walk(Path path, boolean recursive) {
+    public Stream<Path> walk(Path path, boolean recursive) {
         this.lock.readLock().lock();
         try {
             try (var stream = recursive ? Files.walk(path) : Files.list(path)) {
                 return stream
                     .filter(Files::isRegularFile)
-                    .map(Path::toString)
                     .toList()
                     .stream();
             }

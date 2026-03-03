@@ -5,6 +5,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.worki
 import java.time.Instant;
 
 public record TraceImpl(String cue, Object content) implements Trace {
+    /// [Engineering] As detailed in docs/kandel.md
     public TraceImpl(String cue, Object content) {
         this.cue = cue.contains("@") ? cue : cue + "@" + Instant.now();
         this.content = content;

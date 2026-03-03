@@ -76,12 +76,14 @@ public class EncoderImpl implements Encoder {
             "area_names",   this.areaNames(),
             "neurons",      this.serialize(self.neurons().stream()
                 .map(this.neuronRepository::find)
-                .filter(Objects::nonNull).toList(), x -> Map.of(
+                .filter(Objects::nonNull)
+                .toList(), x -> Map.of(
                     "name",         x.name(),
                     "tuning",       x.tuning())),
             "effectors",    this.serialize(self.effectors().stream()
                 .map(this.effectorRepository::find)
-                .filter(Objects::nonNull).toList(), x -> Map.of(
+                .filter(Objects::nonNull)
+                .toList(), x -> Map.of(
                     "name",         x.name(),
                     "tuning",       x.tuning())),
             "effector_names", self.effectors().stream()
@@ -142,28 +144,35 @@ public class EncoderImpl implements Encoder {
 
     private String traces(List<Trace> traces) {
         return this.serializer.serialize(
-            traces.stream().collect(Collectors.toMap(
-                Trace::cue, Trace::content, (a, b) -> b, LinkedHashMap::new)));
+            traces.stream()
+                .collect(Collectors.toMap(
+                    Trace::cue,
+                    Trace::content,
+                    (x, y) -> y, LinkedHashMap::new)));
     }
 
     private String areaNames() {
         return this.areaRepository.findAll().stream()
-            .map(Area::name).collect(joining(", "));
+            .map(Area::name)
+            .collect(joining(", "));
     }
 
     private String areasSummary() {
         return this.serialize(this.areaRepository.findAll(), x -> Map.of(
-            "name", x.name(), "tuning", x.tuning()));
+            "name", x.name(),
+            "tuning", x.tuning()));
     }
 
     private String neuronNames() {
         return this.neuronRepository.findAll().stream()
-            .map(Neuron::name).collect(joining(", "));
+            .map(Neuron::name)
+            .collect(joining(", "));
     }
 
     private String self(Area area) {
         return this.serializer.serialize(Map.of(
-            "name", area.name(), "tuning", area.tuning()));
+            "name", area.name(),
+            "tuning", area.tuning()));
     }
 
     private String areas() {
@@ -176,12 +185,14 @@ public class EncoderImpl implements Encoder {
 
     private String neurons() {
         return this.serialize(this.neuronRepository.findAll(), x -> Map.of(
-            "name", x.name(), "tuning", x.tuning()));
+            "name", x.name(),
+            "tuning", x.tuning()));
     }
 
     private String effectors() {
         return this.serialize(this.effectorRepository.findAll(), x -> Map.of(
-            "name", x.name(), "tuning", x.tuning()));
+            "name", x.name(),
+            "tuning", x.tuning()));
     }
 
     private <T> String serialize(List<T> list, Function<T, Map<String, Object>> toMap) {
@@ -193,12 +204,19 @@ public class EncoderImpl implements Encoder {
             .toList());
     }
 
+    /// [Engineering] As detailed in docs/kandel.md
     private String assemble(String id, Map<String, Object> values) {
+        var executiveControl = this.templateRepository.find("executive_control.md");
+        var outputIntegrity = this.templateRepository.find("output_integrity.md");
         return values.entrySet().stream()
             .reduce(this.templateRepository.find(id)
-                    .replace("{{guardrails}}", this.templateRepository.find("executive_control.md"))
-                    .replace("{{output_integrity}}", this.templateRepository.find("output_integrity.md")),
-                (x, y) -> x.replace("{{" + y.getKey() + "}}", String.valueOf(y.getValue())),
+                    .replace("{{guardrails}}", executiveControl)
+                    .replace("{{output_integrity}}", outputIntegrity),
+                (x, y) -> {
+                    return x.replace(
+                        "{{" + y.getKey() + "}}",
+                        String.valueOf(y.getValue()));
+                },
                 (x, y) -> x);
     }
 }

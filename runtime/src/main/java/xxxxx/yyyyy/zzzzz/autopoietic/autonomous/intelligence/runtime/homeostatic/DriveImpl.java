@@ -1,5 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.homeostatic;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -26,32 +28,32 @@ public class DriveImpl implements Drive {
     private final Salience salience;
     private final Cortex cortex;
     private final Repository<Area, Engravable> areaRepository;
-    private final Encoder encoder;
     private final Nucleus nucleus;
+    private final Encoder encoder;
     private final Event<Expression> event;
     private final ScheduledExecutorService executorService;
 
     @Inject
     public DriveImpl(Salience salience, Cortex cortex,
                      Repository<Area, Engravable> areaRepository,
-                     Encoder encoder, Nucleus nucleus,
+                     Nucleus nucleus, Encoder encoder,
                      Event<Expression> event) {
         this.salience = salience;
         this.cortex = cortex;
         this.areaRepository = areaRepository;
-        this.encoder = encoder;
         this.nucleus = nucleus;
+        this.encoder = encoder;
         this.event = event;
         this.executorService = Executors.newSingleThreadScheduledExecutor();
     }
 
-    @Override
-    public void activate() {
+    @PostConstruct
+    void activate() {
         this.schedule();
     }
 
-    @Override
-    public void deactivate() {
+    @PreDestroy
+    void deactivate() {
         this.executorService.shutdownNow();
     }
 
@@ -64,13 +66,13 @@ public class DriveImpl implements Drive {
             if (output.aroused()) {
                 var area = this.areaRepository.find(output.area());
                 if (area == null) {
-                    logger.debug("[DRIVE] subthreshold — area not found: {}", output.area());
+                    logger.debug("[DRIVE] subthreshold — area not found: {}",
+                        output.area());
                     return;
                 }
                 var impulse = new ImpulseImpl(output.signal(), area);
                 var percept = this.cortex.respond(impulse);
-                this.event.fire(
-                    new Expression(percept, output.vocalize()));
+                this.event.fire(new Expression(percept, output.vocalize()));
             }
         } catch (Exception e) {
             logger.error("[DRIVE] fire failed", e);
@@ -81,13 +83,15 @@ public class DriveImpl implements Drive {
 
     private Urge integrate() {
         var signal = this.encoder.encode(null, Drive.class);
-        return this.nucleus.integrate(new ImpulseImpl(signal, null), Urge.class);
+        return this.nucleus.integrate(
+            new ImpulseImpl(signal, null), Urge.class);
     }
 
+    /// [Engineering] As detailed in docs/kandel.md
     private void schedule() {
         this.executorService.schedule(
             this::fire,
-            ThreadLocalRandom.current().nextLong(5, 11),
+            ThreadLocalRandom.current().nextLong(10, 31),
             TimeUnit.SECONDS);
     }
 }

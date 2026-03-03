@@ -12,7 +12,7 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Utility.actualTypeArguments;
+import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Utility.actualTypeArguments;
 
 @ApplicationScoped
 public class AreaProxyProvider implements ProxyProvider<Area> {
@@ -33,7 +33,8 @@ public class AreaProxyProvider implements ProxyProvider<Area> {
 
     @Override
     public Area provide(String json) {
-        var reference = new AtomicReference<InternalArea>(this.serializer.deserialize(json, InternalArea.class));
+        var reference = new AtomicReference<InternalArea>(
+            this.serializer.deserialize(json, InternalArea.class));
         return (Area) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
             new Class<?>[]{actualTypeArguments(this.getClass())},
@@ -43,7 +44,11 @@ public class AreaProxyProvider implements ProxyProvider<Area> {
                     case "toString" -> this.serializer.serialize(area);
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> this.equals(proxy, args);
-                    default -> InternalArea.class.getMethod(method.getName()).invoke(area);
+                    default -> {
+                        yield InternalArea.class
+                            .getMethod(method.getName())
+                            .invoke(area);
+                    }
                 };
             }
         );

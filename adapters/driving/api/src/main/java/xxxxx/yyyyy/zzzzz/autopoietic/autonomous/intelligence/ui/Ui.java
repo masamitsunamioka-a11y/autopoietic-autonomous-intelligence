@@ -27,9 +27,10 @@ public class Ui {
         var transducer = container.select(Transducer.class).get();
         var thalamus = container.select(Thalamus.class).get();
         var cortex = container.select(Cortex.class).get();
-        var drive = container.select(Drive.class).get();
         var salience = container.select(Salience.class).get();
         var episode = container.select(Episode.class).get();
+        /// Force @PostConstruct by resolving the client proxy via no-op toString()
+        container.select(Drive.class).get().toString();
         var server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.setExecutor(Executors.newCachedThreadPool());
         server.createContext("/api/events", new SseHandler(registry));
@@ -41,13 +42,11 @@ public class Ui {
         var latch = new CountDownLatch(1);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Shutting down AAI UI…");
-            drive.deactivate();
             registry.closeAll();
             server.stop(2);
             container.close();
             latch.countDown();
         }));
-        drive.activate();
         server.start();
         logger.info("AAI UI listening on http://localhost:{}", PORT);
         latch.await();

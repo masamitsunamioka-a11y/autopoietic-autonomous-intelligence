@@ -5,6 +5,6 @@ public interface Salience {
 
     void release();
 
-    /// [Engineering] State query for DMN suppression; no Kandel equivalent.
+    /// [Engineering] As detailed in docs/kandel.md
     boolean isOriented();
 }

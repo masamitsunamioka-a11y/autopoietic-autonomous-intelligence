@@ -36,9 +36,7 @@ public record Potentiation(
 
     public record Effector(
         @NotBlank String name,
-        @NotBlank String tuning,
-        @NotBlank String execution,
-        @NotNull List<String> areas) implements Engravable {
+        @NotBlank String tuning) implements Engravable {
         /// @formatter:off
         @Override public String name() { return this.name; }
         /// @formatter:on

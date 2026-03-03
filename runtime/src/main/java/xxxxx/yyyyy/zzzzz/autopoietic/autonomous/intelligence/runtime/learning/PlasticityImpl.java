@@ -23,21 +23,21 @@ public class PlasticityImpl implements Plasticity {
     private final Repository<Area, Engravable> areaRepository;
     private final Repository<Neuron, Engravable> neuronRepository;
     private final Repository<Effector, Engravable> effectorRepository;
-    private final Encoder encoder;
     private final Nucleus nucleus;
+    private final Encoder encoder;
 
     @Inject
     public PlasticityImpl(Episode episode,
                           Repository<Area, Engravable> areaRepository,
                           Repository<Neuron, Engravable> neuronRepository,
                           Repository<Effector, Engravable> effectorRepository,
-                          Encoder encoder, Nucleus nucleus) {
+                          Nucleus nucleus, Encoder encoder) {
         this.episode = episode;
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
-        this.encoder = encoder;
         this.nucleus = nucleus;
+        this.encoder = encoder;
     }
 
     @Override
@@ -57,12 +57,14 @@ public class PlasticityImpl implements Plasticity {
 
     private Potentiation integrate(Impulse impulse) {
         var signal = this.encoder.encode(impulse, Plasticity.class);
-        return this.nucleus.integrate(new ImpulseImpl(signal, impulse.area()), Potentiation.class);
+        return this.nucleus.integrate(
+            new ImpulseImpl(signal, impulse.area()), Potentiation.class);
     }
 
     private Pruning integrate() {
         var signal = this.encoder.encode(null, Plasticity.class);
-        return this.nucleus.integrate(new ImpulseImpl(signal, null), Pruning.class);
+        return this.nucleus.integrate(
+            new ImpulseImpl(signal, null), Pruning.class);
     }
 
     private void reinforce(Potentiation potentiation, Area area) {
@@ -76,23 +78,44 @@ public class PlasticityImpl implements Plasticity {
     }
 
     private void sprout(Potentiation potentiation) {
-        potentiation.newEffectors().forEach(this.effectorRepository::store);
-        potentiation.newNeurons().forEach(this.neuronRepository::store);
-        potentiation.newAreas().forEach(this.areaRepository::store);
+        potentiation.newEffectors()
+            .forEach(this.effectorRepository::store);
+        potentiation.newNeurons()
+            .forEach(this.neuronRepository::store);
+        potentiation.newAreas().stream()
+            .map(this::sanitize)
+            .forEach(this.areaRepository::store);
     }
 
     private void eliminate(Pruning pruning) {
-        pruning.mergedAreas().stream()
-            .flatMap(x -> x.sources().stream()).forEach(this.areaRepository::remove);
-        pruning.mergedNeurons().stream()
-            .flatMap(x -> x.sources().stream()).forEach(this.neuronRepository::remove);
+        this.areaRepository.removeAll(pruning.mergedAreas().stream()
+            .flatMap(x -> x.sources().stream())
+            .toList());
+        this.neuronRepository.removeAll(pruning.mergedNeurons().stream()
+            .flatMap(x -> x.sources().stream())
+            .toList());
     }
 
     private void consolidate(Pruning pruning) {
         pruning.mergedNeurons().stream()
-            .map(Pruning.MergedNeuron::result).forEach(this.neuronRepository::store);
+            .map(Pruning.MergedNeuron::result)
+            .forEach(this.neuronRepository::store);
         pruning.mergedAreas().stream()
             .map(Pruning.MergedArea::result)
+            .map(this::sanitize)
             .forEach(this.areaRepository::store);
+    }
+
+    /// [Engineering] Prune dangling neuron/effector references from LLM output
+    private Potentiation.Area sanitize(Potentiation.Area area) {
+        return new Potentiation.Area(
+            area.name(),
+            area.tuning(),
+            area.neurons().stream()
+                .filter(this.neuronRepository::exists)
+                .toList(),
+            area.effectors().stream()
+                .filter(this.effectorRepository::exists)
+                .toList());
     }
 }

@@ -22,7 +22,6 @@ public class Cli {
     private final Transducer transducer;
     private final Thalamus thalamus;
     private final Cortex cortex;
-    private final Drive drive;
     private final Salience salience;
     private final Episode episode;
 
@@ -43,19 +42,18 @@ public class Cli {
         this.transducer = this.container.select(Transducer.class).get();
         this.thalamus = this.container.select(Thalamus.class).get();
         this.cortex = this.container.select(Cortex.class).get();
-        this.drive = this.container.select(Drive.class).get();
         this.salience = this.container.select(Salience.class).get();
         this.episode = this.container.select(Episode.class).get();
+        /// Force @PostConstruct by resolving the client proxy via no-op toString()
+        this.container.select(Drive.class).get().toString();
     }
 
     public void launch() {
         try {
-            this.drive.activate();
             this.interact();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            this.drive.deactivate();
             this.container.close();
         }
     }

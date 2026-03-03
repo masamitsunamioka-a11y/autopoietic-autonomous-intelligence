@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.Objects;
 
 public record Decision(
+    /// [Engineering] As detailed in docs/kandel.md
     @NotBlank String reasoning,
     @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
     @NotBlank String process,

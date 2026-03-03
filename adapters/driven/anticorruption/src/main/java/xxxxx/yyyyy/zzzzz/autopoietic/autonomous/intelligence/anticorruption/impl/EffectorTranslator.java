@@ -7,28 +7,31 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Translator;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Configuration;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.learning.Potentiation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 
 @ApplicationScoped
-public class EffectorTranslator implements Translator<Effector, String> {
+public class EffectorTranslator implements Translator<Effector, Engravable> {
     private static final Logger logger = LoggerFactory.getLogger(EffectorTranslator.class);
     private final ProxyProvider<Effector> proxyProvider;
-    private final String effectorPackage;
+    private final String package_;
 
     @Inject
     public EffectorTranslator(ProxyProvider<Effector> proxyProvider) {
         this.proxyProvider = proxyProvider;
-        var configuration = new Configuration();
-        this.effectorPackage = configuration.get("anticorruption.effectors.package");
+        var configuration = new Configuration().anticorruption();
+        this.package_ = configuration.get("neural.effectors.package");
     }
 
     @Override
-    public Effector translateFrom(String id, String source) {
+    public Effector translateFrom(String id, String java) {
         return this.proxyProvider.provide(id);
     }
 
     @Override
-    public String translateTo(String id, Effector effector) {
+    public String translateTo(String id, Engravable engravable) {
+        var effector = (Potentiation.Effector) engravable;
         return """
             package %s;
             import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
@@ -44,6 +47,6 @@ public class EffectorTranslator implements Translator<Effector, String> {
                 }
             }
             """
-            .formatted(this.effectorPackage, id, id, effector.tuning(), id);
+            .formatted(this.package_, id, id, effector.tuning(), id);
     }
 }

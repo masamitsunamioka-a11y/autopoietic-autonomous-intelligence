@@ -1,7 +1,6 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
 import java.util.List;
-import java.util.Objects;
 
 public interface Repository<I, E> {
     I find(String id);
@@ -12,11 +11,7 @@ public interface Repository<I, E> {
 
     void remove(String id);
 
-    default void removeAll(List<String> ids) {
-        throw new UnsupportedOperationException();
-    }
+    void removeAll(List<String> ids);
 
-    default boolean exists(String id) {
-        return Objects.nonNull(this.find(id));
-    }
+    boolean exists(String id);
 }

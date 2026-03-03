@@ -23,28 +23,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Utility.actualTypeArguments;
+import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Utility.actualTypeArguments;
 
 @ApplicationScoped
 public class EffectorProxyProvider implements ProxyProvider<Effector> {
     private static final Logger logger = LoggerFactory.getLogger(EffectorProxyProvider.class);
     private final Storage storage;
     private final Serializer serializer;
-    private final String effectorPackage;
-    private final Path effectorSource;
-    private final Path effectorTarget;
+    private final String package_;
+    private final Path source;
+    private final Path target;
     private final String classpath;
 
     @Inject
     public EffectorProxyProvider(Storage storage, Serializer serializer) {
         this.storage = storage;
         this.serializer = serializer;
-        var configuration = new Configuration();
-        this.effectorPackage = configuration.get("anticorruption.effectors.package");
-        this.effectorSource = Path.of(configuration.get("anticorruption.effectors.source"), "");
-        this.effectorTarget = Path.of(configuration.get("anticorruption.effectors.target"), "");
-        this.classpath = "manual".equals(configuration.get("anticorruption.effectors.compiler.classpath.strategy"))
-            ? configuration.get("anticorruption.effectors.compiler.classpath.value")
+        var configuration = new Configuration().anticorruption();
+        this.package_ = configuration.get("neural.effectors.package");
+        this.source = Path.of(configuration.get("neural.effectors.source"), "");
+        this.target = Path.of(configuration.get("neural.effectors.target"), "");
+        this.classpath = "manual".equals(configuration.get("neural.effectors.compiler.classpath.strategy"))
+            ? configuration.get("neural.effectors.compiler.classpath.value")
             : System.getProperty("java.class.path");
         this.compile();
     }
@@ -52,8 +52,8 @@ public class EffectorProxyProvider implements ProxyProvider<Effector> {
     @Override
     public Effector provide(String id) {
         this.compile();
-        var classFile = this.effectorTarget.resolve(
-            Path.of(this.effectorPackage.replace(".", "/"), id + ".class"));
+        var classFile = this.target.resolve(
+            Path.of(this.package_.replace(".", "/"), id + ".class"));
         if (!this.storage.exists(classFile)) {
             return null;
         }
@@ -77,8 +77,8 @@ public class EffectorProxyProvider implements ProxyProvider<Effector> {
             if (sources.isEmpty()) {
                 return;
             }
-            if (Files.notExists(this.effectorTarget)) {
-                Files.createDirectories(this.effectorTarget);
+            if (Files.notExists(this.target)) {
+                Files.createDirectories(this.target);
             }
             var result = ToolProvider.getSystemJavaCompiler().run(
                 null, null, null,
@@ -92,7 +92,7 @@ public class EffectorProxyProvider implements ProxyProvider<Effector> {
     }
 
     private Effector load(String id) {
-        var name = this.effectorPackage + "." + id;
+        var name = this.package_ + "." + id;
         try (var loader = this.urlClassLoader()) {
             return (Effector) loader.loadClass(name).getConstructor().newInstance();
         } catch (IOException | ReflectiveOperationException e) {
@@ -103,7 +103,7 @@ public class EffectorProxyProvider implements ProxyProvider<Effector> {
     private URLClassLoader urlClassLoader() {
         try {
             return new URLClassLoader(
-                new URL[]{this.effectorTarget.toUri().toURL()},
+                new URL[]{this.target.toUri().toURL()},
                 Thread.currentThread().getContextClassLoader());
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
@@ -122,13 +122,13 @@ public class EffectorProxyProvider implements ProxyProvider<Effector> {
 
     private List<String> options() {
         return List.of(
-            "-d", this.effectorTarget.toString(),
+            "-d", this.target.toString(),
             "-classpath", this.classpath,
             "-Xlint:none");
     }
 
     private List<String> sources() {
-        try (var stream = Files.walk(this.effectorSource)) {
+        try (var stream = Files.walk(this.source)) {
             return stream
                 .filter(Files::isRegularFile)
                 .map(Path::toString)

@@ -2,9 +2,8 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.syna
 
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 
-/// [Engineering] Presynaptic encoding as a discrete step has no direct Kandel equivalent;
-/// biology achieves this through vesicle release patterns (Ch.8-12).
+/// [Engineering] As detailed in docs/kandel.md
 public interface Encoder {
-    /// [Engineering] Class<?> caller dispatches encoding phase.
+    /// [Engineering] As detailed in docs/kandel.md
     String encode(Impulse impulse, Class<?> caller);
 }

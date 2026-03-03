@@ -35,13 +35,16 @@ public final class Project implements Process {
     public Percept handle(Impulse impulse, Decision decision) {
         var targetArea = this.areaRepository.find(decision.area());
         if (targetArea == null) {
-            logger.warn("[PROJECT] Area '{}' not found", decision.area());
-            this.episode.encode(new TraceImpl("[SYSTEM]",
-                "[SYSTEM WARNING] Area '" + decision.area()
-                    + "' does not exist. Choose a valid Area or VOCALIZE."));
+            this.episode.encode(this.unresolvedWarning(decision));
             return this.cortex.respond(impulse);
         }
         var projected = new ImpulseImpl(impulse.signal(), targetArea);
         return this.cortex.respond(projected);
+    }
+
+    private TraceImpl unresolvedWarning(Decision decision) {
+        return new TraceImpl("[SYSTEM]",
+            "[SYSTEM WARNING] Area '" + decision.area()
+                + "' does not exist. Choose a valid Area or VOCALIZE.");
     }
 }

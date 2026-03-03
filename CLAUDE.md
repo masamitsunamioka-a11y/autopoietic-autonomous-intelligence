@@ -33,7 +33,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 - `specification` — zero runtime dependencies, pure domain interfaces
 - `runtime` / `anticorruption` — CDI annotations are `provided`, never bundled
 - `anticorruption` — only module knowing Gemini, filesystem, external APIs
-- External access via `Adapter<T, R>` in `anticorruption`
+- External access via `Adapter<I, E>` in `anticorruption`
 - `Configuration` — always a local variable in constructors, never stored as field
 
 # Design Policies
@@ -44,13 +44,15 @@ A system is autopoietic if it continuously produces and maintains its own compon
 - **`@Inject` on constructor only**
 - **Constructor param order** (fields follow same order):
   Kandel macro→micro, then system foundational→specific:
-    1. homeostatic (Salience → Plasticity)
-    2. cognitive (Cortex → Process)
-    3. working (Knowledge → Episode)
-    4. neural (Area → Neuron → Effector)
-    5. synaptic (Nucleus → Encoder)
-    6. ACL (Adapter → Translator → ProxyProvider → Compiler)
-    7. infrastructure (Storage → Repository\<String,String\> → Serializer → Service)
+    1. homeostatic (Salience → Drive)
+    2. learning (Plasticity)
+    3. cognitive (Cortex → Process)
+    4. signaling (Thalamus → Transducer)
+    5. working (Knowledge → Episode)
+    6. neural (Area → Neuron → Effector)
+    7. synaptic (Nucleus → Encoder)
+    8. ACL (Adapter → Translator → ProxyProvider)
+    9. infrastructure (Storage → Repository\<String,String\> → Serializer → Service)
 - **Constructor width** — ≤80 bytes/line; group same-category params when they fit
 - **`private static record`** — all module-internal data structures
 - **`impl` subpackage** — ACL impls in `anticorruption.impl`; runtime flat matching spec

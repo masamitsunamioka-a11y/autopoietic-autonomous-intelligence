@@ -11,13 +11,13 @@ public interface Storage {
 
     boolean exists(Path path);
 
-    Stream<String> walk(Path path, boolean recursive);
+    Stream<Path> walk(Path path, boolean recursive);
 
-    default Stream<String> list(Path path) {
+    default Stream<Path> list(Path path) {
         return this.walk(path, false);
     }
 
-    default Stream<String> walk(Path path) {
+    default Stream<Path> walk(Path path) {
         return this.walk(path, true);
     }
 

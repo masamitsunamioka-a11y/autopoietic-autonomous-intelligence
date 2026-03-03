@@ -6,16 +6,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.ProxyProvider;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Translator;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Serializer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 
 @ApplicationScoped
-public class AreaTranslator implements Translator<Area, String> {
+public class AreaTranslator implements Translator<Area, Engravable> {
     private static final Logger logger = LoggerFactory.getLogger(AreaTranslator.class);
     private final ProxyProvider<Area> proxyProvider;
+    private final Serializer serializer;
 
     @Inject
-    public AreaTranslator(ProxyProvider<Area> proxyProvider) {
+    public AreaTranslator(ProxyProvider<Area> proxyProvider,
+                          Serializer serializer) {
         this.proxyProvider = proxyProvider;
+        this.serializer = serializer;
     }
 
     @Override
@@ -24,7 +29,7 @@ public class AreaTranslator implements Translator<Area, String> {
     }
 
     @Override
-    public String translateTo(String id, Area area) {
-        throw new UnsupportedOperationException();
+    public String translateTo(String id, Engravable engravable) {
+        return this.serializer.serialize(engravable);
     }
 }

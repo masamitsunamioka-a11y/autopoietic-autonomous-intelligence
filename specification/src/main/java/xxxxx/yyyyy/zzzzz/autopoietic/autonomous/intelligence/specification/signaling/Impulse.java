@@ -5,6 +5,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 public interface Impulse {
     String signal();
 
-    /// [Engineering] Null before relay(); biology routes by axonal connections.
+    /// [Engineering] As detailed in docs/kandel.md
     Area area();
 }

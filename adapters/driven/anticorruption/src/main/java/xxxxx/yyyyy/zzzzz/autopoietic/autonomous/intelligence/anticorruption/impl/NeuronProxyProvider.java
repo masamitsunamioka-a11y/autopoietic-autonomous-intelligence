@@ -11,7 +11,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Utility.actualTypeArguments;
+import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Utility.actualTypeArguments;
 
 @ApplicationScoped
 public class NeuronProxyProvider implements ProxyProvider<Neuron> {
@@ -30,7 +30,8 @@ public class NeuronProxyProvider implements ProxyProvider<Neuron> {
 
     @Override
     public Neuron provide(String json) {
-        var reference = new AtomicReference<InternalNeuron>(this.serializer.deserialize(json, InternalNeuron.class));
+        var reference = new AtomicReference<InternalNeuron>(
+            this.serializer.deserialize(json, InternalNeuron.class));
         return (Neuron) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
             new Class<?>[]{actualTypeArguments(this.getClass())},
@@ -40,7 +41,11 @@ public class NeuronProxyProvider implements ProxyProvider<Neuron> {
                     case "toString" -> this.serializer.serialize(neuron);
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> this.equals(proxy, args);
-                    default -> InternalNeuron.class.getMethod(method.getName()).invoke(neuron);
+                    default -> {
+                        yield InternalNeuron.class
+                            .getMethod(method.getName())
+                            .invoke(neuron);
+                    }
                 };
             }
         );

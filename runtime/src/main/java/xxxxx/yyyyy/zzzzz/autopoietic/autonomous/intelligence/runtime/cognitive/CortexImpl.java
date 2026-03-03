@@ -20,23 +20,23 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CortexImpl implements Cortex {
     private static final Logger logger = LoggerFactory.getLogger(CortexImpl.class);
     private final Map<String, Process> processes;
-    private final Encoder encoder;
     private final Nucleus nucleus;
+    private final Encoder encoder;
     private final ReentrantLock focus;
 
     @Inject
     public CortexImpl(@Process.Vocalize Process vocalize, @Process.Fire Process fire,
                       @Process.Potentiate Process potentiate, @Process.Project Process project,
                       @Process.Inhibit Process inhibit,
-                      Encoder encoder, Nucleus nucleus) {
+                      Nucleus nucleus, Encoder encoder) {
         this.processes = Map.of(
             "VOCALIZE", vocalize,
             "FIRE", fire,
             "POTENTIATE", potentiate,
             "PROJECT", project,
             "INHIBIT", inhibit);
-        this.encoder = encoder;
         this.nucleus = nucleus;
+        this.encoder = encoder;
         this.focus = new ReentrantLock();
     }
 
@@ -52,7 +52,8 @@ public class CortexImpl implements Cortex {
 
     private Decision integrate(Impulse impulse) {
         var signal = this.encoder.encode(impulse, Cortex.class);
-        return this.nucleus.integrate(new ImpulseImpl(signal, impulse.area()), Decision.class);
+        return this.nucleus.integrate(
+            new ImpulseImpl(signal, impulse.area()), Decision.class);
     }
 
     private Percept doRespond(Impulse impulse) {

@@ -45,26 +45,37 @@ public final class Fire implements Process {
         var effectorName = decision.effector();
         if (this.refractoryGuard.observe(effectorName)) {
             this.refractoryGuard.reset();
-            this.episode.encode(new TraceImpl("[SYSTEM]",
-                "[SYSTEM WARNING] Effector " + effectorName + " fired 3+ consecutive times. Do not FIRE again."));
+            this.episode.encode(this.refractoryWarning(effectorName));
         }
         Effector effector;
         try {
             effector = this.effectorRepository.find(effectorName);
         } catch (RuntimeException e) {
-            logger.warn("[FIRE] Effector '{}' not found", effectorName);
-            this.episode.encode(new TraceImpl("[SYSTEM]",
-                "[SYSTEM WARNING] Effector '" + effectorName
-                    + "' does not exist. Choose a valid Effector or VOCALIZE."));
+            this.episode.encode(this.unresolvedWarning(effectorName));
             return this.cortex.respond(impulse);
         }
         var context = this.knowledge.retrieve().stream()
             .collect(Collectors.toMap(
-                Trace::cue, Trace::content, (a, b) -> b, LinkedHashMap::new));
+                Trace::cue,
+                Trace::content,
+                (x, y) -> y, LinkedHashMap::new));
         var output = effector.fire(context);
         output.forEach((k, v) ->
-            this.knowledge.encode(new TraceImpl("results." + effectorName + "." + k, v)));
+            this.knowledge.encode(
+                new TraceImpl("results." + effectorName + "." + k, v)));
         logger.debug("--- fire: {}", effectorName);
         return this.cortex.respond(impulse);
+    }
+
+    private TraceImpl unresolvedWarning(String effectorName) {
+        return new TraceImpl("[SYSTEM]",
+            "[SYSTEM WARNING] Effector '" + effectorName
+                + "' does not exist. Choose a valid Effector or VOCALIZE.");
+    }
+
+    private TraceImpl refractoryWarning(String effectorName) {
+        return new TraceImpl("[SYSTEM]",
+            "[SYSTEM WARNING] Effector " + effectorName
+                + " fired 3+ consecutive times. Do not FIRE again.");
     }
 }

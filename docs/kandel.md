@@ -28,9 +28,9 @@ Runtime packages mirror spec 1:1. Exception: `cognitive.processual` exists only 
 
 Base for structures modifiable by synaptic plasticity. Area, Neuron, Effector extend it.
 
-| Method   | Basis                |
-|----------|----------------------|
-| `name()` | ⚙️ System identifier |
+| Method   | Basis                                                                                                                                      |
+|----------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| `name()` | ⚙️ System addressing identifier. Biological neurons have no names — identified by topographic position + functional properties (Ch.1, 26). |
 
 #### `Area` interface — Ch.1, 26-27
 
@@ -54,10 +54,10 @@ Fundamental unit. Hubel & Wiesel: individual V1 neurons have orientation selecti
 
 Motor output structures (muscles, glands). In AAI: compiled action capabilities.
 
-| Method      | Basis                                                                                                                  |
-|-------------|------------------------------------------------------------------------------------------------------------------------|
-| `tuning()`  | Ch.35-36, 38-40 — motor tuning (Georgopoulos population vector)                                                        |
-| `fire(Map)` | "neurons fire action potentials" — execute action, return result. ⚙️ KV map models I/O; biology uses synaptic signals. |
+| Method      | Basis                                                                                                                             |
+|-------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `tuning()`  | Ch.35-36, 38-40 — motor tuning (Georgopoulos population vector)                                                                   |
+| `fire(Map)` | "neurons fire action potentials" — execute action, return result. ⚙️ KV map models I/O; biology uses synaptic signals (Ch.35-36). |
 
 ---
 
@@ -67,8 +67,8 @@ Universal neural computation substrate shared by all processing layers.
 
 #### `Encoder` interface — Ch.21
 
-⚙️ Neural coding: transforms signal into representable form. Presynaptic encoding as a discrete step has no direct
-Kandel equivalent; biology achieves this through vesicle release patterns (Ch.8-12).
+⚙️ Neural coding: transforms signal into representable form. Presynaptic encoding separated as
+a discrete step; biology distributes this across vesicle release patterns (Ch.8-12).
 
 | Method                      | Basis                                                                                 |
 |-----------------------------|---------------------------------------------------------------------------------------|
@@ -78,9 +78,9 @@ Kandel equivalent; biology achieves this through vesicle release patterns (Ch.8-
 
 Synaptic integration at soma. Nuclei are brain-wide integrative clusters.
 
-| Method                         | Basis                                                                                                        |
-|--------------------------------|--------------------------------------------------------------------------------------------------------------|
-| `integrate(Impulse, Class<T>)` | Integrates encoded Impulse → typed output. ⚙️ Class<T> = output type; biology has no explicit type dispatch. |
+| Method                         | Basis                                                                                                                            |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `integrate(Impulse, Class<T>)` | Integrates encoded Impulse → typed response. ⚙️ Class<T> response dispatches output type; biology has no explicit type dispatch. |
 
 ---
 
@@ -94,10 +94,10 @@ Synaptic integration at soma. Nuclei are brain-wide integrative clusters.
 
 #### `Impulse` interface — Ch.7
 
-| Method     | Basis                                                            |
-|------------|------------------------------------------------------------------|
-| `signal()` | Content carried by the signal                                    |
-| `area()`   | ⚙️ Target Area for routing. null before relay(), non-null after. |
+| Method     | Basis                                                                                                                      |
+|------------|----------------------------------------------------------------------------------------------------------------------------|
+| `signal()` | Content carried by the signal                                                                                              |
+| `area()`   | ⚙️ Target Area for explicit routing; null before relay(), non-null after. Biology routes by axonal connections (Ch.2, 18). |
 
 #### `Transducer` interface — Ch.21
 
@@ -138,10 +138,10 @@ Four psychophysical properties:
 
 #### `Plasticity` interface — Ch.63
 
-| Method                | Basis                                                                                             |
-|-----------------------|---------------------------------------------------------------------------------------------------|
-| `potentiate(Impulse)` | LTP — synaptic strengthening. ⚙️ Single-Impulse trigger (Kandel requires repeated co-activation). |
-| `prune()`             | Ch.55-56, 65 — synaptic pruning/elimination                                                       |
+| Method                | Basis                                                                                                                                     |
+|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `potentiate(Impulse)` | LTP — synaptic strengthening. Single Impulse = NMDA coincidence trigger (Ch.63); accumulated co-activation history is carried by Episode. |
+| `prune()`             | Ch.55-56, 65 — synaptic pruning/elimination                                                                                               |
 
 ---
 
@@ -151,20 +151,16 @@ Four psychophysical properties:
 
 Orienting response + Salience Network (anterior insula + ACC). Gates DMN↔CEN switch.
 
-| Method         | Basis                              |
-|----------------|------------------------------------|
-| `orient()`     | Orient attention; suppress DMN     |
-| `release()`    | Return to rest; DMN re-engages     |
-| `isOriented()` | ⚙️ State query for DMN suppression |
+| Method         | Basis                                                                         |
+|----------------|-------------------------------------------------------------------------------|
+| `orient()`     | Orient attention; suppress DMN                                                |
+| `release()`    | Return to rest; DMN re-engages                                                |
+| `isOriented()` | ⚙️ State query for DMN suppression; boolean polling has no Kandel equivalent. |
 
 #### `Drive` interface — Ch.48, 62
 
 Drive states (subcortical) + DMN (spontaneous internal activity; Raichle 2001).
-
-| Method         | Basis                                                     |
-|----------------|-----------------------------------------------------------|
-| `activate()`   | ⚙️ Lifecycle hook; biological DMN has no explicit on/off. |
-| `deactivate()` | ⚙️ Lifecycle hook; see activate().                        |
+Marker interface. Lifecycle managed by `@PostConstruct`/`@PreDestroy` in runtime.
 
 ---
 
@@ -199,3 +195,18 @@ Marker interface. `@Episodic` qualifier.
 
 Semantic memory (Tulving): general world knowledge, cross-session.
 Marker interface. `@Semantic` qualifier.
+
+---
+
+## Runtime Engineering Compromises
+
+| Class           | Method / Field  | Description                                                                                                                |
+|-----------------|-----------------|----------------------------------------------------------------------------------------------------------------------------|
+| `Decision`      | `reasoning`     | Deliberation rationale as text. Biology has no separate explanation output — decision IS the neural computation (Ch.57).   |
+| `PerceptImpl`   | `location`      | Maps Area name to location; biology uses somatotopic/retinotopic coordinates (Ch.21, 25).                                  |
+| `DriveImpl`     | `schedule()`    | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62). 10-30s balances Kandel fidelity with interactive responsiveness. |
+| `EncoderImpl`   | `assemble()`    | Template variable substitution + `{{guardrails}}` → executive_control.md composition. No biological equivalent.            |
+| `NucleusImpl`   | `validate()`    | Bean Validation on LLM output. Biology has no explicit output validation step.                                             |
+| `TraceImpl`     | constructor     | Embeds `Instant.now()` in cue string via `@` separator. Kandel: cue is pure retrieval trigger (Ch.65).                     |
+| `KnowledgeImpl` | `prefixOf()`    | Parses cue prefix before `@` for deduplication. Consequence of TraceImpl cue encoding.                                     |
+| `KnowledgeImpl` | `timestampOf()` | Parses timestamp after `@` in cue. Consequence of TraceImpl cue encoding.                                                  |

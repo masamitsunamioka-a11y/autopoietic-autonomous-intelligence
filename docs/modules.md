@@ -32,25 +32,27 @@ adapters/driving/web        Vue 3 + TypeScript + Vite + Pinia SPA
 filesystem/
   neural/neurons/    Neuron definitions (JSON)
   neural/areas/      Area definitions (JSON)
-  signaling/phase/   Phase prompt templates (perception, relay, potentiation, pruning, drive)
-  signaling/shared/  Shared templates (executive_control, output_integrity)
-  hippocampal/       {session}/episode.json + knowledge.json
+  synaptic/function/ Function prompt templates (perception, relay, potentiation, pruning, drive)
+  synaptic/shared/   Shared templates (executive_control, output_integrity)
+  hippocampal/episode/  episode_yyyyMMddHHmmss.json
+  hippocampal/knowledge/  knowledge.json
 ```
 
 ## Configuration
 
 `adapters/driving/{cli,api}/src/main/resources/configuration.yaml`
 
-| Key                                                    | Description                              |
-|--------------------------------------------------------|------------------------------------------|
-| `anticorruption.neurons.source`                        | Neuron JSON directory                    |
-| `anticorruption.areas.source`                          | Area JSON directory                      |
-| `anticorruption.encodings.phase`                       | Phase prompt templates directory         |
-| `anticorruption.encodings.shared`                      | Shared prompt templates directory        |
-| `anticorruption.memory.source`                         | Hippocampal memory directory             |
-| `anticorruption.memory.sessions`                       | Past sessions to load (-1 = all)         |
-| `anticorruption.effectors.package`                     | Effector Java package name               |
-| `anticorruption.effectors.source`                      | Effector .java source directory          |
-| `anticorruption.effectors.target`                      | Effector .class target directory         |
-| `anticorruption.effectors.compiler.classpath.strategy` | `manual` or system class path            |
-| `anticorruption.effectors.compiler.classpath.value`    | Classpath value (when strategy = manual) |
+| Key                                                           | Description                              |
+|---------------------------------------------------------------|------------------------------------------|
+| `anticorruption.neural.areas.target`                          | Area JSON directory                      |
+| `anticorruption.neural.neurons.target`                        | Neuron JSON directory                    |
+| `anticorruption.synaptic.function.source`                     | Function prompt templates directory      |
+| `anticorruption.synaptic.shared.source`                       | Shared prompt templates directory        |
+| `anticorruption.hippocampal.episode.target`                   | Episode memory directory                 |
+| `anticorruption.hippocampal.episode.limit`                    | Past sessions to load (-1 = all)         |
+| `anticorruption.hippocampal.knowledge.target`                 | Knowledge memory directory               |
+| `anticorruption.neural.effectors.package`                     | Effector Java package name               |
+| `anticorruption.neural.effectors.source`                      | Effector .java source directory          |
+| `anticorruption.neural.effectors.target`                      | Effector .class target directory         |
+| `anticorruption.neural.effectors.compiler.classpath.strategy` | `manual` or system class path            |
+| `anticorruption.neural.effectors.compiler.classpath.value`    | Classpath value (when strategy = manual) |

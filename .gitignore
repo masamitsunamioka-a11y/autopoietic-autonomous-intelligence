@@ -50,8 +50,10 @@ buildNumber.properties
 ## -----
 tmp/
 .idea/
-filesystem/hippocampal/*
-!filesystem/hippocampal/.gitkeep
+filesystem/hippocampal/episode/*
+!filesystem/hippocampal/episode/.gitkeep
+filesystem/hippocampal/knowledge/*
+!filesystem/hippocampal/knowledge/.gitkeep
 adapters/driving/web/node/
 adapters/driving/web/node_modules/
 

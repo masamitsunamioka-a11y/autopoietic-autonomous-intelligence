@@ -7,7 +7,7 @@ public interface Adapter<I, E> {
 
     List<I> fetchAll();
 
-    void publish(String id, E source);
+    void publish(String id, E object);
 
     void revoke(String id);
 }

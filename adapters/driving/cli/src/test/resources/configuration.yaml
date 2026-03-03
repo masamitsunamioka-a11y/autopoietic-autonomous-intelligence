@@ -1,18 +1,24 @@
 anticorruption:
-  effectors:
-    package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors.effector"
-    source: "../../../adapters/driven/services/src/main/java"
-    target: "../../../adapters/driven/services/target/classes"
-    compiler:
-      classpath:
-        strategy: "system"
-  encodings:
-    phase: "../../../filesystem/signaling/phase"
-    shared: "../../../filesystem/signaling/shared"
-  areas:
-    source: "../../../filesystem/neural/areas"
-  neurons:
-    source: "../../../filesystem/neural/neurons"
-  memory:
-    source: "../../../filesystem/hippocampal"
-    sessions: "0"
+  synaptic:
+    function:
+      source: "../../../filesystem/synaptic/function"
+    shared:
+      source: "../../../filesystem/synaptic/shared"
+  neural:
+    areas:
+      target: "../../../filesystem/neural/areas"
+    neurons:
+      target: "../../../filesystem/neural/neurons"
+    effectors:
+      package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors.effector"
+      source: "../../../adapters/driven/services/src/main/java"
+      target: "../../../adapters/driven/services/target/classes"
+      compiler:
+        classpath:
+          strategy: "system"
+  hippocampal:
+    episode:
+      target: "../../../filesystem/hippocampal/episode"
+      limit: "0"
+    knowledge:
+      target: "../../../filesystem/hippocampal/knowledge"

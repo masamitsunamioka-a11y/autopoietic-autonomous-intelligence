@@ -25,7 +25,6 @@ public final class Inhibit implements Process {
     @Override
     public Percept handle(Impulse impulse, Decision decision) {
         var area = impulse.area();
-        logger.warn("[CORTEX] INHIBIT on {}: {}", area.name(), decision.response());
         this.episode.encode(new TraceImpl("[INHIBIT]", decision.response()));
         return new PerceptImpl(decision.response(), area.name());
     }
