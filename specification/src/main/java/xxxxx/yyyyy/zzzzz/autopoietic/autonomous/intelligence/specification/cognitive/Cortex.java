@@ -3,5 +3,5 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cogn
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 
 public interface Cortex {
-    Percept respond(Impulse impulse);
+    void respond(Impulse impulse);
 }

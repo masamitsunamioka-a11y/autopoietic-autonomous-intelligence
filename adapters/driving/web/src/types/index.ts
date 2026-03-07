@@ -1,4 +1,4 @@
-export type MessageType = 'message' | 'introspection' | 'user' | 'error'
+export type MessageType = 'message' | 'drive' | 'introspection' | 'user' | 'error'
 
 export interface Message {
     id: string

@@ -3,17 +3,45 @@
 All interfaces grounded in Kandel, *Principles of Neural Science* (6th ed.).
 ⚙️ = engineering convention (no direct Kandel structural equivalent).
 
+See also: [kandel-building-blocks.yaml](kandel-building-blocks.yaml) — neuron anatomy, synapse structure,
+signal flow mapping, and interface classification with bilingual (en/ja) descriptions.
+
+## Interface Classification — Neuron Anatomy Mapping
+
+All specification interfaces map to three categories derived from neuron anatomy
+(Kandel Ch.2;
+see [Kyoto University, 2013](https://www.kyoto-u.ac.jp/ja/archive/prev/news_data/h/h1/news6/2013_1/131023_1), Fig.1).
+
+| Category                           | Description                                   | Interfaces                                                                                |
+|------------------------------------|-----------------------------------------------|-------------------------------------------------------------------------------------------|
+| **Neural cell (collective) roles** | Neuron populations with specialized functions | Cortex, Thalamus, Drive, Salience, Plasticity, Knowledge, Episode, Area, Neuron, Effector |
+| **Signals / Data**                 | Information carried between neurons           | Stimulus, Impulse, Trace, Percept                                                         |
+| **Synaptic functions**             | Signal encoding/integration at synapses       | Encoder, Transmitter, Decoder, Nucleus                                                    |
+
+- **neural** — Most direct correspondence to Fig.1. Neuron = single nerve cell,
+  Area = population sharing the same tuning, Effector = motor output driven by motoneurons (Ch.2).
+- **integrative** — Abstracts the synapse regions of Fig.1. Encoder = presynaptic signal encoding (Ch.21),
+  Nucleus = ⚙️ integration cluster borrowed from neuroanatomical nuclei (Ch.12, 46).
+  Named after the role "synaptic integration" (Ch.12), not the structure "synapse".
+- **signaling** — Stimulus/Impulse are signals external to and between neurons.
+  Transducer (PNS sensory receptor) and Thalamus (routing) operate before signals enter the neuron.
+- **cognitive, homeostatic, learning, mnemonic** — Emergent roles of neural populations.
+  Percept and Trace are products/units, not populations themselves.
+
+---
+
 ## Specification Packages
 
-| Package       | Kandel          | Interfaces                                                                                                                                                        |
-|---------------|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `neural`      | Ch.1, 26-27     | [Engravable](#engravable-interface--ch63), [Area](#area-interface--ch1-26-27), [Neuron](#neuron-interface--ch2-26), [Effector](#effector-interface--ch35-36)      |
-| `signaling`   | Ch.7, 20-21, 23 | [Stimulus](#stimulus-interface--ch21), [Impulse](#impulse-interface--ch7), [Transducer](#transducer-interface--ch21), [Thalamus](#thalamus-interface--ch23-26-46) |
-| `cognitive`   | Part VII        | [Cortex](#cortex-interface--part-vii), [Percept](#percept-interface--ch21-25)                                                                                     |
-| `synaptic`    | Ch.8-12         | [Encoder](#encoder-interface--ch21), [Nucleus](#nucleus-interface--ch12-46)                                                                                       |
-| `homeostatic` | Ch.48, 62       | [Drive](#drive-interface--ch48-62), [Salience](#salience-interface--ch63-seeley-2007)                                                                             |
-| `learning`    | Ch.63-64        | [Plasticity](#plasticity-interface--ch63)                                                                                                                         |
-| `working`     | Ch.65-67        | [Memory](#memory-interface--ch63-67), [Trace](#trace-interface--ch63-67), [Episode](#episode-interface--ch65-67), [Knowledge](#knowledge-interface--ch65-67)      |
+| Package       | Kandel          | Interfaces                                                                                                                                                           |
+|---------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| *(root)*      | ⚙️ Evans DDD    | [Entity](#entity-interface), [AggregateRoot](#aggregateroot-interface)                                                                                               |
+| `neural`      | Ch.1, 26-27     | [Area](#area-interface--ch1-26-27), [Neuron](#neuron-interface--ch2-26), [Effector](#effector-interface--ch35-36)                                                    |
+| `signaling`   | Ch.7, 20-21, 23 | [Stimulus](#stimulus-interface--ch21), [Impulse](#impulse-interface--ch7), [Transducer](#transducer-interface--ch21), [Thalamus](#thalamus-interface--ch23-26-46)    |
+| `cognitive`   | Part VII        | [Cortex](#cortex-interface--part-vii), [Percept](#percept-interface--ch21-25)                                                                                        |
+| `integrative` | Ch.8-12         | [Encoder](#encoder-interface--ch21), [Transmitter](#transmitter-interface--part-iii), [Decoder](#decoder-interface--ch10-11), [Nucleus](#nucleus-interface--ch12-46) |
+| `homeostatic` | Ch.48, 62       | [Drive](#drive-interface--ch48-62), [Salience](#salience-interface--ch63-seeley-2007)                                                                                |
+| `learning`    | Ch.63-64        | [Plasticity](#plasticity-interface--ch63)                                                                                                                            |
+| `mnemonic`    | Ch.65-67        | [Trace](#trace-interface--ch63-67), [Episode](#episode-interface--ch65-67), [Knowledge](#knowledge-interface--ch65-67)                                               |
 
 Runtime packages mirror spec 1:1. Exception: `cognitive.processual` exists only in runtime
 (Process dispatch — Vocalize, Fire, Potentiate, Project, Inhibit).
@@ -22,15 +50,36 @@ Runtime packages mirror spec 1:1. Exception: `cognitive.processual` exists only 
 
 ## Specification Details
 
+### Root package
+
+⚙️ Evans DDD shared tools. All domain objects with identity extend AggregateRoot.
+The root package permits minimal engineering interfaces/classes that have no Kandel equivalent
+but are required by the domain model (e.g., Entity, AggregateRoot).
+
+#### `Entity` interface
+
+| Method | Basis                                                                                         |
+|--------|-----------------------------------------------------------------------------------------------|
+| `id()` | ⚙️ Evans DDD identity. Biological neurons have no names — identified by topographic position. |
+
+#### `AggregateRoot` interface
+
+Extends Entity. Marker for Repository-managed domain objects.
+Area, Neuron, Effector, Trace are AggregateRoots.
+
+---
+
 ### `neural` package
 
-#### `Engravable` interface — Ch.63
+Kandel Ch.2 classifies neurons into three functional types: sensory, interneuron,
+and motoneuron. In AAI, sensory transduction is handled by `signaling/Transducer`.
+The `neural` package contains the remaining two classifications:
 
-Base for structures modifiable by synaptic plasticity. Area, Neuron, Effector extend it.
+- **Interneuron** (Ch.2) — Area, Neuron. Integrative processing components.
+- **Motoneuron** (Ch.2) — Effector. Motor output components.
 
-| Method   | Basis                                                                                                                                      |
-|----------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| `name()` | ⚙️ System addressing identifier. Biological neurons have no names — identified by topographic position + functional properties (Ch.1, 26). |
+All three extend AggregateRoot. The package remains flat for code simplicity;
+ACL mirrors this classification in its subpackage structure.
 
 #### `Area` interface — Ch.1, 26-27
 
@@ -61,26 +110,44 @@ Motor output structures (muscles, glands). In AAI: compiled action capabilities.
 
 ---
 
-### `synaptic` package — Ch.8-12
+### `integrative` package — Ch.8-12
 
 Universal neural computation substrate shared by all processing layers.
 
 #### `Encoder` interface — Ch.21
 
-⚙️ Neural coding: transforms signal into representable form. Presynaptic encoding separated as
-a discrete step; biology distributes this across vesicle release patterns (Ch.8-12).
+Neural coding (Ch.21): transforms signal into representable form for synaptic transmission.
 
-| Method                      | Basis                                                                                 |
-|-----------------------------|---------------------------------------------------------------------------------------|
-| `encode(Impulse, Class<?>)` | Encodes Impulse into cortical representation for Nucleus. ⚙️ Caller dispatches phase. |
+| Method                      | Basis                                                                                       |
+|-----------------------------|---------------------------------------------------------------------------------------------|
+| `encode(Impulse, Class<?>)` | Encodes Impulse into cortical representation for Nucleus. `Class<?>` for Java type erasure. |
+
+#### `Transmitter` interface — Part III
+
+Synaptic Transmission (Part III). Orchestrates the complete synaptic transmission cycle:
+presynaptic encoding → cleft diffusion → postsynaptic decoding.
+
+| Method                        | Basis                                                          |
+|-------------------------------|----------------------------------------------------------------|
+| `transmit(Impulse, Class<T>)` | Synaptic transmission cycle. `Class<T>` for Java type erasure. |
+
+#### `Decoder` interface — Ch.10-11
+
+Postsynaptic signal decoding: reconstructs structured response from raw transmission output.
+Receptor binding and second-messenger cascades (Ch.10-11).
+
+| Method                     | Basis                                                                         |
+|----------------------------|-------------------------------------------------------------------------------|
+| `decode(String, Class<T>)` | Deserialize raw signal into typed response. `Class<T>` for Java type erasure. |
 
 #### `Nucleus` interface — Ch.12, 46
 
-Synaptic integration at soma. Nuclei are brain-wide integrative clusters.
+Synaptic integration at soma. Neuroanatomical "nucleus" = cluster of somas
+performing integration (Ch.12, 46). Name and function both Kandel-compliant.
 
-| Method                         | Basis                                                                                                                            |
-|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| `integrate(Impulse, Class<T>)` | Integrates encoded Impulse → typed response. ⚙️ Class<T> response dispatches output type; biology has no explicit type dispatch. |
+| Method                   | Basis                                                                                                                                        |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `integrate(T, Runnable)` | Soma integration + axonal firing. Caller specifies propagation target (axonal projection, Ch.3,4). ⚙️ Runnable models downstream projection. |
 
 ---
 
@@ -107,9 +174,9 @@ Synaptic integration at soma. Nuclei are brain-wide integrative clusters.
 
 #### `Thalamus` interface — Ch.23, 26, 46
 
-| Method           | Basis                                                   |
-|------------------|---------------------------------------------------------|
-| `relay(Impulse)` | Routes unrouted Impulse to appropriate Area via tuning. |
+| Method           | Basis                                                            |
+|------------------|------------------------------------------------------------------|
+| `relay(Impulse)` | Void. Routes unrouted Impulse to appropriate Area, fires Cortex. |
 
 ---
 
@@ -117,9 +184,9 @@ Synaptic integration at soma. Nuclei are brain-wide integrative clusters.
 
 #### `Cortex` interface — Part VII
 
-| Method             | Basis                                                      |
-|--------------------|------------------------------------------------------------|
-| `respond(Impulse)` | Integrate via Encoder+Nucleus → Process dispatch → Percept |
+| Method             | Basis                                                            |
+|--------------------|------------------------------------------------------------------|
+| `respond(Impulse)` | Void. Integrate via Encoder+Nucleus → Process dispatch → Percept |
 
 #### `Percept` interface — Ch.21, 25
 
@@ -151,11 +218,12 @@ Four psychophysical properties:
 
 Orienting response + Salience Network (anterior insula + ACC). Gates DMN↔CEN switch.
 
-| Method         | Basis                                                                         |
-|----------------|-------------------------------------------------------------------------------|
-| `orient()`     | Orient attention; suppress DMN                                                |
-| `release()`    | Return to rest; DMN re-engages                                                |
-| `isOriented()` | ⚙️ State query for DMN suppression; boolean polling has no Kandel equivalent. |
+| Method             | Basis                                                                                                          |
+|--------------------|----------------------------------------------------------------------------------------------------------------|
+| `orient()`         | Orient attention; suppress DMN                                                                                 |
+| `release(Percept)` | Return to rest; DMN re-engages. ⚙️ Percept param: CDI @Observes trigger; biology monitors activity indirectly. |
+| `isOriented()`     | ⚙️ State query for DMN suppression; boolean polling has no Kandel equivalent.                                  |
+| `await()`          | ⚙️ Block caller until CEN completes and Percept is fired.                                                      |
 
 #### `Drive` interface — Ch.48, 62
 
@@ -164,20 +232,29 @@ Marker interface. Lifecycle managed by `@PostConstruct`/`@PreDestroy` in runtime
 
 ---
 
-### `working` package
+### `mnemonic` package
+
+Kandel Ch.65 classifies memory into two major systems:
+
+- **Declarative** (Ch.65 Tulving) — Episode, Knowledge. Explicit memory that can be consciously recalled.
+- **Nondeclarative** (Ch.66) — Not yet implemented.
+
+All Traceable types belong to the declarative system. Nondeclarative memory
+(procedural skills, priming, conditioning) remains a future extension point.
 
 #### `Trace` interface — Ch.63-67
 
 Fundamental unit of memory encoding. One `encode()` = one Trace.
 
-| Method      | Basis                                            |
-|-------------|--------------------------------------------------|
-| `cue()`     | Ch.65-67 — retrieval cue (recall trigger)        |
-| `content()` | Encoded content (the stored memory trace itself) |
+| Method      | Basis                                                                              |
+|-------------|------------------------------------------------------------------------------------|
+| `id()`      | ⚙️ Retrieval cue (Ch.65-67). `id` is the Evans DDD identifier; semantically = cue. |
+| `content()` | Encoded content (the stored memory trace itself)                                   |
 
-#### `Memory` interface — Ch.63-67
+#### `Episode` interface — Ch.65-67
 
-Declarative memory: encoding, retrieval, forgetting.
+Episodic memory (Tulving): autobiographical, time-stamped, per-session.
+`@Episodic` qualifier.
 
 | Method             | Basis                            |
 |--------------------|----------------------------------|
@@ -186,27 +263,28 @@ Declarative memory: encoding, retrieval, forgetting.
 | `retrieve()`       | All stored traces                |
 | `decay()`          | Forgetting without reinforcement |
 
-#### `Episode` interface — Ch.65-67
-
-Episodic memory (Tulving): autobiographical, time-stamped, per-session.
-Marker interface. `@Episodic` qualifier.
-
 #### `Knowledge` interface — Ch.65-67
 
 Semantic memory (Tulving): general world knowledge, cross-session.
-Marker interface. `@Semantic` qualifier.
+`@Semantic` qualifier.
+
+| Method             | Basis                            |
+|--------------------|----------------------------------|
+| `encode(Trace)`    | Commit to memory                 |
+| `retrieve(String)` | Cue-based retrieval              |
+| `retrieve()`       | All stored traces                |
+| `decay()`          | Forgetting without reinforcement |
 
 ---
 
 ## Runtime Engineering Compromises
 
-| Class           | Method / Field  | Description                                                                                                                |
-|-----------------|-----------------|----------------------------------------------------------------------------------------------------------------------------|
-| `Decision`      | `reasoning`     | Deliberation rationale as text. Biology has no separate explanation output — decision IS the neural computation (Ch.57).   |
-| `PerceptImpl`   | `location`      | Maps Area name to location; biology uses somatotopic/retinotopic coordinates (Ch.21, 25).                                  |
-| `DriveImpl`     | `schedule()`    | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62). 10-30s balances Kandel fidelity with interactive responsiveness. |
-| `EncoderImpl`   | `assemble()`    | Template variable substitution + `{{guardrails}}` → executive_control.md composition. No biological equivalent.            |
-| `NucleusImpl`   | `validate()`    | Bean Validation on LLM output. Biology has no explicit output validation step.                                             |
-| `TraceImpl`     | constructor     | Embeds `Instant.now()` in cue string via `@` separator. Kandel: cue is pure retrieval trigger (Ch.65).                     |
-| `KnowledgeImpl` | `prefixOf()`    | Parses cue prefix before `@` for deduplication. Consequence of TraceImpl cue encoding.                                     |
-| `KnowledgeImpl` | `timestampOf()` | Parses timestamp after `@` in cue. Consequence of TraceImpl cue encoding.                                                  |
+| Class              | Method / Field            | Description                                                                                                                           |
+|--------------------|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `PerceptImpl`      | `location`                | Maps Process name to location (Ch.1, 17: cortical location = function); biology uses somatotopic/retinotopic coordinates (Ch.21, 25). |
+| `DriveImpl`        | `schedule()`              | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62). 10-30s balances Kandel fidelity with interactive responsiveness.            |
+| `NucleusImpl`      | `executorService`         | Single-thread ExecutorService models refractory period (Ch.9). Async integration + threshold gating.                                  |
+| `TraceImpl`        | constructor               | Embeds `Instant.now()` in id string via `@` separator. Kandel: id is retrieval cue (Ch.65).                                           |
+| `DriveImpl`        | `scheduleConsolidation()` | Timed memory consolidation trigger. Biology consolidates during sleep/rest (Ch.67); scheduled as engineering compromise.              |
+| `HabituationGuard` | (class)                   | Habituation (Ch.63). Count-based implementation; biology modulates synaptic efficacy.                                                 |
+| `HabituationGuard` | `observe()`               | Habituation after 3 consecutive firings of same effector.                                                                             |

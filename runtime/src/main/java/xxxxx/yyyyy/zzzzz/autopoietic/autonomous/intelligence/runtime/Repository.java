@@ -1,13 +1,15 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
 
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.AggregateRoot;
+
 import java.util.List;
 
-public interface Repository<I, E> {
-    I find(String id);
+public interface Repository<T extends AggregateRoot> {
+    T find(String id);
 
-    List<I> findAll();
+    List<T> findAll();
 
-    void store(E e);
+    void store(T object);
 
     void remove(String id);
 

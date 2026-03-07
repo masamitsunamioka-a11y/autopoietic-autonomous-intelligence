@@ -1,0 +1,13 @@
+package {{package}};
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
+import java.util.Map;
+public class {{id}} implements Effector {
+    @Override public String id() { return "{{id}}"; }
+    @Override public String tuning() { return "{{tuning}}"; }
+    @Override
+    public Map<String, Object> fire(Map<String, Object> input) {
+        return Map.of(
+            "message", "Effector [{{id}}] successfully executed."
+        );
+    }
+}

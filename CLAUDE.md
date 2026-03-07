@@ -32,7 +32,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 
 - `specification` — zero runtime dependencies, pure domain interfaces
 - `runtime` / `anticorruption` — CDI annotations are `provided`, never bundled
-- `anticorruption` — only module knowing Gemini, filesystem, external APIs
+- `anticorruption` — only module knowing Anthropic, filesystem, external APIs
 - External access via `Adapter<I, E>` in `anticorruption`
 - `Configuration` — always a local variable in constructors, never stored as field
 
@@ -43,16 +43,22 @@ A system is autopoietic if it continuously produces and maintains its own compon
 - **`e`** — exception catch variable name
 - **`@Inject` on constructor only**
 - **Constructor param order** (fields follow same order):
-  Kandel macro→micro, then system foundational→specific:
-    1. homeostatic (Salience → Drive)
-    2. learning (Plasticity)
-    3. cognitive (Cortex → Process)
-    4. signaling (Thalamus → Transducer)
-    5. working (Knowledge → Episode)
-    6. neural (Area → Neuron → Effector)
-    7. synaptic (Nucleus → Encoder)
-    8. ACL (Adapter → Translator → ProxyProvider)
-    9. infrastructure (Storage → Repository\<String,String\> → Serializer → Service)
+  Kandel macro→micro:
+    - Specification:
+        - Homeostatic (Salience → Drive)
+        - Learning (Plasticity)
+        - Cognitive (Cortex → Process → Event\<Expression\>)
+        - Signaling (Thalamus → Transducer)
+        - Mnemonic (Knowledge → Episode)
+        - Neural (Area → Neuron → Effector)
+        - Integrative (Transmitter → Nucleus)
+          TransmitterImpl: (Encoder → Decoder → Service)
+    - Runtime:
+        - Repository → Serializer → Service
+    - Anti-Corruption Layer:
+        - Storage → Adapter → Translator → ProxyProvider
+    - Configuration order
+    - Other
 - **Constructor width** — ≤80 bytes/line; group same-category params when they fit
 - **`private static record`** — all module-internal data structures
 - **`impl` subpackage** — ACL impls in `anticorruption.impl`; runtime flat matching spec
@@ -63,6 +69,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 
 # Build & Test
 
+- Setup: `git config core.hooksPath .githooks` — enables persona guard on wip branch
 - Build: `mvn clean install -DskipTests`
 - Test: `mvn test`
 - Lines: `./lines.sh` — **< 100 lines** rule
@@ -70,7 +77,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 # Tech Stack
 
 Java 25 (Preview) · Maven multi-module · Jakarta EE 11 (provided) · Weld SE 6 (CDI 4.1) ·
-JUnit 5 · Hibernate Validator 9 · Google GenAI SDK (Gemini) · Google Cloud BOM ·
+JUnit 5 · Hibernate Validator 9 · Anthropic Java SDK (Claude) ·
 SLF4J 2 + Logback · SnakeYAML 2 · Gson 2
 
 # Reference

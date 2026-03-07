@@ -1,5 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
-public interface ProxyProvider<T> {
-    T provide(String json);
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Entity;
+
+public interface ProxyProvider<I extends Entity> {
+    I provide(Resource resource);
 }

@@ -1,66 +1,55 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.processual.Process;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Nucleus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Transmitter;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.locks.ReentrantLock;
 
 @ApplicationScoped
 public class CortexImpl implements Cortex {
     private static final Logger logger = LoggerFactory.getLogger(CortexImpl.class);
     private final Map<String, Process> processes;
+    private final Transmitter transmitter;
     private final Nucleus nucleus;
-    private final Encoder encoder;
-    private final ReentrantLock focus;
+    private final Event<Percept> event;
 
     @Inject
-    public CortexImpl(@Process.Vocalize Process vocalize, @Process.Fire Process fire,
-                      @Process.Potentiate Process potentiate, @Process.Project Process project,
+    public CortexImpl(@Process.Vocalize Process vocalize,
+                      @Process.Fire Process fire,
+                      @Process.Potentiate Process potentiate,
+                      @Process.Project Process project,
                       @Process.Inhibit Process inhibit,
-                      Nucleus nucleus, Encoder encoder) {
+                      Transmitter transmitter, Nucleus nucleus,
+                      Event<Percept> event) {
         this.processes = Map.of(
             "VOCALIZE", vocalize,
             "FIRE", fire,
             "POTENTIATE", potentiate,
             "PROJECT", project,
             "INHIBIT", inhibit);
+        this.transmitter = transmitter;
         this.nucleus = nucleus;
-        this.encoder = encoder;
-        this.focus = new ReentrantLock();
+        this.event = event;
     }
 
     @Override
-    public Percept respond(Impulse impulse) {
-        this.focus.lock();
-        try {
-            return this.doRespond(impulse);
-        } finally {
-            this.focus.unlock();
-        }
-    }
-
-    private Decision integrate(Impulse impulse) {
-        var signal = this.encoder.encode(impulse, Cortex.class);
-        return this.nucleus.integrate(
-            new ImpulseImpl(signal, impulse.area()), Decision.class);
-    }
-
-    private Percept doRespond(Impulse impulse) {
-        Objects.requireNonNull(impulse.area());
-        var output = this.integrate(impulse);
-        var process = this.processes.get(output.process().toUpperCase());
-        Objects.requireNonNull(process, "Unknown process: " + output.process());
-        return process.handle(impulse, output);
+    public void respond(Impulse impulse) {
+        var decision = this.transmitter.transmit(impulse, Decision.class);
+        this.nucleus.integrate(decision, () -> {
+            var process = this.processes.get(decision.process());
+            var percept = process.handle(impulse, decision);
+            if (percept != null) {
+                this.event.fire(percept);
+            }
+        });
     }
 }

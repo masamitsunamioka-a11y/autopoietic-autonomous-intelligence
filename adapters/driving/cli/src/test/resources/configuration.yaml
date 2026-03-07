@@ -1,9 +1,9 @@
 anticorruption:
-  synaptic:
+  integrative:
     function:
-      source: "../../../filesystem/synaptic/function"
+      source: "../../../filesystem/integrative/function"
     shared:
-      source: "../../../filesystem/synaptic/shared"
+      source: "../../../filesystem/integrative/shared"
   neural:
     areas:
       target: "../../../filesystem/neural/areas"
@@ -19,7 +19,7 @@ anticorruption:
   hippocampal:
     episode:
       target: "../../../filesystem/hippocampal/episode"
-      limit: "0"
+      limit: "-1"
   neocortical:
     knowledge:
       target: "../../../filesystem/neocortical/knowledge"

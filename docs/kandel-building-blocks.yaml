@@ -1,0 +1,338 @@
+# Kandel Building Blocks — AAI Specification Mapping
+# Reference: Kyoto University, 2013, Fig.1
+# https://www.kyoto-u.ac.jp/ja/archive/prev/news_data/h/h1/news6/2013_1/131023_1
+# Neuron Structure (Kandel Ch.2)
+neuron-structure:
+  definition:
+    en: "Fig.1 as a whole = one Neuron"
+    ja: "図1 全体 = 1つの Neuron"
+  components:
+    dendrites:
+      en: "Dendrites (multiple) — input branches"
+      ja: "樹状突起（複数）— 入力枝"
+    soma:
+      en: "Cell body (one) — main body of the Neuron"
+      ja: "細胞体（1つ）— Neuron の本体"
+    cell-nucleus:
+      en: "Cell nucleus — nucleus inside the soma (organelle)"
+      ja: "細胞核 — Soma の中の核（細胞小器官）"
+    axon:
+      en: "Axon (one, may branch at terminal) — electrical signal pathway"
+      ja: "軸索（1本、末端で分岐あり）— 電気信号の伝達路"
+    presynaptic-terminal:
+      en: "Presynaptic terminal — end of the Neuron"
+      ja: "シナプス前終末 — Neuron の末端"
+  rule:
+    en: "1 Neuron = 1 cell body"
+    ja: "1 Neuron = 1 細胞体"
+  diagram: |
+    Dendrite \
+    Dendrite -> [Soma] -> [Axon] -> Branch -> Synapse
+    Dendrite /                          \-> Synapse
+# Synapse Structure (Kandel Ch.8)
+synapse:
+  definition:
+    en: "The entire junction between two Neurons (a structure, not an act)"
+    ja: "2つの Neuron の接合部全体の構造（場所であり、行為ではない）"
+  components:
+    presynaptic-terminal:
+      en: "Presynaptic terminal — axon terminal of Neuron A"
+      ja: "シナプス前終末 — Neuron A の軸索末端"
+    synaptic-cleft:
+      en: "Synaptic cleft — the gap where chemical transmission occurs"
+      ja: "シナプス間隙 — 化学伝達の場（隙間）"
+    postsynaptic-membrane:
+      en: "Postsynaptic membrane — dendrite side of Neuron B"
+      ja: "シナプス後膜 — Neuron B の樹状突起側"
+  diagram: |
+    [Neuron A                                      ]            [Neuron B...
+    Dendrite -> [Soma] -> [Axon] -> [PresynTerminal] |Cleft   | [Dendrite] -> [Soma] -> ...
+    |------------- Impulse (electrical) -----------| |chemical|
+    |------------- Neuron -------------------------|
+# Package Naming Philosophy
+package-naming:
+  approach:
+    en: "All packages are named by functional role, not by mechanism. 'integrative' is named after the role 'synaptic integration' (Kandel Ch.12), not the structure 'synapse'."
+    ja: "全パッケージは機能的役割で命名。'integrative' は構造名 'synapse' ではなく、役割名 'synaptic integration'（Kandel Ch.12）に由来。"
+  examples:
+    role-based: "cognitive, learning, homeostatic, mnemonic, signaling, neural, integrative"
+# Decoder — Kandel Concept Mapped to Serializer
+decoder:
+  description:
+    en: "Decoder exists in Kandel as receptor binding (Ch.8-10) — the reverse of encoding. Chemical signal is converted back to electrical signal at the postsynaptic membrane. In AAI, this role is served by Serializer.deserialize(). No separate Decoder interface; Serializer handles both directions. The implementation (JsonSerializer) is purely ACL — completely out of Kandel."
+    ja: "Decoder は Kandel に存在する — 受容体結合 (Ch.8-10)。化学信号をシナプス後膜で電気信号に逆変換する。AAI では Serializer.deserialize() がこの役割を担う。独立した Decoder interface は設けず、Serializer が双方向を処理する。実装（JsonSerializer）は純粋に ACL — Kandel の範囲外。"
+# Signal Flow — Kandel to AAI Mapping
+signal-flow:
+  - step: "Neural coding (Ch.21)"
+    description:
+      en: "Encode information into neural activity patterns"
+      ja: "情報を神経活動パターンに符号化"
+    aai: "Encoder"
+  - step: "Vesicle packaging (Ch.8)"
+    description:
+      en: "Package neurotransmitter into synaptic vesicles"
+      ja: "神経伝達物質を小胞に格納"
+    aai: "Serializer.serialize()"
+  - step: "Synaptic transmission (Ch.8)"
+    description:
+      en: "Release and transmit across the synaptic cleft"
+      ja: "シナプス間隙への放出・伝達"
+    aai: "LLM call"
+  - step: "Receptor binding (Ch.8-10)"
+    description:
+      en: "Receptor binding and signal transduction"
+      ja: "受容体結合・信号変換"
+    aai: "Serializer.deserialize()"
+  - step: "Synaptic integration (Ch.12)"
+    description:
+      en: "Integration of postsynaptic potentials"
+      ja: "シナプス後電位の統合"
+    aai: "Nucleus.integrate()"
+# Terminology — Three Confusable "Nuclei"
+terminology:
+  soma:
+    meaning:
+      en: "Cell body — part of a single Neuron (the soma in Fig.1)"
+      ja: "細胞体 — 1つの Neuron の本体部分（図1の細胞体）"
+    scale:
+      en: "Part of a single Neuron"
+      ja: "単一 Neuron の一部"
+  cell-nucleus:
+    meaning:
+      en: "Cell nucleus — the nucleus inside the soma (the nucleus in Fig.1)"
+      ja: "細胞核 — Soma の中にある核（図1の核）"
+    scale:
+      en: "Organelle"
+      ja: "細胞小器官"
+  nucleus:
+    meaning:
+      en: "Neuroanatomical nucleus — a cluster of Neurons performing integrative processing (thalamic nuclei, basal ganglia, etc.)"
+      ja: "神経核 — 統合処理を行う Neuron の集団（視床核、基底核など）"
+    scale:
+      en: "Cluster of multiple Neurons"
+      ja: "複数 Neuron のクラスタ"
+    aai:
+      en: "Nucleus — Kandel Ch.12, 46 compliant. A cluster of somas performing integration. The name and function (integration) are both Kandel-accurate."
+      ja: "Nucleus — Kandel Ch.12, 46 準拠。Soma の集合が統合処理を行う場所。名前も機能（統合）も Kandel に正確。"
+# Process Dispatch — Axonal Projection Targets (Kandel Ch.2, 35-36)
+process-dispatch:
+  description:
+    en: "After soma integration exceeds threshold and the Neuron fires, the output signal projects to different targets depending on axonal connections. In AAI, Cortex dispatches to one of 5 Processes."
+    ja: "Soma の統合が閾値を超えて Neuron が発火した後、出力信号は軸索の接続先に応じて異なるターゲットに投射される。AAI では Cortex が 5 つの Process のいずれかにディスパッチする。"
+  processes:
+    vocalize:
+      description:
+        en: "Generate a response to the external world. Produces Percept and returns it."
+        ja: "外部世界への応答を生成。Percept を生成して返す。"
+      kandel:
+        en: "Motor cortex projecting to speech muscles"
+        ja: "運動野から発声筋への投射"
+      aai: "Vocalize"
+    fire:
+      description:
+        en: "Execute an Effector directly. Motor command."
+        ja: "Effector を直接実行。運動指令。"
+      kandel:
+        en: "Motor cortex projecting to muscles (Ch.35-36)"
+        ja: "運動野から筋肉への投射 (Ch.35-36)"
+      aai: "Fire"
+    potentiate:
+      description:
+        en: "Trigger Plasticity. Detect capability gap and self-generate Area/Neuron/Effector."
+        ja: "Plasticity を発火。能力ギャップを検出し Area/Neuron/Effector を自己生成。"
+      kandel:
+        en: "Signal triggering LTP at synapses (Ch.63)"
+        ja: "シナプスで LTP をトリガーする信号 (Ch.63)"
+      aai: "Potentiate"
+    project:
+      description:
+        en: "Forward Impulse to another Area. Corticocortical connection."
+        ja: "別の Area に Impulse を転送。皮質間結合。"
+      kandel:
+        en: "Corticocortical projection — one area projecting to another"
+        ja: "皮質間投射 — ある領野から別の領野への投射"
+      aai: "Project"
+    inhibit:
+      description:
+        en: "Suppress processing. Signal does not propagate further. Counteracts excitatory input."
+        ja: "処理を抑制。信号はそれ以上伝搬しない。興奮性入力を打ち消す。"
+      kandel:
+        en: "Inhibitory interneurons release GABA, hyperpolarize postsynaptic membrane (Ch.2)"
+        ja: "抑制性介在ニューロンが GABA を放出、シナプス後膜を過分極 (Ch.2)"
+      aai: "Inhibit"
+  availability:
+    en: "All 5 processes are available in both CEN and DMN. The difference is input origin (external Stimulus vs internal Drive), not the processing pipeline."
+    ja: "5 つの Process は CEN でも DMN でも全て利用可能。違いは入力の起源（外部 Stimulus vs 内部 Drive）であり、処理パイプラインではない。"
+# Network Flows — CEN, DMN, SN
+network-flows:
+  cen:
+    name: "Central Executive Network"
+    description:
+      en: "External input processing"
+      ja: "外部入力処理"
+    flow: |
+      Stimulus
+        -> Transducer
+          -> Impulse (area=null)
+            -> Thalamus
+              -> Impulse (area=X)
+                -> Cortex
+                  -> Area X
+                    -> Neurons (synaptic connections) each Soma integrates
+                      -> threshold exceeded -> fire
+                        -> Process dispatch (Vocalize/Fire/Potentiate/Project/Inhibit)
+                  -> Percept
+                    -> Episode.encode
+  dmn:
+    name: "Default Mode Network"
+    description:
+      en: "Spontaneous internal activity"
+      ja: "自発的内部活動"
+    flow: |
+      Drive (hypothalamus / subcortical)
+        -> spontaneous Impulse generation
+          -> Cortex
+            -> (same as CEN: Area -> Neurons -> Soma integration -> fire)
+              -> Process dispatch (Vocalize/Fire/Potentiate/Project/Inhibit)
+            -> Percept
+              -> Episode.encode
+  sn:
+    name: "Salience Network"
+    description:
+      en: "Gate for switching between CEN and DMN. CEN and DMN are mutually exclusive."
+      ja: "CEN と DMN の切り替えゲート。CEN と DMN は排他的。"
+    flow: |
+      [DMN active] --Stimulus arrives--> Salience.orient()  --> [CEN active]
+      [CEN active] --input ends-------> Salience.release() --> [DMN active]
+# Plasticity — Not a Structure but a Property
+plasticity-nature:
+  description:
+    en: "Plasticity is NOT a specific brain structure or neuron population. It is a distributed property of ALL synapses. Every synapse in the brain can undergo LTP (strengthening) and LTD (weakening). AAI models this distributed property as a single interface [Engineering]."
+    ja: "Plasticity は特定の脳構造や神経細胞集団ではない。全てのシナプスが持つ分散的な性質。脳内の全シナプスが LTP（強化）と LTD（弱化）を起こせる。AAI ではこの分散的性質を単一の interface として集約している [Engineering]。"
+# Specification Interface Classification
+interface-classification:
+  neural-cell-collective-roles:
+    description:
+      en: "Neuron populations with specialized functional roles"
+      ja: "Neuron 集団が特定の役割を担う存在"
+    interfaces:
+      - "Cortex"
+      - "Thalamus"
+      - "Drive"
+      - "Salience"
+      - "Plasticity"
+      - "Knowledge"
+      - "Episode"
+      - "Area"
+      - "Neuron"
+      - "Effector"
+  signals-and-data:
+    description:
+      en: "Information carried between Neurons, or products/units of processing"
+      ja: "Neuron 間を伝わる情報、または処理の産物/単位"
+    interfaces:
+      - "Stimulus"
+      - "Impulse"
+      - "Trace"
+      - "Percept"
+  integrative-functions:
+    description:
+      en: "Signal encoding and integration at synapses"
+      ja: "シナプスにおける信号の符号化と統合"
+    interfaces:
+      - "Encoder"
+      - "Nucleus"
+# Specification Details
+specification:
+  cognitive:
+    cortex:
+      kandel: "Part VII"
+      description:
+        en: "Cerebral cortex. A collection of nerve cells that produces perception (Percept) as a result of integrative processing."
+        ja: "大脳皮質。神経細胞の集合体で、統合処理の結果として知覚（Percept）を生む。"
+    percept:
+      kandel: "Ch.21, 25"
+      description:
+        en: "Product of processing. Four psychophysical attributes (content, location, intensity, duration). Not an 'entity' but an output."
+        ja: "処理の産物。4つの心理物理属性（content, location, intensity, duration）。「存在」ではない。"
+  learning:
+    plasticity:
+      kandel: "Ch.63"
+      description:
+        en: "A synaptic-level property. LTP/LTD strengthens/weakens synaptic connections. As a result, Area, Neuron, and Effector change."
+        ja: "シナプスレベルの性質。LTP/LTD はシナプス結合の強化/弱化。結果として Area, Neuron, Effector が変化する。"
+  homeostatic:
+    drive:
+      kandel: "Ch.48, 62 (Raichle 2001)"
+      description:
+        en: "Spontaneous activity driven by subcortical nuclei such as the hypothalamus + DMN."
+        ja: "視床下部など皮質下の神経核が駆動する自発活動 + DMN。"
+    salience:
+      kandel: "Ch.63 (Seeley 2007)"
+      description:
+        en: "Anterior insula + ACC neural population. Gate for switching between DMN and CEN."
+        ja: "前島皮質 + ACC の神経細胞集合。DMN↔CEN の切り替えゲート。"
+  mnemonic:
+    knowledge:
+      kandel: "Ch.65-67 (Tulving)"
+      description:
+        en: "Semantic memory. Neural populations in hippocampus + temporal lobe handle encoding/retrieval/forgetting."
+        ja: "意味記憶。海馬＋側頭葉の神経細胞集合が記憶の符号化/検索/忘却を担う。"
+    episode:
+      kandel: "Ch.65-67 (Tulving)"
+      description:
+        en: "Episodic memory. Neural populations in hippocampus + temporal lobe handle encoding/retrieval/forgetting."
+        ja: "エピソード記憶。海馬＋側頭葉の神経細胞集合が記憶の符号化/検索/忘却を担う。"
+    trace:
+      kandel: "Ch.63-67"
+      description:
+        en: "Unit of memory. One encode() = one Trace. Not an 'entity' but a unit."
+        ja: "記憶の単位。1回の encode() = 1 Trace。「存在」ではない。"
+  signaling:
+    stimulus:
+      kandel: "Ch.21"
+      description:
+        en: "Raw input from the external world. Outside Fig.1."
+        ja: "外界の生の入力。図1の外側。"
+    transducer:
+      kandel: "Ch.21"
+      description:
+        en: "Sensory receptor (PNS). Converts Stimulus to Impulse. Outside Fig.1."
+        ja: "感覚受容器（PNS）。Stimulus -> Impulse に変換。図1の外側。"
+    impulse:
+      kandel: "Ch.7"
+      description:
+        en: "Electrical signal between neurons = action potential = nerve impulse. Signal/data."
+        ja: "神経細胞間を伝わる電気信号 = action potential = nerve impulse。信号/データ。"
+    thalamus:
+      kandel: "Ch.23"
+      description:
+        en: "Neural population of the thalamus. Handles routing. Operates before signals enter the Neuron."
+        ja: "視床の神経細胞集合。ルーティングを担う。信号が Neuron に入る前に動作。"
+  neural:
+    neuron:
+      kandel: "Ch.2, 26"
+      description:
+        en: "The nerve cell itself in Fig.1 (one cell)."
+        ja: "図1の神経細胞そのもの（1個）。"
+    area:
+      kandel: "Ch.1, 26-27"
+      description:
+        en: "Collection of Neurons sharing the same tuning. Cortical area (V1, M1, etc.)."
+        ja: "同じ tuning を持つ Neuron の集合。皮質領野（V1, M1 など）。"
+    effector:
+      kandel: "Ch.35-36"
+      description:
+        en: "Output mechanism driven by motoneurons (Ch.2). Muscles/glands beyond the axon terminal in Fig.1."
+        ja: "運動ニューロン（Motoneuron, Ch.2）が駆動する出力機構。図1の軸索末端の先にある筋肉/腺。"
+  integrative:
+    encoder:
+      kandel: "Ch.21"
+      description:
+        en: "Signal encoding at the output-side synapse in Fig.1. How to pattern information."
+        ja: "図1の出力側シナプスでの信号符号化。情報をどうパターン化するか。"
+    nucleus:
+      kandel: "Ch.12, 46"
+      description:
+        en: "Neuroanatomical nucleus — a cluster of somas performing integrative processing. Not the cell nucleus in Fig.1."
+        ja: "神経核 — Soma の集合が統合処理を行う場所。図1の細胞核ではない。"

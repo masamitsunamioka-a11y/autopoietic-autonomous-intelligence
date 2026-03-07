@@ -1,12 +1,12 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.cli;
 
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 
 import java.time.Instant;
 
-record TraceImpl(String cue, Object content) implements Trace {
-    TraceImpl(String cue, Object content) {
-        this.cue = cue.contains("@") ? cue : cue + "@" + Instant.now();
+record TraceImpl(String id, Object content) implements Trace {
+    TraceImpl(String id, Object content) {
+        this.id = id.contains("@") ? id : id + "@" + Instant.now();
         this.content = content;
     }
 }

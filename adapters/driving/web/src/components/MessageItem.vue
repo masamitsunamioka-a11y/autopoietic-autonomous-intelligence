@@ -5,19 +5,18 @@ const props = defineProps<{ message: Message }>()
 
 function cssClass(type: string): string {
   if (type === 'message') return 'entry msg'
+  if (type === 'drive') return 'entry drv'
   if (type === 'introspection') return 'entry intro'
   if (type === 'user') return 'entry user'
   return 'entry err'
 }
 </script>
-
 <template>
   <div :class="cssClass(props.message.type)">
     <span v-if="props.message.location" class="loc">{{ props.message.location }}&gt;</span>
     <span class="text">{{ props.message.content }}</span>
   </div>
 </template>
-
 <style scoped>
 .entry {
   line-height: 1.5;
@@ -36,6 +35,11 @@ function cssClass(type: string): string {
 .entry.msg .loc,
 .entry.msg .text {
   color: #fff;
+}
+
+.entry.drv .loc,
+.entry.drv .text {
+  color: #4dd0e1;
 }
 
 .entry.intro .loc,

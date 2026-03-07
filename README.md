@@ -24,13 +24,13 @@ Every spec package maps to Kandel's *Principles of Neural Science*:
 
 | Package       | Kandel          | Concepts                                |
 |---------------|-----------------|-----------------------------------------|
-| `neural`      | Ch.1, 26-27     | Engravable, Area, Neuron, Effector      |
+| `neural`      | Ch.1, 26-27     | Area, Neuron, Effector                  |
 | `signaling`   | Ch.7, 20-21, 23 | Stimulus, Impulse, Transducer, Thalamus |
-| `synaptic`    | Ch.8-12         | Encoder, Nucleus                        |
+| `integrative` | Ch.8-12         | Encoder, Nucleus                        |
 | `cognitive`   | Ch.21-25        | Cortex, Percept                         |
 | `homeostatic` | Ch.48, 62       | Drive, Salience                         |
 | `learning`    | Ch.63-64        | Plasticity                              |
-| `working`     | Ch.65-67        | Memory, Episode, Knowledge, Trace       |
+| `mnemonic`    | Ch.65-67        | Episode, Knowledge, Trace               |
 
 Where implementation diverges from neuroscience, we mark it with `[Engineering]`.
 

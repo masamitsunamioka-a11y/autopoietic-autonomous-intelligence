@@ -6,16 +6,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.RefractoryGuard;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.TraceImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.HabituationGuard;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Knowledge;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Trace;
 
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
@@ -27,36 +26,37 @@ public final class Fire implements Process {
     private final Cortex cortex;
     private final Knowledge knowledge;
     private final Episode episode;
-    private final Repository<Effector, Engravable> effectorRepository;
-    private final RefractoryGuard refractoryGuard;
+    private final Repository<Effector> effectorRepository;
+    private final HabituationGuard habituationGuard;
 
     @Inject
     public Fire(Cortex cortex, Knowledge knowledge, Episode episode,
-                Repository<Effector, Engravable> effectorRepository) {
+                Repository<Effector> effectorRepository) {
         this.cortex = cortex;
         this.knowledge = knowledge;
         this.episode = episode;
         this.effectorRepository = effectorRepository;
-        this.refractoryGuard = new RefractoryGuard();
+        this.habituationGuard = new HabituationGuard();
     }
 
     @Override
     public Percept handle(Impulse impulse, Decision decision) {
         var effectorName = decision.effector();
-        if (this.refractoryGuard.observe(effectorName)) {
-            this.refractoryGuard.reset();
-            this.episode.encode(this.refractoryWarning(effectorName));
+        if (this.habituationGuard.observe(effectorName)) {
+            this.habituationGuard.reset();
+            this.episode.encode(this.habituationWarning(effectorName));
         }
         Effector effector;
         try {
             effector = this.effectorRepository.find(effectorName);
         } catch (RuntimeException e) {
             this.episode.encode(this.unresolvedWarning(effectorName));
-            return this.cortex.respond(impulse);
+            this.cortex.respond(impulse);
+            return null;
         }
         var context = this.knowledge.retrieve().stream()
             .collect(Collectors.toMap(
-                Trace::cue,
+                Trace::id,
                 Trace::content,
                 (x, y) -> y, LinkedHashMap::new));
         var output = effector.fire(context);
@@ -64,7 +64,8 @@ public final class Fire implements Process {
             this.knowledge.encode(
                 new TraceImpl("results." + effectorName + "." + k, v)));
         logger.debug("--- fire: {}", effectorName);
-        return this.cortex.respond(impulse);
+        this.cortex.respond(impulse);
+        return null;
     }
 
     private TraceImpl unresolvedWarning(String effectorName) {
@@ -73,7 +74,7 @@ public final class Fire implements Process {
                 + "' does not exist. Choose a valid Effector or VOCALIZE.");
     }
 
-    private TraceImpl refractoryWarning(String effectorName) {
+    private TraceImpl habituationWarning(String effectorName) {
         return new TraceImpl("[SYSTEM]",
             "[SYSTEM WARNING] Effector " + effectorName
                 + " fired 3+ consecutive times. Do not FIRE again.");

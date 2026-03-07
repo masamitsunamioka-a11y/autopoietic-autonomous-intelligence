@@ -6,10 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.PerceptImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.working.TraceImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
 
 @Process.Inhibit
 @ApplicationScoped
@@ -24,8 +24,8 @@ public final class Inhibit implements Process {
 
     @Override
     public Percept handle(Impulse impulse, Decision decision) {
-        var area = impulse.area();
-        this.episode.encode(new TraceImpl("[INHIBIT]", decision.response()));
-        return new PerceptImpl(decision.response(), area.name());
+        this.episode.encode(
+            new TraceImpl("[INHIBIT]", decision.response()));
+        return new PerceptImpl(decision.response(), "INHIBIT");
     }
 }

@@ -9,13 +9,15 @@ Stimulus.input()
   → Transducer.transduce()          Ch.21
   → Impulse(area=null)
   → Thalamus.relay()                Ch.23,26,46
-  → Impulse(area!=null)
-  → Cortex.respond()                Part VII
-      → Encoder.encode()            Ch.21
       → Nucleus.integrate()         Ch.12
-  → Percept
+  → Cortex.respond()                Part VII
+      → Nucleus.integrate()         Ch.12
+  → Event<Percept>                  Ch.21,25
   → Effector.fire()                 Ch.35-36
 ```
+
+All spec interfaces return void — neurons fire downstream, not return values.
+Output unified via Event\<Percept\> (CDI observer pattern).
 
 Corticocortical projection (PROJECT process) re-enters Cortex.respond()
 recursively via association fibers (Ch.20), bypassing Thalamus.
@@ -25,8 +27,10 @@ recursively via association fibers (Ch.20), bypassing Thalamus.
 ```
 @PostConstruct → schedule()          Ch.48,62
   → [DriveImpl generates Impulse internally]
+      → Nucleus.integrate()         Ch.12
   → Cortex.respond()
-  → Percept
+      → Nucleus.integrate()         Ch.12
+  → Event<Percept>                  Ch.21,25
 ```
 
 DMN bypasses Thalamus. Area selection is internal (Ch.62: DMN activates

@@ -18,7 +18,6 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 </script>
-
 <template>
   <div class="input-row">
     <span class="prompt">&gt;</span>
@@ -38,7 +37,6 @@ function onKeydown(event: KeyboardEvent): void {
     </button>
   </div>
 </template>
-
 <style scoped>
 .input-row {
   display: flex;

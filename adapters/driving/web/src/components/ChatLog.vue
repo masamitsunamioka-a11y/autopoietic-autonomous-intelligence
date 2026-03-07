@@ -5,7 +5,6 @@ import MessageItem from './MessageItem.vue'
 
 const store = useChatStore()
 const logEl = ref<HTMLDivElement | null>(null)
-
 watchEffect(async () => {
   void store.messages.length
   await nextTick()
@@ -14,7 +13,6 @@ watchEffect(async () => {
   }
 })
 </script>
-
 <template>
   <div ref="logEl" class="log">
     <MessageItem
@@ -24,7 +22,6 @@ watchEffect(async () => {
     />
   </div>
 </template>
-
 <style scoped>
 .log {
   flex: 1;

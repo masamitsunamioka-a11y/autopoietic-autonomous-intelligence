@@ -2,10 +2,13 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.imp
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Serializer;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Serializer;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.TraceImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 
 import java.lang.reflect.Type;
 
@@ -19,6 +22,14 @@ public class JsonSerializer implements Serializer {
             .serializeNulls()
             .disableHtmlEscaping()
             ///.setPrettyPrinting()
+            .registerTypeAdapter(Trace.class,
+                (JsonDeserializer<Trace>) (json, type, context) -> {
+                    var obj = json.getAsJsonObject();
+                    var id = obj.get("id").getAsString();
+                    var content = context.deserialize(
+                        obj.get("content"), Object.class);
+                    return new TraceImpl(id, content);
+                })
             .create();
     }
 

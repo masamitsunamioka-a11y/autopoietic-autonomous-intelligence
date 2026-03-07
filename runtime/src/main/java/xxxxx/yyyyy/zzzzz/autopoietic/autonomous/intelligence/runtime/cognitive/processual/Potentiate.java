@@ -26,7 +26,7 @@ public final class Potentiate implements Process {
     @Override
     public Percept handle(Impulse impulse, Decision decision) {
         this.plasticity.potentiate(impulse);
-        this.plasticity.prune();
-        return this.cortex.respond(impulse);
+        this.cortex.respond(impulse);
+        return null;
     }
 }

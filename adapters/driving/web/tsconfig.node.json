@@ -5,6 +5,9 @@
     "lib": [
       "ES2022"
     ],
+    "types": [
+      "node"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -19,6 +22,7 @@
     "noUncheckedSideEffectImports": true
   },
   "include": [
-    "vite.config.ts"
+    "vite.config.ts",
+    "server.ts"
   ]
 }

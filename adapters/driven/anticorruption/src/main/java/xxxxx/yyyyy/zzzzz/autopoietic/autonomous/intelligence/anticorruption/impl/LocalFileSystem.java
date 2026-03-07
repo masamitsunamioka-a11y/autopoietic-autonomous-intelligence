@@ -1,33 +1,50 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Storage;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Extern;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Resource;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
-@ApplicationScoped
-public class LocalFileSystem implements Storage {
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+public class LocalFileSystem implements Extern {
     private static final Logger logger = LoggerFactory.getLogger(LocalFileSystem.class);
+    private final Path parent;
     private final ReadWriteLock lock;
 
-    public LocalFileSystem() {
+    public LocalFileSystem(Path parent) {
+        this.parent = parent;
         this.lock = new ReentrantReadWriteLock(true);
     }
 
     @Override
-    public String read(Path path, Charset charset) {
+    public URI resolve(String name) {
+        return this.parent.resolve(name).toUri();
+    }
+
+    @Override
+    public URI resolve(Path path) {
+        return this.parent.resolve(path).toUri();
+    }
+
+    @Override
+    public Resource get(URI uri) {
+        var path = Path.of(uri);
         this.lock.readLock().lock();
         try {
-            return Files.readString(path, charset);
+            return Files.exists(path)
+                ? new FileResource(Files.readString(path, UTF_8))
+                : null;
         } catch (IOException e) {
             throw new UncheckedIOException("Read failed: " + path, e);
         } finally {
@@ -36,13 +53,12 @@ public class LocalFileSystem implements Storage {
     }
 
     @Override
-    public void write(Path path, String content, Charset charset) {
+    public void put(URI uri, Resource resource) {
+        var path = Path.of(uri);
         this.lock.writeLock().lock();
         try {
-            if (path.getParent() != null) {
-                Files.createDirectories(path.getParent());
-            }
-            Files.writeString(path, content, charset);
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, resource.data(), UTF_8);
             new SpinLock().await(() -> Files.exists(path), 10, 100);
         } catch (IOException e) {
             throw new UncheckedIOException("Write failed: " + path, e);
@@ -52,34 +68,8 @@ public class LocalFileSystem implements Storage {
     }
 
     @Override
-    public boolean exists(Path path) {
-        this.lock.readLock().lock();
-        try {
-            return Files.exists(path);
-        } finally {
-            this.lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public Stream<Path> walk(Path path, boolean recursive) {
-        this.lock.readLock().lock();
-        try {
-            try (var stream = recursive ? Files.walk(path) : Files.list(path)) {
-                return stream
-                    .filter(Files::isRegularFile)
-                    .toList()
-                    .stream();
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException("List failed: " + path, e);
-        } finally {
-            this.lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public void delete(Path path) {
+    public void remove(URI uri) {
+        var path = Path.of(uri);
         this.lock.writeLock().lock();
         try {
             Files.deleteIfExists(path);
@@ -88,6 +78,35 @@ public class LocalFileSystem implements Storage {
             throw new UncheckedIOException("Delete failed: " + path, e);
         } finally {
             this.lock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public boolean contains(URI uri) {
+        this.lock.readLock().lock();
+        try {
+            return Files.exists(Path.of(uri));
+        } finally {
+            this.lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Set<URI> set() {
+        this.lock.readLock().lock();
+        try {
+            if (!Files.exists(this.parent)) {
+                return Set.of();
+            }
+            try (var stream = Files.walk(this.parent)) {
+                return stream.filter(Files::isRegularFile)
+                    .map(Path::toUri)
+                    .collect(Collectors.toSet());
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("Walk failed: " + this.parent, e);
+        } finally {
+            this.lock.readLock().unlock();
         }
     }
 }

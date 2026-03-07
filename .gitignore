@@ -56,4 +56,5 @@ filesystem/neocortical/knowledge/*
 !filesystem/neocortical/knowledge/.gitkeep
 adapters/driving/web/node/
 adapters/driving/web/node_modules/
+adapters/driving/web/dist/
 

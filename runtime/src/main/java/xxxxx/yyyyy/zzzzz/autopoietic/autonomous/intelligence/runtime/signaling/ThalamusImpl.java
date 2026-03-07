@@ -5,41 +5,42 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Nucleus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Transmitter;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 
 @ApplicationScoped
 public class ThalamusImpl implements Thalamus {
     private static final Logger logger = LoggerFactory.getLogger(ThalamusImpl.class);
-    private final Repository<Area, Engravable> areaRepository;
+    private final Cortex cortex;
+    private final Transmitter transmitter;
     private final Nucleus nucleus;
-    private final Encoder encoder;
+    private final Repository<Area> areaRepository;
 
     @Inject
-    public ThalamusImpl(Repository<Area, Engravable> areaRepository,
-                        Nucleus nucleus, Encoder encoder) {
-        this.areaRepository = areaRepository;
+    public ThalamusImpl(Cortex cortex,
+                        Transmitter transmitter, Nucleus nucleus,
+                        Repository<Area> areaRepository) {
+        this.cortex = cortex;
+        this.transmitter = transmitter;
         this.nucleus = nucleus;
-        this.encoder = encoder;
+        this.areaRepository = areaRepository;
     }
 
     @Override
-    public Impulse relay(Impulse impulse) {
-        var output = this.integrate(impulse);
-        var area = this.areaRepository.find(output.area());
-        if (area == null) {
-            throw new IllegalStateException();
-        }
-        return new ImpulseImpl(impulse.signal(), area);
-    }
-
-    private Projection integrate(Impulse impulse) {
-        var signal = this.encoder.encode(impulse, Thalamus.class);
-        return this.nucleus.integrate(
-            new ImpulseImpl(signal, impulse.area()), Projection.class);
+    public void relay(Impulse impulse) {
+        var projection = this.transmitter.transmit(impulse, Projection.class);
+        this.nucleus.integrate(projection, () -> {
+            var area = this.areaRepository.find(projection.area());
+            if (area == null) {
+                throw new IllegalStateException(
+                    "Area not found: " + projection.area());
+            }
+            this.cortex.respond(
+                new ImpulseImpl(impulse.signal(), area));
+        });
     }
 }

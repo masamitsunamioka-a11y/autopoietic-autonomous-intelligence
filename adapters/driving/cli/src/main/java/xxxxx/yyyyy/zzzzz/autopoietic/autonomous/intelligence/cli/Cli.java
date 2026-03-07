@@ -4,12 +4,11 @@ import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Drive;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Salience;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Transducer;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.working.Episode;
 
 import java.util.Iterator;
 import java.util.Scanner;
@@ -21,7 +20,6 @@ public class Cli {
     private final WeldContainer container;
     private final Transducer transducer;
     private final Thalamus thalamus;
-    private final Cortex cortex;
     private final Salience salience;
     private final Episode episode;
 
@@ -41,7 +39,6 @@ public class Cli {
             .initialize();
         this.transducer = this.container.select(Transducer.class).get();
         this.thalamus = this.container.select(Thalamus.class).get();
-        this.cortex = this.container.select(Cortex.class).get();
         this.salience = this.container.select(Salience.class).get();
         this.episode = this.container.select(Episode.class).get();
         /// Force @PostConstruct by resolving the client proxy via no-op toString()
@@ -70,17 +67,15 @@ public class Cli {
             this.episode.encode(new TraceImpl("user", input));
             this.salience.orient();
             try {
-                var percept = this.cortex.respond(
-                    this.thalamus.relay(
-                        this.transducer.transduce(
-                            new StimulusImpl(input))));
-                System.out.printf("%n%s>%n%s%n",
-                    percept.location(),
-                    percept.content());
+                this.thalamus.relay(
+                    this.transducer.transduce(
+                        new StimulusImpl(input)));
+                this.salience.await();
             } catch (Exception e) {
                 logger.error("[CLI] respond failed", e);
-            } finally {
-                this.salience.release();
+                if (!this.isInteractive) {
+                    throw e;
+                }
             }
             if (this.isInteractive) {
                 System.out.print("> ");

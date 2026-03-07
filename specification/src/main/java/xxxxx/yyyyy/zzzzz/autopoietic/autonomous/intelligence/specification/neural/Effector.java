@@ -1,8 +1,10 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural;
 
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.AggregateRoot;
+
 import java.util.Map;
 
-public interface Effector extends Engravable {
+public interface Effector extends AggregateRoot {
     String tuning();
 
     /// [Engineering] As detailed in docs/kandel.md

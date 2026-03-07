@@ -21,7 +21,6 @@ export const useChatStore = defineStore('chat', () => {
     async function sendMessage(input: string): Promise<void> {
         const trimmed = input.trim()
         if (!trimmed || sending.value) return
-
         sending.value = true
         try {
             await fetch('/api/chat', {

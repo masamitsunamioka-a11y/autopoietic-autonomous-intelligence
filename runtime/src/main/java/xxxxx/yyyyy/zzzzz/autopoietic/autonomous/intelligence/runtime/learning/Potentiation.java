@@ -5,9 +5,9 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Engravable;
 
 import java.util.List;
+import java.util.Map;
 
 public record Potentiation(
     @NotBlank String reasoning,
@@ -17,28 +17,26 @@ public record Potentiation(
     @NotNull List<@Valid Neuron> newNeurons,
     @NotNull List<@Valid Effector> newEffectors) {
     public record Area(
-        @NotBlank String name,
+        @NotBlank String id,
         @NotBlank String tuning,
         @NotNull List<String> neurons,
-        @NotNull List<String> effectors) implements Engravable {
-        /// @formatter:off
-        @Override public String name() { return this.name; }
-        /// @formatter:on
+        @NotNull List<String> effectors)
+        implements xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area {
     }
 
     public record Neuron(
-        @NotBlank String name,
-        @NotBlank String tuning) implements Engravable {
-        /// @formatter:off
-        @Override public String name() { return this.name; }
-        /// @formatter:on
+        @NotBlank String id,
+        @NotBlank String tuning)
+        implements xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron {
     }
 
     public record Effector(
-        @NotBlank String name,
-        @NotBlank String tuning) implements Engravable {
-        /// @formatter:off
-        @Override public String name() { return this.name; }
-        /// @formatter:on
+        @NotBlank String id,
+        @NotBlank String tuning)
+        implements xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector {
+        @Override
+        public Map<String, Object> fire(Map<String, Object> input) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

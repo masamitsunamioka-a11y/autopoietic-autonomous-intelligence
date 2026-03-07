@@ -5,19 +5,16 @@ import ChatLog from './components/ChatLog.vue'
 import ChatInput from './components/ChatInput.vue'
 
 const store = useChatStore()
-
 onMounted(() => {
   store.initSse()
 })
 </script>
-
 <template>
   <div class="layout">
     <ChatLog/>
     <ChatInput/>
   </div>
 </template>
-
 <style>
 *,
 *::before,
