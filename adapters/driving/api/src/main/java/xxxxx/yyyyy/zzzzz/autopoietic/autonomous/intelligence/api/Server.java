@@ -4,9 +4,9 @@ import com.sun.net.httpserver.HttpServer;
 import org.jboss.weld.environment.se.Weld;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Drive;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Salience;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Default;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Salience;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Transducer;
 
@@ -27,7 +27,7 @@ public class Server {
             var transducer = container.select(Transducer.class).get();
             var episode = container.select(Episode.class).get();
             /// Force @PostConstruct by resolving the client proxy via no-op toString()
-            container.select(Drive.class).get().toString();
+            container.select(Default.class).get().toString();
             var watcher = container.select(NeuralWatcher.class).get();
             watcher.toString();
             var registry = container.select(SseRegistry.class).get();

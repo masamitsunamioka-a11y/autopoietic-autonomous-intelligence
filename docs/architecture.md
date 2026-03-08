@@ -25,8 +25,8 @@ recursively via association fibers (Ch.20), bypassing Thalamus.
 ## DMN — Default Mode Network (internal)
 
 ```
-@PostConstruct → schedule()          Ch.48,62
-  → [DriveImpl generates Impulse internally]
+@PostConstruct → schedule()          Ch.62
+  → [DefaultImpl generates Impulse internally]
       → Nucleus.integrate()         Ch.12
   → Cortex.respond()
       → Nucleus.integrate()         Ch.12

@@ -5,6 +5,9 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 
 import java.util.List;
 import java.util.Map;
@@ -13,29 +16,30 @@ public record Potentiation(
     @NotBlank String reasoning,
     @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
     @NotBlank String newTuning,
-    @NotNull List<@Valid Area> newAreas,
-    @NotNull List<@Valid Neuron> newNeurons,
-    @NotNull List<@Valid Effector> newEffectors) {
-    public record Area(
+    @NotNull List<@Valid NewArea> newAreas,
+    @NotNull List<@Valid NewNeuron> newNeurons,
+    @NotNull List<@Valid NewEffector> newEffectors) {
+    public record NewArea(
         @NotBlank String id,
         @NotBlank String tuning,
         @NotNull List<String> neurons,
         @NotNull List<String> effectors)
-        implements xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area {
+        implements Area {
     }
 
-    public record Neuron(
+    public record NewNeuron(
         @NotBlank String id,
         @NotBlank String tuning)
-        implements xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron {
+        implements Neuron {
     }
 
-    public record Effector(
+    public record NewEffector(
         @NotBlank String id,
         @NotBlank String tuning)
-        implements xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector {
+        implements Effector {
         @Override
-        public Map<String, Object> fire(Map<String, Object> input) {
+        public Map<String, Object> fire(
+            Map<String, Object> input) {
             throw new UnsupportedOperationException();
         }
     }

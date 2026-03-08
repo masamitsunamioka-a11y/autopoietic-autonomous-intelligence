@@ -12,11 +12,11 @@ All specification interfaces map to three categories derived from neuron anatomy
 (Kandel Ch.2;
 see [Kyoto University, 2013](https://www.kyoto-u.ac.jp/ja/archive/prev/news_data/h/h1/news6/2013_1/131023_1), Fig.1).
 
-| Category                           | Description                                   | Interfaces                                                                                |
-|------------------------------------|-----------------------------------------------|-------------------------------------------------------------------------------------------|
-| **Neural cell (collective) roles** | Neuron populations with specialized functions | Cortex, Thalamus, Drive, Salience, Plasticity, Knowledge, Episode, Area, Neuron, Effector |
-| **Signals / Data**                 | Information carried between neurons           | Stimulus, Impulse, Trace, Percept                                                         |
-| **Synaptic functions**             | Signal encoding/integration at synapses       | Encoder, Transmitter, Decoder, Nucleus                                                    |
+| Category                           | Description                                   | Interfaces                                                                                  |
+|------------------------------------|-----------------------------------------------|---------------------------------------------------------------------------------------------|
+| **Neural cell (collective) roles** | Neuron populations with specialized functions | Cortex, Thalamus, Default, Salience, Plasticity, Knowledge, Episode, Area, Neuron, Effector |
+| **Signals / Data**                 | Information carried between neurons           | Stimulus, Impulse, Trace, Percept                                                           |
+| **Synaptic functions**             | Signal encoding/integration at synapses       | Encoder, Transmitter, Decoder, Nucleus                                                      |
 
 - **neural** — Most direct correspondence to Fig.1. Neuron = single nerve cell,
   Area = population sharing the same tuning, Effector = motor output driven by motoneurons (Ch.2).
@@ -25,7 +25,7 @@ see [Kyoto University, 2013](https://www.kyoto-u.ac.jp/ja/archive/prev/news_data
   Named after the role "synaptic integration" (Ch.12), not the structure "synapse".
 - **signaling** — Stimulus/Impulse are signals external to and between neurons.
   Transducer (PNS sensory receptor) and Thalamus (routing) operate before signals enter the neuron.
-- **cognitive, homeostatic, learning, mnemonic** — Emergent roles of neural populations.
+- **cognitive, homeostatic, modulatory, learning, mnemonic** — Emergent roles of neural populations.
   Percept and Trace are products/units, not populations themselves.
 
 ---
@@ -39,7 +39,8 @@ see [Kyoto University, 2013](https://www.kyoto-u.ac.jp/ja/archive/prev/news_data
 | `signaling`   | Ch.7, 20-21, 23 | [Stimulus](#stimulus-interface--ch21), [Impulse](#impulse-interface--ch7), [Transducer](#transducer-interface--ch21), [Thalamus](#thalamus-interface--ch23-26-46)    |
 | `cognitive`   | Part VII        | [Cortex](#cortex-interface--part-vii), [Percept](#percept-interface--ch21-25)                                                                                        |
 | `integrative` | Ch.8-12         | [Encoder](#encoder-interface--ch21), [Transmitter](#transmitter-interface--part-iii), [Decoder](#decoder-interface--ch10-11), [Nucleus](#nucleus-interface--ch12-46) |
-| `homeostatic` | Ch.48, 62       | [Drive](#drive-interface--ch48-62), [Salience](#salience-interface--ch63-seeley-2007)                                                                                |
+| `homeostatic` | Ch.48, 51       | [Drive](#drive-interface--ch48), [Sleep](#sleep-interface--ch51-65-67)                                                                                               |
+| `modulatory`  | Ch.46, 62, 63   | [Default](#default-interface--ch62), [Salience](#salience-interface--ch63-seeley-2007)                                                                               |
 | `learning`    | Ch.63-64        | [Plasticity](#plasticity-interface--ch63)                                                                                                                            |
 | `mnemonic`    | Ch.65-67        | [Trace](#trace-interface--ch63-67), [Episode](#episode-interface--ch65-67), [Knowledge](#knowledge-interface--ch65-67)                                               |
 
@@ -214,6 +215,27 @@ Four psychophysical properties:
 
 ### `homeostatic` package
 
+#### `Drive` interface — Ch.48
+
+Homeostatic drive states (hunger, thirst, and other physiological needs
+that motivate behavior). Marker interface. Not yet implemented.
+
+#### `Sleep` interface — Ch.51, 65-67
+
+Sleep and dreaming. Memory consolidation during sleep.
+Marker interface. Not yet implemented.
+
+---
+
+### `modulatory` package — Ch.46, 62, 63
+
+Diffuse modulatory systems that regulate network state.
+
+#### `Default` interface — Ch.62
+
+DMN — Default Mode Network (spontaneous internal activity; Raichle 2001).
+Marker interface. Lifecycle managed by `@PostConstruct`/`@PreDestroy` in runtime.
+
 #### `Salience` interface — Ch.63, Seeley 2007
 
 Orienting response + Salience Network (anterior insula + ACC). Gates DMN↔CEN switch.
@@ -224,11 +246,6 @@ Orienting response + Salience Network (anterior insula + ACC). Gates DMN↔CEN s
 | `release(Percept)` | Return to rest; DMN re-engages. ⚙️ Percept param: CDI @Observes trigger; biology monitors activity indirectly. |
 | `isOriented()`     | ⚙️ State query for DMN suppression; boolean polling has no Kandel equivalent.                                  |
 | `await()`          | ⚙️ Block caller until CEN completes and Percept is fired.                                                      |
-
-#### `Drive` interface — Ch.48, 62
-
-Drive states (subcortical) + DMN (spontaneous internal activity; Raichle 2001).
-Marker interface. Lifecycle managed by `@PostConstruct`/`@PreDestroy` in runtime.
 
 ---
 
@@ -282,9 +299,9 @@ Semantic memory (Tulving): general world knowledge, cross-session.
 | Class              | Method / Field            | Description                                                                                                                           |
 |--------------------|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
 | `PerceptImpl`      | `location`                | Maps Process name to location (Ch.1, 17: cortical location = function); biology uses somatotopic/retinotopic coordinates (Ch.21, 25). |
-| `DriveImpl`        | `schedule()`              | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62). 10-30s balances Kandel fidelity with interactive responsiveness.            |
+| `DefaultImpl`      | `schedule()`              | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62). 10-30s balances Kandel fidelity with interactive responsiveness.            |
 | `NucleusImpl`      | `executorService`         | Single-thread ExecutorService models refractory period (Ch.9). Async integration + threshold gating.                                  |
 | `TraceImpl`        | constructor               | Embeds `Instant.now()` in id string via `@` separator. Kandel: id is retrieval cue (Ch.65).                                           |
-| `DriveImpl`        | `scheduleConsolidation()` | Timed memory consolidation trigger. Biology consolidates during sleep/rest (Ch.67); scheduled as engineering compromise.              |
+| `DefaultImpl`      | `scheduleConsolidation()` | Timed memory consolidation trigger. Biology consolidates during sleep/rest (Ch.67); scheduled as engineering compromise.              |
 | `HabituationGuard` | (class)                   | Habituation (Ch.63). Count-based implementation; biology modulates synaptic efficacy.                                                 |
 | `HabituationGuard` | `observe()`               | Habituation after 3 consecutive firings of same effector.                                                                             |

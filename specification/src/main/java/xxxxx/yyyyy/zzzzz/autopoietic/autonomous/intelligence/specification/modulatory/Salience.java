@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory;
 
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 

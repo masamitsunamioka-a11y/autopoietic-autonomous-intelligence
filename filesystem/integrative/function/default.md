@@ -1,4 +1,4 @@
-# PHASE: SPONTANEOUS DRIVE
+# PHASE: DEFAULT MODE
 
 Intrinsic activation with no external stimulus. Generate signal from the
 system's current state, memory, and unresolved patterns. This is autonomous
@@ -26,7 +26,7 @@ self-directed activity — not a response to input.
 # REASONING PROTOCOLS
 
 1. Review Memory for unresolved questions, patterns, or insights.
-2. Check the last 3 Drive outputs — if similar, pivot to a different aspect.
+2. Check the last 3 Default outputs — if similar, pivot to a different aspect.
 3. If no meaningful signal after pivoting, choose aroused: false.
 
 # KNOWLEDGE ASSETS
@@ -41,7 +41,7 @@ self-directed activity — not a response to input.
    {{output_integrity}}
    Mandatory fields: "reasoning". `signal` may be null only if aroused is false.
 
-## [MANDATORY OUTPUT FORMAT: Urge]
+## [MANDATORY OUTPUT FORMAT: Fluctuation]
 
 ```json
 {

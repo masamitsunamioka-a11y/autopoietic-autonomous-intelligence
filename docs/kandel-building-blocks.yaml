@@ -55,7 +55,7 @@ package-naming:
     en: "All packages are named by functional role, not by mechanism. 'integrative' is named after the role 'synaptic integration' (Kandel Ch.12), not the structure 'synapse'."
     ja: "全パッケージは機能的役割で命名。'integrative' は構造名 'synapse' ではなく、役割名 'synaptic integration'（Kandel Ch.12）に由来。"
   examples:
-    role-based: "cognitive, learning, homeostatic, mnemonic, signaling, neural, integrative"
+    role-based: "cognitive, learning, homeostatic, modulatory, mnemonic, signaling, neural, integrative"
 # Decoder — Kandel Concept Mapped to Serializer
 decoder:
   description:
@@ -161,8 +161,8 @@ process-dispatch:
         ja: "抑制性介在ニューロンが GABA を放出、シナプス後膜を過分極 (Ch.2)"
       aai: "Inhibit"
   availability:
-    en: "All 5 processes are available in both CEN and DMN. The difference is input origin (external Stimulus vs internal Drive), not the processing pipeline."
-    ja: "5 つの Process は CEN でも DMN でも全て利用可能。違いは入力の起源（外部 Stimulus vs 内部 Drive）であり、処理パイプラインではない。"
+    en: "All 5 processes are available in both CEN and DMN. The difference is input origin (external Stimulus vs internal Default), not the processing pipeline."
+    ja: "5 つの Process は CEN でも DMN でも全て利用可能。違いは入力の起源（外部 Stimulus vs 内部 Default）であり、処理パイプラインではない。"
 # Network Flows — CEN, DMN, SN
 network-flows:
   cen:
@@ -189,7 +189,7 @@ network-flows:
       en: "Spontaneous internal activity"
       ja: "自発的内部活動"
     flow: |
-      Drive (hypothalamus / subcortical)
+      Default (DMN — Ch.62)
         -> spontaneous Impulse generation
           -> Cortex
             -> (same as CEN: Area -> Neurons -> Soma integration -> fire)
@@ -218,8 +218,10 @@ interface-classification:
     interfaces:
       - "Cortex"
       - "Thalamus"
-      - "Drive"
+      - "Default"
       - "Salience"
+      - "Drive"
+      - "Sleep"
       - "Plasticity"
       - "Knowledge"
       - "Episode"
@@ -263,10 +265,21 @@ specification:
         ja: "シナプスレベルの性質。LTP/LTD はシナプス結合の強化/弱化。結果として Area, Neuron, Effector が変化する。"
   homeostatic:
     drive:
-      kandel: "Ch.48, 62 (Raichle 2001)"
+      kandel: "Ch.48"
       description:
-        en: "Spontaneous activity driven by subcortical nuclei such as the hypothalamus + DMN."
-        ja: "視床下部など皮質下の神経核が駆動する自発活動 + DMN。"
+        en: "Homeostatic drive states (hunger, thirst). Not yet implemented."
+        ja: "恒常性欲求（空腹、渇き）。未実装。"
+    sleep:
+      kandel: "Ch.51, 65-67"
+      description:
+        en: "Sleep and memory consolidation. Not yet implemented."
+        ja: "睡眠と記憶統合。未実装。"
+  modulatory:
+    default:
+      kandel: "Ch.62 (Raichle 2001)"
+      description:
+        en: "DMN — Default Mode Network. Spontaneous internal activity."
+        ja: "DMN — デフォルトモードネットワーク。自発的内部活動。"
     salience:
       kandel: "Ch.63 (Seeley 2007)"
       description:

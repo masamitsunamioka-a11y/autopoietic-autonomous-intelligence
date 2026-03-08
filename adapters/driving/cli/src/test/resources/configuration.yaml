@@ -14,8 +14,7 @@ anticorruption:
       source: "../../../adapters/driven/services/src/main/java"
       target: "../../../adapters/driven/services/target/classes"
       compiler:
-        classpath:
-          strategy: "system"
+        classpath: ""
   hippocampal:
     episode:
       target: "../../../filesystem/hippocampal/episode"

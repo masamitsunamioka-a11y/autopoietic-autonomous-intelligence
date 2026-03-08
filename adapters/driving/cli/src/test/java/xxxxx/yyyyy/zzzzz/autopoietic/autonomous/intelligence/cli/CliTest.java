@@ -33,12 +33,10 @@ class CliTest {
     void simulate() {
         try {
             List<String> scenario = List.of("""
-                Compare the GDP-weighted carbon emissions per capita of \
-                the G7 nations, calculate each country's required annual \
-                reduction rate to meet their Paris Agreement 2030 targets, \
-                and produce a ranked priority list with specific policy \
-                recommendations based on each nation's energy mix and \
-                industrial structure.
+                G7各国のGDP加重一人当たり炭素排出量を比較し、
+                パリ協定2030年目標達成に必要な年間削減率を算出した上で、
+                各国のエネルギー構成と産業構造に基づく、
+                具体的な政策提言を含む優先度ランキングを作成してください。
                 """
             );
             var cli = new Cli(scenario, false);

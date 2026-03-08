@@ -16,7 +16,8 @@ Infrastructure SPI excluded from Total — inherent to any software system.
 **Common prerequisites** (excluded from Engineering count):
 
 - **Evans DDD** — `Entity`, `AggregateRoot` in root package. Domain modeling foundation.
-- **LLM output convention** — `reasoning`, `confidence` fields in LLM-generated records (Decision, Projection, Urge,
+- **LLM output convention** — `reasoning`, `confidence` fields in LLM-generated records (Decision, Projection,
+  Fluctuation,
   Potentiation, Pruning). Inherent to LLM structured output; not a Kandel compromise.
 - **Java type erasure** — `Class<T>` parameters on `Encoder.encode()`, `Transmitter.transmit()`, `Decoder.decode()`.
   Required for generic type dispatch in Java; no biological equivalent but unavoidable in a statically-typed language.
@@ -45,20 +46,20 @@ Resolve to increase Kandel compliance.
 
 **Resolvable:**
 
-| #   | Target                              | Reason                                                                                                              |
-|-----|-------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| E1  | `Effector.fire(Map)`                | KV map models I/O; biology uses synaptic signals (Ch.35-36)                                                         |
-| E2  | `Impulse.area()`                    | Explicit routing target; biology routes by axonal connections (Ch.2, 18)                                            |
-| E3  | `Nucleus.integrate(T, Runnable)`    | Runnable models downstream projection; biology uses axonal propagation (Ch.3, 4)                                    |
-| E4  | `Salience.release(Percept)`         | Percept param for CDI @Observes; biology monitors CEN activity indirectly                                           |
-| E5  | `Salience.isOriented()`             | Boolean state query; no Kandel equivalent for polling orientation state                                             |
-| E6  | `Salience.await()`                  | Block caller until CEN completes and Percept is fired; no biological blocking mechanism                             |
-| E7  | `PerceptImpl.location`              | Process name as location (Ch.1, 17: cortical location = function); biology uses somatotopic coordinates (Ch.21, 25) |
-| E8  | `DriveImpl.schedule()`              | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62); timing approximation for responsiveness                   |
-| E9  | `DriveImpl.scheduleConsolidation()` | Timed consolidation trigger; biology consolidates during sleep/rest (Ch.67)                                         |
-| E10 | `NucleusImpl.executorService`       | Single-thread ExecutorService models refractory period (Ch.9); async integration + threshold                        |
-| E11 | `TraceImpl` constructor             | Embeds Instant.now() in id via `@` separator; Kandel: id is retrieval cue (Ch.65)                                   |
-| E12 | `HabituationGuard`                  | Count-based implementation; biology modulates synaptic efficacy (Ch.63)                                             |
+| #   | Target                                | Reason                                                                                                              |
+|-----|---------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| E1  | `Effector.fire(Map)`                  | KV map models I/O; biology uses synaptic signals (Ch.35-36)                                                         |
+| E2  | `Impulse.area()`                      | Explicit routing target; biology routes by axonal connections (Ch.2, 18)                                            |
+| E3  | `Nucleus.integrate(T, Runnable)`      | Runnable models downstream projection; biology uses axonal propagation (Ch.3, 4)                                    |
+| E4  | `Salience.release(Percept)`           | Percept param for CDI @Observes; biology monitors CEN activity indirectly                                           |
+| E5  | `Salience.isOriented()`               | Boolean state query; no Kandel equivalent for polling orientation state                                             |
+| E6  | `Salience.await()`                    | Block caller until CEN completes and Percept is fired; no biological blocking mechanism                             |
+| E7  | `PerceptImpl.location`                | Process name as location (Ch.1, 17: cortical location = function); biology uses somatotopic coordinates (Ch.21, 25) |
+| E8  | `DefaultImpl.schedule()`              | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62); timing approximation for responsiveness                   |
+| E9  | `DefaultImpl.scheduleConsolidation()` | Timed consolidation trigger; biology consolidates during sleep/rest (Ch.67)                                         |
+| E10 | `NucleusImpl.executorService`         | Single-thread ExecutorService models refractory period (Ch.9); async integration + threshold                        |
+| E11 | `TraceImpl` constructor               | Embeds Instant.now() in id via `@` separator; Kandel: id is retrieval cue (Ch.65)                                   |
+| E12 | `HabituationGuard`                    | Count-based implementation; biology modulates synaptic efficacy (Ch.63)                                             |
 
 **Infrastructure SPI — inherent to software, not resolvable:**
 
@@ -128,14 +129,21 @@ Resolve to increase Kandel compliance.
 
 ### `specification.homeostatic`
 
-| Class / Method      | Rating        | Kandel Rationale / Comment                                                                                    |
-|---------------------|---------------|---------------------------------------------------------------------------------------------------------------|
-| **Drive**           | OK            | Ch.48 motivated behavior / drive states. Marker interface; lifecycle is @PostConstruct/@PreDestroy in runtime |
-| **Salience**        | OK            | Ch.62 salience network — attention allocation                                                                 |
-| `.orient()`         | OK            | Ch.62 "orienting response" — attention orientation to salient stimuli                                         |
-| `.release(Percept)` | [Engineering] | Release of orienting response. ⚙️ Percept param for CDI @Observes; biology monitors activity indirectly       |
-| `.isOriented()`     | [Engineering] | State query for DMN suppression. Annotated                                                                    |
-| `.await()`          | [Engineering] | Block caller until CEN completes and Percept is fired. Annotated                                              |
+| Class / Method | Rating | Kandel Rationale / Comment                                                         |
+|----------------|--------|------------------------------------------------------------------------------------|
+| **Drive**      | OK     | Ch.48 homeostatic drive states. Marker interface. Not yet implemented              |
+| **Sleep**      | OK     | Ch.51, 65-67 sleep and memory consolidation. Marker interface. Not yet implemented |
+
+### `specification.modulatory`
+
+| Class / Method      | Rating        | Kandel Rationale / Comment                                                                              |
+|---------------------|---------------|---------------------------------------------------------------------------------------------------------|
+| **Default**         | OK            | Ch.62 DMN — default mode network. Marker interface; lifecycle is @PostConstruct/@PreDestroy in runtime  |
+| **Salience**        | OK            | Ch.63 salience network — attention allocation (Seeley 2007)                                             |
+| `.orient()`         | OK            | Ch.63 "orienting response" — attention orientation to salient stimuli                                   |
+| `.release(Percept)` | [Engineering] | Release of orienting response. ⚙️ Percept param for CDI @Observes; biology monitors activity indirectly |
+| `.isOriented()`     | [Engineering] | State query for DMN suppression. Annotated                                                              |
+| `.await()`          | [Engineering] | Block caller until CEN completes and Percept is fired. Annotated                                        |
 
 ### `specification.learning`
 
@@ -216,15 +224,15 @@ Resolve to increase Kandel compliance.
 | **Project**                  | OK     | Ch.18 cortico-cortical projection — projection to another Area. SYSTEM WARNING + re-respond on missing area        |
 | **Inhibit**                  | OK     | Ch.24 cortical inhibition / prefrontal inhibitory control — explicit safety boundary termination                   |
 
-### `runtime.homeostatic`
+### `runtime.modulatory`
 
 | Class / Method                  | Rating        | Kandel Rationale / Comment                                                                                                           |
 |---------------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| **Urge**                        | OK            | Ch.48 motivated behavior / urge — structured output of internal drive                                                                |
-| `.aroused`                      | OK            | Ch.48 arousal — arousal/activation state                                                                                             |
-| `.vocalize`                     | OK            | Broca's area vocalization urge                                                                                                       |
-| `.area` / `.signal`             | OK            | Target and signal content of urge                                                                                                    |
-| **DriveImpl**                   | OK            | Ch.48/62 DMN (default mode network) implementation                                                                                   |
+| **Fluctuation**                 | OK            | Ch.62 infra-slow fluctuation — structured output of DMN spontaneous activity                                                         |
+| `.aroused`                      | OK            | Ch.62 fluctuation exceeds threshold — activation state                                                                               |
+| `.vocalize`                     | OK            | Broca's area vocalization threshold                                                                                                  |
+| `.area` / `.signal`             | OK            | Target and signal content of fluctuation                                                                                             |
+| **DefaultImpl**                 | OK            | Ch.62 DMN (default mode network) implementation                                                                                      |
 | `.activate()` / `.deactivate()` | OK            | @PostConstruct/@PreDestroy — standard CDI lifecycle for schedule()                                                                   |
 | `.fire()`                       | OK            | salience check -> transmit -> nucleus.integrate -> cortex.respond (void). DMN spontaneous firing                                     |
 | `.schedule()`                   | [Engineering] | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62). 10-30s balances Kandel fidelity with interactive responsiveness. Annotated |
@@ -245,7 +253,7 @@ Resolve to increase Kandel compliance.
 | `.sanitize()`                     | OK     | Reference integrity validation before store. Subordinate to potentiate/prune Engineering          |
 | **Potentiation**                  | OK     | Ch.63 long-term potentiation output model                                                         |
 | `.newTuning`                      | OK     | New tuning after reinforcement                                                                    |
-| `.newAreas/Neurons/Effectors`     | OK     | Sprouting results. Inner records (Area, Neuron, Effector) implement Engravable                    |
+| `.newAreas/Neurons/Effectors`     | OK     | Sprouting results. Inner records (NewArea, NewNeuron, NewEffector) implement spec interfaces      |
 | **Pruning**                       | OK     | Ch.64 synaptic pruning output model                                                               |
 | `.mergedAreas` / `.mergedNeurons` | OK     | sources + result for consolidation targets. Pruning + consolidation structure                     |
 
@@ -259,7 +267,7 @@ Resolve to increase Kandel compliance.
 | `.relay()`                   | OK            | Ch.21 prompt construction for thalamic relay                                                       |
 | `.potentiation()`            | OK            | Ch.63 prompt construction for LTP                                                                  |
 | `.pruning()`                 | OK            | Ch.64 prompt construction for pruning                                                              |
-| `.drive()`                   | OK            | Ch.48/62 prompt construction for DMN                                                               |
+| `.defaultMode()`             | OK            | Ch.62 prompt construction for DMN                                                                  |
 | **NucleusImpl**              | OK            | Ch.8 somatic integration — async, own thread (refractory period Ch.9)                              |
 | `.integrate()`               | OK            | Accumulates signals, fires propagation when threshold reached. Single-thread executor              |
 | `executorService`            | [Engineering] | Single-thread ExecutorService. Models refractory period (Ch.9) via sequential execution. Annotated |

@@ -16,12 +16,12 @@ public record Pruning(
     public record MergedArea(
         @NotNull List<String> sources,
         @NotBlank String reasoning,
-        @NotNull @Valid Potentiation.Area result) {
+        @NotNull @Valid Potentiation.NewArea newArea) {
     }
 
     public record MergedNeuron(
         @NotNull List<String> sources,
         @NotBlank String reasoning,
-        @NotNull @Valid Potentiation.Neuron result) {
+        @NotNull @Valid Potentiation.NewNeuron newNeuron) {
     }
 }

@@ -6,16 +6,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.homeostatic.Urge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.learning.Potentiation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.learning.Pruning;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.modulatory.Fluctuation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.Projection;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Drive;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Decoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Encoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Transmitter;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.learning.Plasticity;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Default;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 
@@ -28,7 +28,7 @@ public class TransmitterImpl implements Transmitter {
     private static final Map<Class<?>, Class<?>> PATHWAYS = Map.of(
         Decision.class,     Cortex.class,
         Projection.class,   Thalamus.class,
-        Urge.class,         Drive.class,
+        Fluctuation.class,  Default.class,
         Potentiation.class, Plasticity.class,
         Pruning.class,      Plasticity.class);
     /// @formatter:on

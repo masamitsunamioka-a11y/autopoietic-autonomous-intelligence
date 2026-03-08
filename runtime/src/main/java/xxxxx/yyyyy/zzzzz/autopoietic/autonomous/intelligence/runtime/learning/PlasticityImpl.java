@@ -60,7 +60,7 @@ public class PlasticityImpl implements Plasticity {
 
     private void reinforce(Potentiation potentiation, Area area) {
         if (!potentiation.newTuning().isEmpty()) {
-            this.areaRepository.store(new Potentiation.Area(
+            this.areaRepository.store(new Potentiation.NewArea(
                 area.id(),
                 potentiation.newTuning(),
                 area.neurons(),
@@ -91,16 +91,16 @@ public class PlasticityImpl implements Plasticity {
 
     private void consolidate(Pruning pruning) {
         pruning.mergedNeurons().stream()
-            .map(Pruning.MergedNeuron::result)
+            .map(Pruning.MergedNeuron::newNeuron)
             .forEach(this.neuronRepository::store);
         pruning.mergedAreas().stream()
-            .map(Pruning.MergedArea::result)
+            .map(Pruning.MergedArea::newArea)
             .map(this::sanitize)
             .forEach(this.areaRepository::store);
     }
 
-    private Potentiation.Area sanitize(Potentiation.Area area) {
-        return new Potentiation.Area(
+    private Potentiation.NewArea sanitize(Potentiation.NewArea area) {
+        return new Potentiation.NewArea(
             area.id(),
             area.tuning(),
             area.neurons().stream()

@@ -22,8 +22,8 @@ class PlasticityImplTest {
         var storedNeurons = new ArrayList<String>();
         var storedAreas = new ArrayList<String>();
         var potentiation = new Potentiation("r", 1.0, "",
-            List.of(new Potentiation.Area("A1", "t", List.of("N1"), List.of())),
-            List.of(new Potentiation.Neuron("N1", "tuning")),
+            List.of(new Potentiation.NewArea("A1", "t", List.of("N1"), List.of())),
+            List.of(new Potentiation.NewNeuron("N1", "tuning")),
             List.of());
         var plasticity = new PlasticityImpl(
             episode(),

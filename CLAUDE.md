@@ -15,7 +15,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 1. **Perceive** — route input to the appropriate Neuron via LLM reasoning
 2. **Potentiate** — detect capability gaps; self-generate Areas, Neurons, Effectors
 3. **Prune** — consolidate/remove redundant structures (apoptosis)
-4. **Drive** — proactively fire without input (DMN)
+4. **Default** — proactively fire without input (DMN)
    This is NOT a wrapper around LangChain/AutoGen/CrewAI, a chatbot, or a prompt experiment.
 
 # What NOT to Do
@@ -45,7 +45,8 @@ A system is autopoietic if it continuously produces and maintains its own compon
 - **Constructor param order** (fields follow same order):
   Kandel macro→micro:
     - Specification:
-        - Homeostatic (Salience → Drive)
+        - Modulatory (Salience → Default)
+        - Homeostatic (Sleep → Drive)
         - Learning (Plasticity)
         - Cognitive (Cortex → Process → Event\<Percept\>)
         - Signaling (Thalamus → Transducer)

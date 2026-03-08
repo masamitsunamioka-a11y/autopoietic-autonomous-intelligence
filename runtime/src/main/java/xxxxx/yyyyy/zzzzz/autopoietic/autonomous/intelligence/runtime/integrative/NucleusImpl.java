@@ -16,6 +16,7 @@ import static java.util.concurrent.Executors.newCachedThreadPool;
 @ApplicationScoped
 public class NucleusImpl implements Nucleus {
     private static final Logger logger = LoggerFactory.getLogger(NucleusImpl.class);
+    /// [Engineering] As detailed in docs/kandel.md
     private final ExecutorService executorService;
     private final Deque<Object> signals;
 

@@ -53,7 +53,7 @@ will be physically deleted.
         "OldAreaName2"
       ],
       "reasoning": "Reason for merging or updating",
-      "result": {
+      "newArea": {
         "id": "MergedAreaName",
         "tuning": "Full synthesized tuning",
         "neurons": [
@@ -72,7 +72,7 @@ will be physically deleted.
         "OldNeuronName2"
       ],
       "reasoning": "Reason for merging or updating",
-      "result": {
+      "newNeuron": {
         "id": "MergedNeuronName",
         "tuning": "Full synthesized tuning"
       }

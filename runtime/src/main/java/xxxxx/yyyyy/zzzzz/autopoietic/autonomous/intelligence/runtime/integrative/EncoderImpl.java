@@ -59,7 +59,7 @@ public class EncoderImpl implements Encoder {
                     ? this.potentiation(impulse)
                     : this.pruning();
             }
-            case "Drive"        -> this.drive();
+            case "Default"      -> this.defaultMode();
             default -> throw new IllegalArgumentException();
             /// @formatter:on
         };
@@ -108,8 +108,8 @@ public class EncoderImpl implements Encoder {
             Set.of("areas", "neurons", "effectors")));
     }
 
-    private String drive() {
-        return this.encodicService.call(new Input("drive.md",
+    private String defaultMode() {
+        return this.encodicService.call(new Input("default.md",
             /// @formatter:off
             List.of(
                 entry("episode",    this.episode.retrieve()),

@@ -32,13 +32,13 @@ public final class Project implements Process {
 
     @Override
     public Percept handle(Impulse impulse, Decision decision) {
-        var targetArea = this.areaRepository.find(decision.area());
-        if (targetArea == null) {
+        var area = this.areaRepository.find(decision.area());
+        if (area == null) {
             this.episode.encode(this.unresolvedWarning(decision));
             this.cortex.respond(impulse);
             return null;
         }
-        var projected = new ImpulseImpl(impulse.signal(), targetArea);
+        var projected = new ImpulseImpl(impulse.signal(), area);
         this.cortex.respond(projected);
         return null;
     }
