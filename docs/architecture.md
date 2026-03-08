@@ -36,6 +36,17 @@ recursively via association fibers (Ch.20), bypassing Thalamus.
 DMN bypasses Thalamus. Area selection is internal (Ch.62: DMN activates
 medial PFC, posterior cingulate spontaneously).
 
+## Sleep — Memory Consolidation
+
+```
+@PostConstruct → scheduleConsolidation()   Ch.51, 65-67
+  → Plasticity.prune()
+  → [eliminate + consolidate + Episode.decay()]
+```
+
+SleepImpl owns timed consolidation. Biology consolidates during
+sleep (Ch.51, 65-67). Separate from DMN spontaneous activity.
+
 ## SN — Salience Network (gating)
 
 ```

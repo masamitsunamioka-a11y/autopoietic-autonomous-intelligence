@@ -68,8 +68,7 @@ DMN — Default Mode Network
 ============================
 
 @PostConstruct
-├── scheduleFire()           every 10-30s    Ch.62
-└── scheduleConsolidation()  every 30-60s
+└── scheduleFire()           every 10-30s    Ch.62
 
 Default.fire()
 ├── if Salience.isOriented() -> return      [CEN busy, skip]
@@ -94,9 +93,15 @@ Default.fire()
             └── ... -> Event<Percept>
                 └── Salience.release()      -> latch.countDown()
 
-Default.consolidate()                       TODO: Sleep cycle (Ch.65-67)
-└── Plasticity.prune()                      should drive pruning/consolidation,
-    └── [see Plasticity — Pruning]          not DMN. Introduce sleep concept.
+Sleep — Memory Consolidation
+==============================
+
+@PostConstruct
+└── scheduleConsolidation()  every 30-60s
+
+Sleep.consolidate()                          Ch.51, 65-67
+└── Plasticity.prune()
+    └── [see Plasticity — Pruning]
 
 
 SN — Salience Network

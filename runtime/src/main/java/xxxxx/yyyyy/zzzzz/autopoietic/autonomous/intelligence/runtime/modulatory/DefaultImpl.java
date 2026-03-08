@@ -14,23 +14,22 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.I
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Nucleus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Transmitter;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.learning.Plasticity;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Default;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Salience;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 @ApplicationScoped
 public class DefaultImpl implements Default {
     private static final Logger logger = LoggerFactory.getLogger(DefaultImpl.class);
     private final Salience salience;
-    private final Plasticity plasticity;
     private final Event<Percept> event;
     private final Thalamus thalamus;
     private final Episode episode;
@@ -40,27 +39,25 @@ public class DefaultImpl implements Default {
     private final ScheduledExecutorService executorService;
 
     @Inject
-    public DefaultImpl(Salience salience, Plasticity plasticity,
+    public DefaultImpl(Salience salience,
                        Event<Percept> event, Thalamus thalamus,
                        Episode episode,
                        Transmitter transmitter,
                        Nucleus nucleus,
                        Repository<Area> areaRepository) {
         this.salience = salience;
-        this.plasticity = plasticity;
         this.event = event;
         this.thalamus = thalamus;
         this.episode = episode;
         this.transmitter = transmitter;
         this.nucleus = nucleus;
         this.areaRepository = areaRepository;
-        this.executorService = Executors.newSingleThreadScheduledExecutor();
+        this.executorService = newSingleThreadScheduledExecutor();
     }
 
     @PostConstruct
     void activate() {
         this.scheduleFire();
-        this.scheduleConsolidation();
     }
 
     @PreDestroy
@@ -103,29 +100,11 @@ public class DefaultImpl implements Default {
             new PerceptImpl(fluctuation.signal(), area.id()));
     }
 
-    private void consolidate() {
-        try {
-            this.plasticity.prune();
-        } catch (Exception e) {
-            logger.error("[DMN] consolidation failed", e);
-        } finally {
-            this.scheduleConsolidation();
-        }
-    }
-
     /// [Engineering] As detailed in docs/kandel.md
     private void scheduleFire() {
         this.executorService.schedule(
             this::fire,
             ThreadLocalRandom.current().nextLong(10, 31),
-            TimeUnit.SECONDS);
-    }
-
-    /// [Engineering] As detailed in docs/kandel.md
-    private void scheduleConsolidation() {
-        this.executorService.schedule(
-            this::consolidate,
-            ThreadLocalRandom.current().nextLong(30, 60),
             TimeUnit.SECONDS);
     }
 }

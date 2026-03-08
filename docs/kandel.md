@@ -12,11 +12,11 @@ All specification interfaces map to three categories derived from neuron anatomy
 (Kandel Ch.2;
 see [Kyoto University, 2013](https://www.kyoto-u.ac.jp/ja/archive/prev/news_data/h/h1/news6/2013_1/131023_1), Fig.1).
 
-| Category                           | Description                                   | Interfaces                                                                                  |
-|------------------------------------|-----------------------------------------------|---------------------------------------------------------------------------------------------|
-| **Neural cell (collective) roles** | Neuron populations with specialized functions | Cortex, Thalamus, Default, Salience, Plasticity, Knowledge, Episode, Area, Neuron, Effector |
-| **Signals / Data**                 | Information carried between neurons           | Stimulus, Impulse, Trace, Percept                                                           |
-| **Synaptic functions**             | Signal encoding/integration at synapses       | Encoder, Transmitter, Decoder, Nucleus                                                      |
+| Category                           | Description                                   | Interfaces                                                                                         |
+|------------------------------------|-----------------------------------------------|----------------------------------------------------------------------------------------------------|
+| **Neural cell (collective) roles** | Neuron populations with specialized functions | Cortex, Thalamus, Default, Salience, Sleep, Plasticity, Knowledge, Episode, Area, Neuron, Effector |
+| **Signals / Data**                 | Information carried between neurons           | Stimulus, Impulse, Trace, Percept                                                                  |
+| **Synaptic functions**             | Signal encoding/integration at synapses       | Encoder, Transmitter, Decoder, Nucleus                                                             |
 
 - **neural** — Most direct correspondence to Fig.1. Neuron = single nerve cell,
   Area = population sharing the same tuning, Effector = motor output driven by motoneurons (Ch.2).
@@ -222,8 +222,8 @@ that motivate behavior). Marker interface. Not yet implemented.
 
 #### `Sleep` interface — Ch.51, 65-67
 
-Sleep and dreaming. Memory consolidation during sleep.
-Marker interface. Not yet implemented.
+Sleep and dreaming. Memory consolidation during sleep (Ch.65-67).
+Lifecycle managed by `@PostConstruct`/`@PreDestroy` in runtime.
 
 ---
 
@@ -302,6 +302,6 @@ Semantic memory (Tulving): general world knowledge, cross-session.
 | `DefaultImpl`      | `schedule()`              | DMN infra-slow oscillation 0.01-0.1 Hz = 10-100s (Ch.62). 10-30s balances Kandel fidelity with interactive responsiveness.            |
 | `NucleusImpl`      | `executorService`         | Single-thread ExecutorService models refractory period (Ch.9). Async integration + threshold gating.                                  |
 | `TraceImpl`        | constructor               | Embeds `Instant.now()` in id string via `@` separator. Kandel: id is retrieval cue (Ch.65).                                           |
-| `DefaultImpl`      | `scheduleConsolidation()` | Timed memory consolidation trigger. Biology consolidates during sleep/rest (Ch.67); scheduled as engineering compromise.              |
+| `SleepImpl`        | `scheduleConsolidation()` | Timed memory consolidation trigger. Biology consolidates during sleep (Ch.51, 65-67); scheduled interval is engineering compromise.   |
 | `HabituationGuard` | (class)                   | Habituation (Ch.63). Count-based implementation; biology modulates synaptic efficacy.                                                 |
 | `HabituationGuard` | `observe()`               | Habituation after 3 consecutive firings of same effector.                                                                             |

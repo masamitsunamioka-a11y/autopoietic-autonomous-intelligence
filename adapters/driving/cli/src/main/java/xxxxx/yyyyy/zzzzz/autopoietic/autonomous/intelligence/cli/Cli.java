@@ -4,6 +4,7 @@ import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Sleep;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Default;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Salience;
@@ -43,6 +44,7 @@ public class Cli {
         this.episode = this.container.select(Episode.class).get();
         /// Force @PostConstruct by resolving the client proxy via no-op toString()
         this.container.select(Default.class).get().toString();
+        this.container.select(Sleep.class).get().toString();
     }
 
     public void launch() {
