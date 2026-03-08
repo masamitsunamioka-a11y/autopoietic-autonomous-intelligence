@@ -76,7 +76,7 @@ public class JavaProxyProvider<I extends Entity> implements ProxyProvider<I> {
             URI.create("string:///" + fqcn.replace(".", "/") + ".java"), source);
         var task = javaCompiler.getTask(
             null, javaFileManager, null,
-            List.of("-classpath", this.classpath, "-Xlint:none"),
+            List.of("-classpath", this.fullClasspath(), "-Xlint:none"),
             null, List.of(javaFileObject));
         if (!task.call()) {
             throw new IllegalStateException("Compile failed: " + fqcn);
@@ -86,6 +86,11 @@ public class JavaProxyProvider<I extends Entity> implements ProxyProvider<I> {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String fullClasspath() {
+        var runtime = System.getProperty("java.class.path");
+        return this.classpath + ":" + runtime;
     }
 
     private I instantiate(Class<?> clazz) {

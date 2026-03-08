@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia'
 import {ref} from 'vue'
 import {useSse} from '../composables/useSse'
+import {useNeuralStore} from './neural'
 import type {Message} from '../types'
 
 export const useChatStore = defineStore('chat', () => {
@@ -15,7 +16,8 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     function initSse(): void {
-        useSse(addMessage)
+        const neural = useNeuralStore()
+        useSse(addMessage, neural.setTree)
     }
 
     async function sendMessage(input: string): Promise<void> {

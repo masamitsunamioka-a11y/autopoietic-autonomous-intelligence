@@ -58,7 +58,7 @@ public class DriveImpl implements Drive {
 
     @PostConstruct
     void activate() {
-        this.schedule();
+        this.scheduleFire();
         this.scheduleConsolidation();
     }
 
@@ -84,14 +84,14 @@ public class DriveImpl implements Drive {
                 this.introspect(urge, area);
                 if (urge.vocalize()) {
                     this.salience.orient();
-                    this.thalamus.relay(
-                        new ImpulseImpl(urge.signal(), area));
                 }
+                this.thalamus.relay(
+                    new ImpulseImpl(urge.signal(), area));
             });
         } catch (Exception e) {
             logger.error("[DRIVE] fire failed", e);
         } finally {
-            this.schedule();
+            this.scheduleFire();
         }
     }
 
@@ -113,7 +113,7 @@ public class DriveImpl implements Drive {
     }
 
     /// [Engineering] As detailed in docs/kandel.md
-    private void schedule() {
+    private void scheduleFire() {
         this.executorService.schedule(
             this::fire,
             ThreadLocalRandom.current().nextLong(10, 31),

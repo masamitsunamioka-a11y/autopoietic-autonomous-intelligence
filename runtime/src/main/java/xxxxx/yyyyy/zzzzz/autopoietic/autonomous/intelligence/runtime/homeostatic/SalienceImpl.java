@@ -2,6 +2,8 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.homeostati
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Salience;
 
@@ -10,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ApplicationScoped
 public class SalienceImpl implements Salience {
+    private static final Logger logger = LoggerFactory.getLogger(SalienceImpl.class);
     private final AtomicBoolean oriented = new AtomicBoolean(false);
     private volatile CountDownLatch latch;
 

@@ -16,6 +16,10 @@ app.post('/api/chat', async (c) => {
     })
     return c.json(await res.json(), res.status as 200)
 })
+app.get('/api/neural', async (c) => {
+    const res = await fetch(`${backend}/api/neural`)
+    return c.json(await res.json(), res.status as 200)
+})
 app.get('/api/events', async (c) => {
     const res = await fetch(`${backend}/api/events`)
     if (!res.body) return c.text('no body', 502)

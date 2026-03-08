@@ -47,7 +47,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
     - Specification:
         - Homeostatic (Salience → Drive)
         - Learning (Plasticity)
-        - Cognitive (Cortex → Process → Event\<Expression\>)
+        - Cognitive (Cortex → Process → Event\<Percept\>)
         - Signaling (Thalamus → Transducer)
         - Mnemonic (Knowledge → Episode)
         - Neural (Area → Neuron → Effector)

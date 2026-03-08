@@ -1,5 +1,6 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
@@ -11,28 +12,24 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signa
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
-/// POST /api/chat — receives user input, runs the perception pipeline,
-/// and broadcasts the percept via SSE.
-class ChatHandler implements HttpHandler {
+public class ChatHandler implements HttpHandler {
     private static final Logger logger = LoggerFactory.getLogger(ChatHandler.class);
-    private final SseRegistry registry;
-    private final Transducer transducer;
-    private final Thalamus thalamus;
     private final Salience salience;
+    private final Thalamus thalamus;
+    private final Transducer transducer;
     private final Episode episode;
+    private final SseRegistry registry;
 
-    ChatHandler(
-        SseRegistry registry,
-        Transducer transducer,
-        Thalamus thalamus,
-        Salience salience,
-        Episode episode) {
-        this.registry = registry;
-        this.transducer = transducer;
-        this.thalamus = thalamus;
+    public ChatHandler(Salience salience, Thalamus thalamus,
+                       Transducer transducer, Episode episode,
+                       SseRegistry registry) {
         this.salience = salience;
+        this.thalamus = thalamus;
+        this.transducer = transducer;
         this.episode = episode;
+        this.registry = registry;
     }
 
     @Override
@@ -44,7 +41,7 @@ class ChatHandler implements HttpHandler {
         var body = new String(
             exchange.getRequestBody().readAllBytes(),
             StandardCharsets.UTF_8);
-        var input = extractInput(body);
+        var input = this.extractInput(body);
         if (input == null || input.isBlank()) {
             exchange.sendResponseHeaders(400, -1);
             return;
@@ -52,16 +49,15 @@ class ChatHandler implements HttpHandler {
         this.episode.encode(new TraceImpl("user", input));
         this.salience.orient();
         this.registry.broadcast(
-            SseRegistry.buildJson("user", "user", input));
+            this.registry.buildJson("user", "user", input));
         try {
             this.thalamus.relay(
-                this.transducer.transduce(
-                    new StimulusImpl(input)));
+                this.transducer.transduce(new StimulusImpl(input)));
             this.salience.await();
         } catch (Exception e) {
             logger.error("[UI] respond failed", e);
             this.registry.broadcast(
-                SseRegistry.buildJson(
+                this.registry.buildJson(
                     "error", "system", e.getMessage()));
         }
         exchange.getResponseHeaders().set(
@@ -73,24 +69,9 @@ class ChatHandler implements HttpHandler {
         }
     }
 
-    /// Minimal JSON parse: extracts the "input" field value.
-    private static String extractInput(String json) {
-        var key = "\"input\"";
-        var idx = json.indexOf(key);
-        if (idx < 0) return null;
-        var colon = json.indexOf(':', idx + key.length());
-        if (colon < 0) return null;
-        var quote = json.indexOf('"', colon + 1);
-        if (quote < 0) return null;
-        var end = quote + 1;
-        var sb = new StringBuilder();
-        while (end < json.length()) {
-            var c = json.charAt(end++);
-            if (c == '"') break;
-            if (c == '\\' && end < json.length())
-                c = json.charAt(end++);
-            sb.append(c);
-        }
-        return sb.toString();
+    private String extractInput(String json) {
+        var map = new Gson().fromJson(json, Map.class);
+        var input = map.get("input");
+        return input != null ? input.toString() : null;
     }
 }

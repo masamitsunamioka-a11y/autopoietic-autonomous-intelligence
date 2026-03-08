@@ -30,6 +30,26 @@ class CliTest {
     }
 
     @Test
+    void simulate() {
+        try {
+            List<String> scenario = List.of("""
+                Compare the GDP-weighted carbon emissions per capita of \
+                the G7 nations, calculate each country's required annual \
+                reduction rate to meet their Paris Agreement 2030 targets, \
+                and produce a ranked priority list with specific policy \
+                recommendations based on each nation's energy mix and \
+                industrial structure.
+                """
+            );
+            var cli = new Cli(scenario, false);
+            cli.launch();
+        } catch (Throwable t) {
+            logger.error("", t);
+            throw new RuntimeException(t);
+        }
+    }
+
+    /// @Test
     void simulateSkynet() {
         try {
             List<String> scenario = List.of("""

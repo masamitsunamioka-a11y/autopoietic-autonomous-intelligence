@@ -1,5 +1,8 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
@@ -7,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 public class Utility {
+    private static final Logger logger = LoggerFactory.getLogger(Utility.class);
+
     public static Object invoke(Method method, Object target) {
         try {
             return method.invoke(target);

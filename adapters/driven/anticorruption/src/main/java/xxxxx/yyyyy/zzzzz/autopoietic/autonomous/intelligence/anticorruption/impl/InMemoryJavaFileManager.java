@@ -1,5 +1,8 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.tools.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InMemoryJavaFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
+    private static final Logger logger = LoggerFactory.getLogger(InMemoryJavaFileManager.class);
     private final Map<String, byte[]> classes;
 
     public InMemoryJavaFileManager(StandardJavaFileManager delegate) {

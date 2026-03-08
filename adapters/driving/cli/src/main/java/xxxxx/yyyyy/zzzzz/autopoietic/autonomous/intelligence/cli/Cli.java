@@ -59,7 +59,6 @@ public class Cli {
         if (this.isInteractive) {
             System.out.print("> ");
         }
-        /// try -> for
         for (String input : this.inputSource) {
             if ("exit".equalsIgnoreCase(input)) {
                 break;

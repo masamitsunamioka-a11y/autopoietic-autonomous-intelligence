@@ -2,14 +2,14 @@
 
 ## Summary
 
-**Kandel compliance: 87.0%** — OK / Total = 114 / 131
+**Kandel compliance: 86.4%** — OK / Total = 114 / 132
 
 | Rating            | Count | Description                                 |
 |-------------------|-------|---------------------------------------------|
 | **OK**            | 114   | Kandel-compliant                            |
 | **[Engineering]** | 12    | Resolvable — resolve to increase compliance |
-| **Todo**          | 5     | Unimplemented or planned Kandel feature     |
-| **Total**         | 131   |                                             |
+| **Todo**          | 6     | Unimplemented or planned Kandel feature     |
+| **Total**         | 132   |                                             |
 
 Infrastructure SPI excluded from Total — inherent to any software system.
 
@@ -32,11 +32,12 @@ Infrastructure SPI excluded from Total — inherent to any software system.
 
 ### Kandel roadmap
 
-| #  | Target                        | Description                                                                                  |
-|----|-------------------------------|----------------------------------------------------------------------------------------------|
-| T3 | `Process` spec promotion      | Ch.21-27 cortical process. Move from runtime.cognitive.processual to specification.cognitive |
-| T4 | System consolidation pipeline | Ch.67 system consolidation. Episode → Knowledge promotion (hippocampus → neocortex transfer) |
-| T5 | Axonal wiring in spec         | Ch.2, 18 axonal wiring determines signal pathways. Resolves E2                               |
+| #  | Target                        | Description                                                                                                                                                                                                                                                                                             |
+|----|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| T3 | `Process` spec promotion      | Ch.21-27 cortical process. Move from runtime.cognitive.processual to specification.cognitive                                                                                                                                                                                                            |
+| T4 | System consolidation pipeline | Ch.67 system consolidation. Episode → Knowledge promotion (hippocampus → neocortex transfer)                                                                                                                                                                                                            |
+| T5 | Axonal wiring in spec         | Ch.2, 18 axonal wiring determines signal pathways. Resolves E2                                                                                                                                                                                                                                          |
+| T6 | Per-neuron Nucleus            | Ch.9, 12 each neuron has its own soma for synaptic integration. Current NucleusImpl is a singleton summarizing this. Real brain: massively parallel, per-neuron threshold + all-or-nothing firing. AAI Areas are dynamic (agent-like) vs brain's fixed cortical regions — a separate research direction |
 
 ### [Engineering]
 

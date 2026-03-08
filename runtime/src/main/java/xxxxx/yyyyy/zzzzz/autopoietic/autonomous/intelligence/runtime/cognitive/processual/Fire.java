@@ -16,7 +16,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemo
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 
-import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 @Process.Fire
@@ -58,7 +57,7 @@ public final class Fire implements Process {
             .collect(Collectors.toMap(
                 Trace::id,
                 Trace::content,
-                (x, y) -> y, LinkedHashMap::new));
+                (x, y) -> y));
         var output = effector.fire(context);
         output.forEach((k, v) ->
             this.knowledge.encode(

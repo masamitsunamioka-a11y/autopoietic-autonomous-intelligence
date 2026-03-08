@@ -25,6 +25,7 @@ public class DecoderImpl implements Decoder {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T decode(String signal, Class<T> response) {
-        return (T) this.decodicService.call(new Input(signal, response));
+        return (T) this.decodicService.call(
+            new Input(signal, response));
     }
 }

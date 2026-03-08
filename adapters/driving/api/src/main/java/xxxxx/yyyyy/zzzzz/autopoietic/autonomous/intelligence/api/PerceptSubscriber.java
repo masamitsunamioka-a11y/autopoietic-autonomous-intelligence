@@ -12,19 +12,22 @@ import java.util.Set;
 @ApplicationScoped
 public class PerceptSubscriber {
     private static final Logger logger = LoggerFactory.getLogger(PerceptSubscriber.class);
-    private static final Set<String> VOCALIZE = Set.of("VOCALIZE", "FIRE");
-    private final SseRegistry registry;
+    private static final Set<String> VOCALIZE = Set.of("VOCALIZE", "INHIBIT", "FIRE");
+    /// FIXME?
+    private final SseRegistry sseRegistry;
 
     @Inject
-    public PerceptSubscriber(SseRegistry registry) {
-        this.registry = registry;
+    public PerceptSubscriber(SseRegistry sseRegistry) {
+        this.sseRegistry = sseRegistry;
     }
 
     public void onPercept(@Observes Percept percept) {
-        var vocalize = VOCALIZE.contains(
-            percept.location().toUpperCase());
-        var type = vocalize ? "message" : "introspection";
-        this.registry.broadcast(
-            SseRegistry.buildJson(type, percept.location(), percept.content()));
+        var vocalize = VOCALIZE.contains(percept.location().toUpperCase());
+        var type = vocalize
+            ? "message"
+            : "introspection";
+        this.sseRegistry.broadcast(
+            this.sseRegistry.buildJson(
+                type, percept.location(), percept.content()));
     }
 }

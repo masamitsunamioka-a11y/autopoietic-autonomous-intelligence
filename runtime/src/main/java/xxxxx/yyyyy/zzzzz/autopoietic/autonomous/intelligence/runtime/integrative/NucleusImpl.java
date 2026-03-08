@@ -11,7 +11,7 @@ import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static java.util.concurrent.Executors.newCachedThreadPool;
 
 @ApplicationScoped
 public class NucleusImpl implements Nucleus {
@@ -21,7 +21,7 @@ public class NucleusImpl implements Nucleus {
 
     @Inject
     public NucleusImpl() {
-        this.executorService = newSingleThreadExecutor();
+        this.executorService = newCachedThreadPool();
         this.signals = new ConcurrentLinkedDeque<>();
     }
 
@@ -43,7 +43,7 @@ public class NucleusImpl implements Nucleus {
     }
 
     private boolean shouldFire() {
-        /// Kandel Ch.9, 12: temporal summation deferred
+        /// Kandel Ch.9, 12: temporal summation -> T6
         return !this.signals.isEmpty();
     }
 }

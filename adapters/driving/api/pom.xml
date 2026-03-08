@@ -55,6 +55,10 @@
             <artifactId>anticorruption</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -68,7 +72,7 @@
                     <arguments>
                         <argument>-classpath</argument>
                         <classpath/>
-                        <argument>xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.EntryPoint</argument>
+                        <argument>xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Server</argument>
                     </arguments>
                 </configuration>
             </plugin>

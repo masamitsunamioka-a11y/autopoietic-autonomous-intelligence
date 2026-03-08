@@ -1,10 +1,14 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /// [Engineering] As detailed in docs/kandel.md
 public class HabituationGuard {
+    private static final Logger logger = LoggerFactory.getLogger(HabituationGuard.class);
     private final AtomicReference<String> last;
     private final AtomicInteger count;
 

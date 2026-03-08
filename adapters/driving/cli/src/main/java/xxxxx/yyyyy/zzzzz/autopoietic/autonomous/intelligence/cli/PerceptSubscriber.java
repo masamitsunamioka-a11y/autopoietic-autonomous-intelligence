@@ -11,7 +11,7 @@ import java.util.Set;
 @ApplicationScoped
 public class PerceptSubscriber {
     private static final Logger logger = LoggerFactory.getLogger(PerceptSubscriber.class);
-    private static final Set<String> VOCALIZE = Set.of("VOCALIZE", "FIRE");
+    private static final Set<String> VOCALIZE = Set.of("VOCALIZE", "INHIBIT", "FIRE");
 
     public void onPercept(@Observes Percept percept) {
         if (VOCALIZE.contains(percept.location().toUpperCase())) {

@@ -22,7 +22,6 @@ public class DecodingService implements Service<DecoderImpl.Input, Object> {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Object call(DecoderImpl.Input input) {
         try {

@@ -9,16 +9,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
-/// SSE endpoint: GET /api/events
-/// Keeps connection open; writes heartbeat every 30 s.
-class SseHandler implements HttpHandler {
+public class SseHandler implements HttpHandler {
     private static final Logger logger = LoggerFactory.getLogger(SseHandler.class);
     private static final String HEARTBEAT = ": heartbeat\n\n";
     private static final int HEARTBEAT_SECONDS = 30;
-    private final SseRegistry registry;
+    private final SseRegistry sseRegistry;
 
-    SseHandler(SseRegistry registry) {
-        this.registry = registry;
+    public SseHandler(SseRegistry sseRegistry) {
+        this.sseRegistry = sseRegistry;
     }
 
     @Override
@@ -31,7 +29,7 @@ class SseHandler implements HttpHandler {
         exchange.getResponseHeaders().set("Cache-Control", "no-cache");
         exchange.getResponseHeaders().set("Connection", "keep-alive");
         exchange.sendResponseHeaders(200, 0);
-        var queue = this.registry.subscribe();
+        var queue = this.sseRegistry.subscribe();
         try (var out = exchange.getResponseBody()) {
             while (true) {
                 var payload = queue.poll(HEARTBEAT_SECONDS, TimeUnit.SECONDS);
@@ -40,7 +38,7 @@ class SseHandler implements HttpHandler {
                     out.flush();
                     continue;
                 }
-                if (SseRegistry.isPoison(payload)) {
+                if (this.sseRegistry.isPoison(payload)) {
                     break;
                 }
                 var frame = "data: " + payload + "\n\n";
@@ -52,7 +50,7 @@ class SseHandler implements HttpHandler {
         } catch (IOException e) {
             logger.debug("SSE client disconnected: {}", e.getMessage());
         } finally {
-            this.registry.unsubscribe(queue);
+            this.sseRegistry.unsubscribe(queue);
         }
     }
 }

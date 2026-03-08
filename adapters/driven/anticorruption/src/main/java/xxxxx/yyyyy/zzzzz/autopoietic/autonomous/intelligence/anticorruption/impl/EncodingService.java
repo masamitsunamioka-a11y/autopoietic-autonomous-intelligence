@@ -12,6 +12,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,10 +105,17 @@ public class EncodingService implements Service<EncoderImpl.Input, String> {
         return this.serializer.serialize(
             list.stream()
                 .map(x -> (Trace) x)
+                .sorted(Comparator.comparing(this::timestampOf))
                 .collect(Collectors.toMap(
                     Trace::id,
                     Trace::content,
-                    (x, y) -> y)));
+                    (x, y) -> y,
+                    java.util.LinkedHashMap::new)));
+    }
+
+    private Instant timestampOf(Trace trace) {
+        var at = trace.id().lastIndexOf('@');
+        return Instant.parse(trace.id().substring(at + 1));
     }
 
     private String plasticityAreas(List<?> list) {
