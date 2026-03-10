@@ -8,10 +8,13 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic.Compensation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic.Conservation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.Promotion;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.modulatory.Fluctuation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.Projection;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.Spindle;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic.Autopoiesis;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Default;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
@@ -29,8 +32,9 @@ public class TransmitterImpl implements Transmitter {
         Decision.class,     Cortex.class,
         Projection.class,   Thalamus.class,
         Fluctuation.class,  Default.class,
-        Compensation.class,  Autopoiesis.class,
-        Conservation.class,  Autopoiesis.class);
+        Compensation.class, Autopoiesis.class,
+        Conservation.class, Autopoiesis.class,
+        Promotion.class,    Knowledge.class);
     /// @formatter:on
     private final Encoder encoder;
     private final Decoder decoder;
@@ -47,6 +51,9 @@ public class TransmitterImpl implements Transmitter {
     @Override
     public <T> T transmit(Impulse impulse, Class<T> response) {
         var caller = PATHWAYS.get(response);
+        if (caller == null) {
+            return response.cast(new Spindle());
+        }
         var signal = this.encoder.encode(impulse, caller);
         if (logger.isTraceEnabled()) {
             logger.trace("\n{}", signal);

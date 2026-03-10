@@ -60,6 +60,7 @@ public class EncoderImpl implements Encoder {
                     : this.conservation();
             }
             case "Default"      -> this.defaultMode();
+            case "Knowledge"    -> this.promotion();
             default -> throw new IllegalArgumentException();
             /// @formatter:on
         };
@@ -106,6 +107,16 @@ public class EncoderImpl implements Encoder {
         return this.encodicService.call(new Input("conservation.md",
             List.of(),
             Set.of("areas", "neurons", "effectors")));
+    }
+
+    private String promotion() {
+        return this.encodicService.call(new Input("promotion.md",
+            /// @formatter:off
+            List.of(
+                entry("episode",    this.episode.retrieve()),
+                entry("knowledge",  this.knowledge.retrieve())),
+            /// @formatter:on
+            Set.of()));
     }
 
     private String defaultMode() {

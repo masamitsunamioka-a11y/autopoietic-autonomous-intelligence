@@ -90,7 +90,8 @@ public class JavaProxyProvider<I extends Entity> implements ProxyProvider<I> {
 
     private String fullClasspath() {
         var runtime = System.getProperty("java.class.path");
-        return this.classpath + ":" + runtime;
+        var separator = System.getProperty("path.separator");
+        return this.classpath + separator + runtime;
     }
 
     private I instantiate(Class<?> clazz) {

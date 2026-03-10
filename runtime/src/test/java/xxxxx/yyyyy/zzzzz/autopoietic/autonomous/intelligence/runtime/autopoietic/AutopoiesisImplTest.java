@@ -2,8 +2,6 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoieti
 
 import org.junit.jupiter.api.Test;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
@@ -26,7 +24,6 @@ class AutopoiesisImplTest {
             List.of(new NewNeuron("N1", "tuning")),
             List.of());
         var autopoiesis = new AutopoiesisImpl(
-            episode(),
             trackingAreaRepository(storedAreas),
             trackingNeuronRepository(storedNeurons),
             staticEffectorRepository(List.of()),
@@ -38,14 +35,6 @@ class AutopoiesisImplTest {
     }
 
     /// @formatter:off
-    private static Episode episode() {
-        return new Episode() {
-            public void encode(Trace trace) {}
-            public Trace retrieve(String cue) { return null; }
-            public List<Trace> retrieve() { return List.of(); }
-            public void decay() {}
-        };
-    }
     private static Transmitter transmitter(Object result) {
         return new Transmitter() {
             @SuppressWarnings("unchecked")

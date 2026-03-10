@@ -9,5 +9,7 @@ public interface Knowledge {
 
     List<Trace> retrieve();
 
+    void promote();
+
     void decay();
 }

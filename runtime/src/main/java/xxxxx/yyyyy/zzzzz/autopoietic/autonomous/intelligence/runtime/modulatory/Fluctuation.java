@@ -10,7 +10,6 @@ public record Fluctuation(
     @NotBlank String reasoning,
     @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
     boolean aroused,
-    boolean vocalize,
     String area,
     String signal) {
     public Fluctuation {

@@ -97,6 +97,7 @@ class EncoderImplTest {
             public void encode(Trace trace) { }
             public Trace retrieve(String id) { return null; }
             public List<Trace> retrieve() { return List.of(); }
+            public void promote() { }
             public void decay() { }
         };
     }

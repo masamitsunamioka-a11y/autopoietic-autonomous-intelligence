@@ -55,9 +55,13 @@ public class DefaultImpl implements Default {
         this.executorService = newSingleThreadScheduledExecutor();
     }
 
+    /// [Engineering] As detailed in docs/kandel.md
     @PostConstruct
     void activate() {
-        this.scheduleFire();
+        this.executorService.schedule(
+            this::fluctuate,
+            ThreadLocalRandom.current().nextLong(10, 31),
+            TimeUnit.SECONDS);
     }
 
     @PreDestroy
@@ -65,32 +69,34 @@ public class DefaultImpl implements Default {
         this.executorService.shutdownNow();
     }
 
-    private void fire() {
+    private void fluctuate() {
         try {
             if (this.salience.isOriented()) {
                 return;
             }
-            var fluctuation = this.transmitter.transmit(null, Fluctuation.class);
-            this.nucleus.integrate(fluctuation, () -> {
-                if (!fluctuation.aroused()) {
-                    return;
-                }
-                var area = this.areaRepository.find(fluctuation.area());
-                if (area == null) {
-                    return;
-                }
-                this.introspect(fluctuation, area);
-                if (fluctuation.vocalize()) {
-                    this.salience.orient();
-                }
-                this.thalamus.relay(
-                    new ImpulseImpl(fluctuation.signal(), area));
-            });
+            this.fire();
         } catch (Exception e) {
-            logger.error("[DMN] fire failed", e);
+            logger.error("[DMN] fluctuate failed", e);
         } finally {
-            this.scheduleFire();
+            this.activate();
         }
+    }
+
+    private void fire() {
+        var fluctuation = this.transmitter.transmit(null, Fluctuation.class);
+        this.nucleus.integrate(fluctuation, () -> {
+            if (!fluctuation.aroused()) {
+                return;
+            }
+            var area = this.areaRepository.find(fluctuation.area());
+            if (area == null) {
+                return;
+            }
+            this.introspect(fluctuation, area);
+            this.salience.orient();
+            this.thalamus.relay(
+                new ImpulseImpl(fluctuation.signal(), area));
+        });
     }
 
     private void introspect(Fluctuation fluctuation, Area area) {
@@ -98,13 +104,5 @@ public class DefaultImpl implements Default {
             new TraceImpl("[DMN]", fluctuation.signal()));
         this.event.fire(
             new PerceptImpl(fluctuation.signal(), area.id()));
-    }
-
-    /// [Engineering] As detailed in docs/kandel.md
-    private void scheduleFire() {
-        this.executorService.schedule(
-            this::fire,
-            ThreadLocalRandom.current().nextLong(10, 31),
-            TimeUnit.SECONDS);
     }
 }

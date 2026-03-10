@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Transmitter;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -17,17 +19,21 @@ import static java.util.Comparator.comparing;
 @ApplicationScoped
 public class KnowledgeImpl implements Knowledge {
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeImpl.class);
+    private final Transmitter transmitter;
+    private final Nucleus nucleus;
     private final Repository<Trace> semanticRepository;
 
     @Inject
-    public KnowledgeImpl(@Semantic Repository<Trace> semanticRepository) {
+    public KnowledgeImpl(Transmitter transmitter, Nucleus nucleus,
+                         @Semantic Repository<Trace> semanticRepository) {
+        this.transmitter = transmitter;
+        this.nucleus = nucleus;
         this.semanticRepository = semanticRepository;
     }
 
     @Override
     public void encode(Trace trace) {
         this.semanticRepository.store(trace);
-        this.decay();
     }
 
     @Override
@@ -40,6 +46,14 @@ public class KnowledgeImpl implements Knowledge {
         return this.semanticRepository.findAll().stream()
             .sorted(comparing(this::timestampOf))
             .toList();
+    }
+
+    @Override
+    public void promote() {
+        var promotion = this.transmitter.transmit(null, Promotion.class);
+        this.nucleus.integrate(promotion, () ->
+            promotion.insights().forEach(insight ->
+                this.encode(new TraceImpl(insight, insight))));
     }
 
     @Override

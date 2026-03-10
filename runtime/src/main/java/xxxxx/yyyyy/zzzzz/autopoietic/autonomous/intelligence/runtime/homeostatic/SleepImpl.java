@@ -6,8 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic.Autopoiesis;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Sleep;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,18 +18,22 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 @ApplicationScoped
 public class SleepImpl implements Sleep {
     private static final Logger logger = LoggerFactory.getLogger(SleepImpl.class);
-    private final Autopoiesis autopoiesis;
+    private final Thalamus thalamus;
     private final ScheduledExecutorService executorService;
 
     @Inject
-    public SleepImpl(Autopoiesis autopoiesis) {
-        this.autopoiesis = autopoiesis;
+    public SleepImpl(Thalamus thalamus) {
+        this.thalamus = thalamus;
         this.executorService = newSingleThreadScheduledExecutor();
     }
 
+    /// [Engineering] As detailed in docs/kandel.md
     @PostConstruct
     void activate() {
-        this.scheduleConsolidation();
+        this.executorService.schedule(
+            this::sleep,
+            ThreadLocalRandom.current().nextLong(30, 60),
+            TimeUnit.SECONDS);
     }
 
     @PreDestroy
@@ -37,21 +41,13 @@ public class SleepImpl implements Sleep {
         this.executorService.shutdownNow();
     }
 
-    private void consolidate() {
+    private void sleep() {
         try {
-            this.autopoiesis.conserve();
+            this.thalamus.burst();
         } catch (Exception e) {
-            logger.error("[SLEEP] consolidation failed", e);
+            logger.error("[SLEEP] failed", e);
         } finally {
-            this.scheduleConsolidation();
+            this.activate();
         }
-    }
-
-    /// [Engineering] As detailed in docs/kandel.md
-    private void scheduleConsolidation() {
-        this.executorService.schedule(
-            this::consolidate,
-            ThreadLocalRandom.current().nextLong(30, 60),
-            TimeUnit.SECONDS);
     }
 }

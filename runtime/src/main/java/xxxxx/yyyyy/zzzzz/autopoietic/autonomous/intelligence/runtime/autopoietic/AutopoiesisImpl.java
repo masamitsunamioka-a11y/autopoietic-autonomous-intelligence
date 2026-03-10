@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic.Autopoiesis;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
@@ -17,7 +16,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synap
 @ApplicationScoped
 public class AutopoiesisImpl implements Autopoiesis {
     private static final Logger logger = LoggerFactory.getLogger(AutopoiesisImpl.class);
-    private final Episode episode;
     private final Repository<Area> areaRepository;
     private final Repository<Neuron> neuronRepository;
     private final Repository<Effector> effectorRepository;
@@ -25,13 +23,11 @@ public class AutopoiesisImpl implements Autopoiesis {
     private final Nucleus nucleus;
 
     @Inject
-    public AutopoiesisImpl(Episode episode,
-                           Repository<Area> areaRepository,
+    public AutopoiesisImpl(Repository<Area> areaRepository,
                            Repository<Neuron> neuronRepository,
                            Repository<Effector> effectorRepository,
                            Transmitter transmitter,
                            Nucleus nucleus) {
-        this.episode = episode;
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
@@ -54,7 +50,6 @@ public class AutopoiesisImpl implements Autopoiesis {
         this.nucleus.integrate(conservation, () -> {
             this.eliminate(conservation);
             this.consolidate(conservation);
-            this.episode.decay();
         });
     }
 
