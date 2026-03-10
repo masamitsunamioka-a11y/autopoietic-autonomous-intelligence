@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic;
 
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 

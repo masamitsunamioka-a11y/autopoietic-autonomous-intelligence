@@ -1,9 +1,9 @@
 anticorruption:
-  integrative:
+  synaptic:
     function:
-      source: "filesystem/integrative/function"
+      source: "filesystem/synaptic/function"
     shared:
-      source: "filesystem/integrative/shared"
+      source: "filesystem/synaptic/shared"
   neural:
     areas:
       target: "filesystem/neural/areas"

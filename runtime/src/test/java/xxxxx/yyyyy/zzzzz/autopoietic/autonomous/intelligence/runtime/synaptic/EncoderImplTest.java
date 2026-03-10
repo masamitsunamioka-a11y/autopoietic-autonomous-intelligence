@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic;
 
 import org.junit.jupiter.api.Test;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
@@ -102,7 +102,7 @@ class EncoderImplTest {
     }
     private static Impulse impulse(String signal, Area area) {
         return new Impulse() {
-            public String signal() { return signal; }
+            public Object signal() { return signal; }
             public Area area() { return area; }
         };
     }

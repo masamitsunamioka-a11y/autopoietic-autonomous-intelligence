@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Serializer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative.DecoderImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.DecoderImpl;
 
 import static java.util.stream.Collectors.joining;
 

@@ -1,23 +1,23 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic.Compensation;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic.Conservation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.learning.Potentiation;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.learning.Pruning;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.modulatory.Fluctuation;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.Projection;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic.Autopoiesis;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Decoder;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Encoder;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Transmitter;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.learning.Plasticity;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Default;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Decoder;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Transmitter;
 
 import java.util.Map;
 
@@ -29,8 +29,8 @@ public class TransmitterImpl implements Transmitter {
         Decision.class,     Cortex.class,
         Projection.class,   Thalamus.class,
         Fluctuation.class,  Default.class,
-        Potentiation.class, Plasticity.class,
-        Pruning.class,      Plasticity.class);
+        Compensation.class,  Autopoiesis.class,
+        Conservation.class,  Autopoiesis.class);
     /// @formatter:on
     private final Encoder encoder;
     private final Decoder decoder;

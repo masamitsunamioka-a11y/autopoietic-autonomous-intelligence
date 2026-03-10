@@ -1,38 +1,38 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.learning;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic;
 
 import org.junit.jupiter.api.Test;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Nucleus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Transmitter;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Transmitter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class PlasticityImplTest {
+class AutopoiesisImplTest {
     @Test
     void sproutStoresNewAreaAndNeuron() {
         var storedNeurons = new ArrayList<String>();
         var storedAreas = new ArrayList<String>();
-        var potentiation = new Potentiation("r", 1.0, "",
-            List.of(new Potentiation.NewArea("A1", "t", List.of("N1"), List.of())),
-            List.of(new Potentiation.NewNeuron("N1", "tuning")),
+        var compensation = new Compensation("r", 1.0, "",
+            List.of(new NewArea("A1", "t", List.of("N1"), List.of())),
+            List.of(new NewNeuron("N1", "tuning")),
             List.of());
-        var plasticity = new PlasticityImpl(
+        var autopoiesis = new AutopoiesisImpl(
             episode(),
             trackingAreaRepository(storedAreas),
             trackingNeuronRepository(storedNeurons),
             staticEffectorRepository(List.of()),
-            transmitter(potentiation), nucleus()
+            transmitter(compensation), nucleus()
         );
-        plasticity.potentiate(impulse());
+        autopoiesis.compensate(impulse());
         assertTrue(storedNeurons.contains("N1"), "Neuron must be stored");
         assertTrue(storedAreas.contains("A1"), "Area must be stored");
     }
@@ -59,7 +59,7 @@ class PlasticityImplTest {
     }
     private static Impulse impulse() {
         return new Impulse() {
-            public String signal() { return "test"; }
+            public Object signal() { return "test"; }
             public Area area() {
                 return new Area() {
                     public String id() { return "current"; }

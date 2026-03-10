@@ -9,7 +9,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemo
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Default;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Salience;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Transducer;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
@@ -25,7 +24,6 @@ public class Server {
             .initialize()) {
             var salience = container.select(Salience.class).get();
             var thalamus = container.select(Thalamus.class).get();
-            var transducer = container.select(Transducer.class).get();
             var episode = container.select(Episode.class).get();
             /// Force @PostConstruct by resolving the client proxy via no-op toString()
             container.select(Default.class).get().toString();
@@ -38,7 +36,7 @@ public class Server {
             server.createContext("/api/events",
                 new SseHandler(registry));
             server.createContext("/api/chat",
-                new ChatHandler(salience, thalamus, transducer, episode, registry));
+                new ChatHandler(salience, thalamus, episode, registry));
             server.createContext("/api/neural",
                 new NeuralHandler(watcher));
             var latch = new CountDownLatch(1);

@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic;
 
 import jakarta.inject.Qualifier;
 

@@ -6,8 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic.Autopoiesis;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Sleep;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.learning.Plasticity;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,12 +18,12 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 @ApplicationScoped
 public class SleepImpl implements Sleep {
     private static final Logger logger = LoggerFactory.getLogger(SleepImpl.class);
-    private final Plasticity plasticity;
+    private final Autopoiesis autopoiesis;
     private final ScheduledExecutorService executorService;
 
     @Inject
-    public SleepImpl(Plasticity plasticity) {
-        this.plasticity = plasticity;
+    public SleepImpl(Autopoiesis autopoiesis) {
+        this.autopoiesis = autopoiesis;
         this.executorService = newSingleThreadScheduledExecutor();
     }
 
@@ -39,7 +39,7 @@ public class SleepImpl implements Sleep {
 
     private void consolidate() {
         try {
-            this.plasticity.prune();
+            this.autopoiesis.conserve();
         } catch (Exception e) {
             logger.error("[SLEEP] consolidation failed", e);
         } finally {

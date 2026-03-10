@@ -9,7 +9,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemo
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Default;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Salience;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Transducer;
 
 import java.util.Iterator;
 import java.util.Scanner;
@@ -19,7 +18,6 @@ public class Cli {
     private final Iterable<String> inputSource;
     private final boolean isInteractive;
     private final WeldContainer container;
-    private final Transducer transducer;
     private final Thalamus thalamus;
     private final Salience salience;
     private final Episode episode;
@@ -38,7 +36,6 @@ public class Cli {
         this.container = new Weld()
             .property("org.jboss.weld.se.archive.isolation", "false")
             .initialize();
-        this.transducer = this.container.select(Transducer.class).get();
         this.thalamus = this.container.select(Thalamus.class).get();
         this.salience = this.container.select(Salience.class).get();
         this.episode = this.container.select(Episode.class).get();
@@ -68,9 +65,7 @@ public class Cli {
             this.episode.encode(new TraceImpl("user", input));
             this.salience.orient();
             try {
-                this.thalamus.relay(
-                    this.transducer.transduce(
-                        new StimulusImpl(input)));
+                this.thalamus.relay(new ImpulseImpl(input, null));
                 this.salience.await();
             } catch (Exception e) {
                 logger.error("[CLI] respond failed", e);

@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic;
 
 import jakarta.inject.Qualifier;
 
@@ -7,5 +7,5 @@ import java.lang.annotation.RetentionPolicy;
 
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Diffusic {
+public @interface Encodic {
 }

@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -6,13 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Encoder;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Encoder;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -54,10 +54,10 @@ public class EncoderImpl implements Encoder {
             /// @formatter:off
             case "Cortex"       -> this.perception(impulse);
             case "Thalamus"     -> this.relay(impulse);
-            case "Plasticity"   -> {
+            case "Autopoiesis"  -> {
                 yield impulse != null
-                    ? this.potentiation(impulse)
-                    : this.pruning();
+                    ? this.compensation(impulse)
+                    : this.conservation();
             }
             case "Default"      -> this.defaultMode();
             default -> throw new IllegalArgumentException();
@@ -90,8 +90,8 @@ public class EncoderImpl implements Encoder {
             Set.of("areas")));
     }
 
-    private String potentiation(Impulse impulse) {
-        return this.encodicService.call(new Input("potentiation.md",
+    private String compensation(Impulse impulse) {
+        return this.encodicService.call(new Input("compensation.md",
             /// @formatter:off
             List.of(
                 entry("input",      impulse.signal()),
@@ -102,8 +102,8 @@ public class EncoderImpl implements Encoder {
             Set.of("areas", "neurons", "effectors")));
     }
 
-    private String pruning() {
-        return this.encodicService.call(new Input("pruning.md",
+    private String conservation() {
+        return this.encodicService.call(new Input("conservation.md",
             List.of(),
             Set.of("areas", "neurons", "effectors")));
     }

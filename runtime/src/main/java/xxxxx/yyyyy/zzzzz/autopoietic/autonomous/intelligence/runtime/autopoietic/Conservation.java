@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.learning;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record Pruning(
+public record Conservation(
     @NotBlank String reasoning,
     @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
     @NotNull List<@Valid MergedArea> mergedAreas,
@@ -16,12 +16,12 @@ public record Pruning(
     public record MergedArea(
         @NotNull List<String> sources,
         @NotBlank String reasoning,
-        @NotNull @Valid Potentiation.NewArea newArea) {
+        @NotNull @Valid NewArea newArea) {
     }
 
     public record MergedNeuron(
         @NotNull List<String> sources,
         @NotBlank String reasoning,
-        @NotNull @Valid Potentiation.NewNeuron newNeuron) {
+        @NotNull @Valid NewNeuron newNeuron) {
     }
 }

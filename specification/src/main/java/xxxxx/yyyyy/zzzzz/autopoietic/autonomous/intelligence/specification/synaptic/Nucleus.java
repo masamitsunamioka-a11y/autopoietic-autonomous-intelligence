@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic;
 
 public interface Nucleus {
     /// [Engineering] As detailed in docs/kandel.md

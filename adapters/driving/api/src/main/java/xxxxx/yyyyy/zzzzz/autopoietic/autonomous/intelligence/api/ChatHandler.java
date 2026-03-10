@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Salience;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Transducer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -18,16 +17,13 @@ public class ChatHandler implements HttpHandler {
     private static final Logger logger = LoggerFactory.getLogger(ChatHandler.class);
     private final Salience salience;
     private final Thalamus thalamus;
-    private final Transducer transducer;
     private final Episode episode;
     private final SseRegistry registry;
 
     public ChatHandler(Salience salience, Thalamus thalamus,
-                       Transducer transducer, Episode episode,
-                       SseRegistry registry) {
+                       Episode episode, SseRegistry registry) {
         this.salience = salience;
         this.thalamus = thalamus;
-        this.transducer = transducer;
         this.episode = episode;
         this.registry = registry;
     }
@@ -51,8 +47,7 @@ public class ChatHandler implements HttpHandler {
         this.registry.broadcast(
             this.registry.buildJson("user", "user", input));
         try {
-            this.thalamus.relay(
-                this.transducer.transduce(new StimulusImpl(input)));
+            this.thalamus.relay(new ImpulseImpl(input, null));
             this.salience.await();
         } catch (Exception e) {
             logger.error("[UI] respond failed", e);

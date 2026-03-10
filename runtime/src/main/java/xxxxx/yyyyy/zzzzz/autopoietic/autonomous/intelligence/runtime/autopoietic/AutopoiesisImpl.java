@@ -1,22 +1,22 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.learning;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Nucleus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.integrative.Transmitter;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.learning.Plasticity;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic.Autopoiesis;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Transmitter;
 
 @ApplicationScoped
-public class PlasticityImpl implements Plasticity {
-    private static final Logger logger = LoggerFactory.getLogger(PlasticityImpl.class);
+public class AutopoiesisImpl implements Autopoiesis {
+    private static final Logger logger = LoggerFactory.getLogger(AutopoiesisImpl.class);
     private final Episode episode;
     private final Repository<Area> areaRepository;
     private final Repository<Neuron> neuronRepository;
@@ -25,12 +25,12 @@ public class PlasticityImpl implements Plasticity {
     private final Nucleus nucleus;
 
     @Inject
-    public PlasticityImpl(Episode episode,
-                          Repository<Area> areaRepository,
-                          Repository<Neuron> neuronRepository,
-                          Repository<Effector> effectorRepository,
-                          Transmitter transmitter,
-                          Nucleus nucleus) {
+    public AutopoiesisImpl(Episode episode,
+                           Repository<Area> areaRepository,
+                           Repository<Neuron> neuronRepository,
+                           Repository<Effector> effectorRepository,
+                           Transmitter transmitter,
+                           Nucleus nucleus) {
         this.episode = episode;
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
@@ -40,67 +40,67 @@ public class PlasticityImpl implements Plasticity {
     }
 
     @Override
-    public void potentiate(Impulse impulse) {
-        var potentiation = this.transmitter.transmit(impulse, Potentiation.class);
-        this.nucleus.integrate(potentiation, () -> {
-            this.reinforce(potentiation, impulse.area());
-            this.sprout(potentiation);
+    public void compensate(Impulse impulse) {
+        var compensation = this.transmitter.transmit(impulse, Compensation.class);
+        this.nucleus.integrate(compensation, () -> {
+            this.reinforce(compensation, impulse.area());
+            this.sprout(compensation);
         });
     }
 
     @Override
-    public void prune() {
-        var pruning = this.transmitter.transmit(null, Pruning.class);
-        this.nucleus.integrate(pruning, () -> {
-            this.eliminate(pruning);
-            this.consolidate(pruning);
+    public void conserve() {
+        var conservation = this.transmitter.transmit(null, Conservation.class);
+        this.nucleus.integrate(conservation, () -> {
+            this.eliminate(conservation);
+            this.consolidate(conservation);
             this.episode.decay();
         });
     }
 
-    private void reinforce(Potentiation potentiation, Area area) {
-        if (!potentiation.newTuning().isEmpty()) {
-            this.areaRepository.store(new Potentiation.NewArea(
+    private void reinforce(Compensation compensation, Area area) {
+        if (!compensation.newTuning().isEmpty()) {
+            this.areaRepository.store(new NewArea(
                 area.id(),
-                potentiation.newTuning(),
+                compensation.newTuning(),
                 area.neurons(),
                 area.effectors()));
         }
     }
 
-    private void sprout(Potentiation potentiation) {
-        potentiation.newEffectors()
+    private void sprout(Compensation compensation) {
+        compensation.newEffectors()
             .forEach(this.effectorRepository::store);
-        potentiation.newNeurons()
+        compensation.newNeurons()
             .forEach(this.neuronRepository::store);
-        potentiation.newAreas().stream()
+        compensation.newAreas().stream()
             .map(this::sanitize)
             .forEach(this.areaRepository::store);
     }
 
-    private void eliminate(Pruning pruning) {
+    private void eliminate(Conservation conservation) {
         this.areaRepository.removeAll(
-            pruning.mergedAreas().stream()
+            conservation.mergedAreas().stream()
                 .flatMap(x -> x.sources().stream())
                 .toList());
         this.neuronRepository.removeAll(
-            pruning.mergedNeurons().stream()
+            conservation.mergedNeurons().stream()
                 .flatMap(x -> x.sources().stream())
                 .toList());
     }
 
-    private void consolidate(Pruning pruning) {
-        pruning.mergedNeurons().stream()
-            .map(Pruning.MergedNeuron::newNeuron)
+    private void consolidate(Conservation conservation) {
+        conservation.mergedNeurons().stream()
+            .map(Conservation.MergedNeuron::newNeuron)
             .forEach(this.neuronRepository::store);
-        pruning.mergedAreas().stream()
-            .map(Pruning.MergedArea::newArea)
+        conservation.mergedAreas().stream()
+            .map(Conservation.MergedArea::newArea)
             .map(this::sanitize)
             .forEach(this.areaRepository::store);
     }
 
-    private Potentiation.NewArea sanitize(Potentiation.NewArea area) {
-        return new Potentiation.NewArea(
+    private NewArea sanitize(NewArea area) {
+        return new NewArea(
             area.id(),
             area.tuning(),
             area.neurons().stream()

@@ -33,7 +33,7 @@ public class Configuration {
 
     /// @formatter:off
     public Configuration neural() { return this.scope("neural"); }
-    public Configuration integrative() { return this.scope("integrative"); }
+    public Configuration synaptic() { return this.scope("synaptic"); }
     public Configuration hippocampal() { return this.scope("hippocampal"); }
     public Configuration neocortical() { return this.scope("neocortical"); }
     public Configuration episode() { return this.scope("episode"); }

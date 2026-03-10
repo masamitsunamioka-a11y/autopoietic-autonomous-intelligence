@@ -7,12 +7,12 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.*;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative.DecoderImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative.Decodic;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative.EncoderImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.integrative.Encodic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.Episodic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.Semantic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.DecoderImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Decodic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.EncoderImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Encodic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
@@ -34,8 +34,8 @@ public class Producers {
         Repository<Area> areaRepository,
         Repository<Neuron> neuronRepository,
         Repository<Effector> effectorRepository) {
-        var s = new Configuration().integrative().shared();
-        var f = new Configuration().integrative().function();
+        var s = new Configuration().synaptic().shared();
+        var f = new Configuration().synaptic().function();
         return new EncodingService(serializer,
             new LocalFileSystem(Path.of(s.get("source"), "")),
             new LocalFileSystem(Path.of(f.get("source"), "")),

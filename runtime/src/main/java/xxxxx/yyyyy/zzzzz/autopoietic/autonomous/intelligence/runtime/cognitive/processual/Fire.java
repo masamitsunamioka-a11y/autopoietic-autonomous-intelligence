@@ -8,13 +8,14 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.HabituationGuard;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.TraceImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 
 import java.util.stream.Collectors;
 
@@ -22,16 +23,17 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public final class Fire implements Process {
     private static final Logger logger = LoggerFactory.getLogger(Fire.class);
-    private final Cortex cortex;
+    private final Thalamus thalamus;
     private final Knowledge knowledge;
     private final Episode episode;
     private final Repository<Effector> effectorRepository;
     private final HabituationGuard habituationGuard;
 
     @Inject
-    public Fire(Cortex cortex, Knowledge knowledge, Episode episode,
+    public Fire(Thalamus thalamus, Knowledge knowledge,
+                Episode episode,
                 Repository<Effector> effectorRepository) {
-        this.cortex = cortex;
+        this.thalamus = thalamus;
         this.knowledge = knowledge;
         this.episode = episode;
         this.effectorRepository = effectorRepository;
@@ -50,7 +52,7 @@ public final class Fire implements Process {
             effector = this.effectorRepository.find(effectorName);
         } catch (RuntimeException e) {
             this.episode.encode(this.unresolvedWarning(effectorName));
-            this.cortex.respond(impulse);
+            this.thalamus.relay(impulse);
             return null;
         }
         var context = this.knowledge.retrieve().stream()
@@ -59,11 +61,9 @@ public final class Fire implements Process {
                 Trace::content,
                 (x, y) -> y));
         var output = effector.fire(context);
-        output.forEach((k, v) ->
-            this.knowledge.encode(
-                new TraceImpl("results." + effectorName + "." + k, v)));
+        this.thalamus.relay(
+            new ImpulseImpl(output, impulse.area()));
         logger.debug("--- fire: {}", effectorName);
-        this.cortex.respond(impulse);
         return null;
     }
 
