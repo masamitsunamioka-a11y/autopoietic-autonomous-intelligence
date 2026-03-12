@@ -16,30 +16,30 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synap
 @ApplicationScoped
 public class AutopoiesisImpl implements Autopoiesis {
     private static final Logger logger = LoggerFactory.getLogger(AutopoiesisImpl.class);
+    private final Transmitter transmitter;
+    private final Nucleus nucleus;
     private final Repository<Area> areaRepository;
     private final Repository<Neuron> neuronRepository;
     private final Repository<Effector> effectorRepository;
-    private final Transmitter transmitter;
-    private final Nucleus nucleus;
 
     @Inject
-    public AutopoiesisImpl(Repository<Area> areaRepository,
+    public AutopoiesisImpl(Transmitter transmitter, Nucleus nucleus,
+                           Repository<Area> areaRepository,
                            Repository<Neuron> neuronRepository,
-                           Repository<Effector> effectorRepository,
-                           Transmitter transmitter,
-                           Nucleus nucleus) {
+                           Repository<Effector> effectorRepository) {
+        this.transmitter = transmitter;
+        this.nucleus = nucleus;
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
-        this.transmitter = transmitter;
-        this.nucleus = nucleus;
     }
 
     @Override
     public void compensate(Impulse impulse) {
         var compensation = this.transmitter.transmit(impulse, Compensation.class);
         this.nucleus.integrate(compensation, () -> {
-            this.reinforce(compensation, impulse.area());
+            this.reinforce(compensation,
+                this.areaRepository.find(impulse.direction()));
             this.sprout(compensation);
         });
     }

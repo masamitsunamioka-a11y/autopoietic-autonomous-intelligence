@@ -8,7 +8,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 import java.util.List;
 import java.util.Map;
 
-/// Neural tree snapshot for JSON serialization.
 public record NeuralTree(List<Node> areas,
                          List<Leaf> neurons,
                          List<Leaf> effectors) {

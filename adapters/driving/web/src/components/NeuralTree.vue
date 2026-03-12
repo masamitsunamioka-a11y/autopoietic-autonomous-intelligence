@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {onMounted} from 'vue'
 import {useNeuralStore} from '../stores/neural'
+import StatusIndicator from './StatusIndicator.vue'
 
 const store = useNeuralStore()
 onMounted(() => {
@@ -10,17 +11,15 @@ onMounted(() => {
 function formatTime(ts: number): string {
   if (!ts) return ''
   const d = new Date(ts)
-  const Y = d.getFullYear()
-  const M = String(d.getMonth() + 1).padStart(2, '0')
-  const D = String(d.getDate()).padStart(2, '0')
   const hh = String(d.getHours()).padStart(2, '0')
   const mm = String(d.getMinutes()).padStart(2, '0')
   const ss = String(d.getSeconds()).padStart(2, '0')
-  return `${Y}/${M}/${D} ${hh}:${mm}:${ss}`
+  return `${hh}:${mm}:${ss}`
 }
 </script>
 <template>
   <div class="sidebar">
+    <StatusIndicator/>
     <div class="title">Neural</div>
     <div v-if="store.tree.areas.length === 0" class="empty">
       No areas

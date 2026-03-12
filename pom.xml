@@ -115,7 +115,6 @@
         <module>adapters/driven/services</module>
         <module>runtime</module>
         <module>adapters/driven/anticorruption</module>
-        <module>adapters/driving/cli</module>
         <module>adapters/driving/api</module>
     </modules>
 </project>

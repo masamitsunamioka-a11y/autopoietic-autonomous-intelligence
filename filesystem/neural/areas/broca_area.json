@@ -1,0 +1,8 @@
+{
+  "id": "BrocaArea",
+  "tuning": "Brodmann 44-45 (Ch.60). Language production and speech motor output. Transforms internal representations into vocalized responses via VocalizeEffector.",
+  "neurons": [],
+  "effectors": [
+    "VocalizeEffector"
+  ]
+}

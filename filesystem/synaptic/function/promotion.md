@@ -41,8 +41,8 @@ promoted to semantic memory (Knowledge) as lasting insights.
 {
   "reasoning": "Why these insights were extracted, or why no promotion is needed",
   "confidence": 0.85,
-  "insights": [
-    "Concise generalizable insight extracted from episodes"
-  ]
+  "insights": {
+    "short-cue-keyword": "Concise generalizable insight extracted from episodes"
+  }
 }
 ```

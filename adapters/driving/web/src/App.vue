@@ -4,40 +4,68 @@ import {useChatStore} from './stores/chat'
 import NeuralTree from './components/NeuralTree.vue'
 import ChatLog from './components/ChatLog.vue'
 import ChatInput from './components/ChatInput.vue'
+import RightPanel from './components/RightPanel.vue'
 
 const store = useChatStore()
 onMounted(() => {
   store.initSse()
 })
-const sidebarWidth = ref(500)
-const dragging = ref(false)
+const leftWidth = ref(Math.floor(window.innerWidth * 0.25))
+const rightWidth = ref(Math.floor(window.innerWidth * 0.25))
+const draggingLeft = ref(false)
+const draggingRight = ref(false)
 
-function onMouseDown() {
-  dragging.value = true
-  document.addEventListener('mousemove', onMouseMove)
-  document.addEventListener('mouseup', onMouseUp)
+function onLeftDown() {
+  draggingLeft.value = true
+  document.addEventListener('mousemove', onLeftMove)
+  document.addEventListener('mouseup', onLeftUp)
 }
 
-function onMouseMove(e: MouseEvent) {
-  const w = Math.max(160, Math.min(e.clientX, 600))
-  sidebarWidth.value = w
+function onLeftMove(e: MouseEvent) {
+  leftWidth.value = Math.max(160, Math.min(e.clientX, 600))
 }
 
-function onMouseUp() {
-  dragging.value = false
-  document.removeEventListener('mousemove', onMouseMove)
-  document.removeEventListener('mouseup', onMouseUp)
+function onLeftUp() {
+  draggingLeft.value = false
+  document.removeEventListener('mousemove', onLeftMove)
+  document.removeEventListener('mouseup', onLeftUp)
+}
+
+function onRightDown() {
+  draggingRight.value = true
+  document.addEventListener('mousemove', onRightMove)
+  document.addEventListener('mouseup', onRightUp)
+}
+
+function onRightMove(e: MouseEvent) {
+  rightWidth.value = Math.max(200, Math.min(
+      window.innerWidth - e.clientX, 600))
+}
+
+function onRightUp() {
+  draggingRight.value = false
+  document.removeEventListener('mousemove', onRightMove)
+  document.removeEventListener('mouseup', onRightUp)
 }
 </script>
 <template>
-  <div class="layout" :class="{dragging}">
-    <div :style="{width: sidebarWidth + 'px', minWidth: sidebarWidth + 'px'}">
+  <div class="layout"
+       :class="{dragging: draggingLeft || draggingRight}">
+    <div :style="{
+      width: leftWidth + 'px',
+      minWidth: leftWidth + 'px'}">
       <NeuralTree/>
     </div>
-    <div class="resizer" @mousedown="onMouseDown"/>
+    <div class="resizer" @mousedown="onLeftDown"/>
     <div class="main">
       <ChatLog/>
       <ChatInput/>
+    </div>
+    <div class="resizer" @mousedown="onRightDown"/>
+    <div :style="{
+      width: rightWidth + 'px',
+      minWidth: rightWidth + 'px'}">
+      <RightPanel/>
     </div>
   </div>
 </template>
@@ -54,7 +82,7 @@ body {
   background: #0d0d0d;
   color: #e0e0e0;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 14px;
+  font-size: 12px;
   height: 100vh;
   overflow: hidden;
 }

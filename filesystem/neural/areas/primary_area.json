@@ -1,8 +1,0 @@
-{
-  "id": "PrimaryArea",
-  "tuning": "Handle general conversation honestly. Delegate unknown domains via 'mode: PROJECT'. Trigger 'mode: POTENTIATE' when no specialist exists for a request.",
-  "neurons": [
-    "CoreDirectiveNeuron"
-  ],
-  "effectors": []
-}

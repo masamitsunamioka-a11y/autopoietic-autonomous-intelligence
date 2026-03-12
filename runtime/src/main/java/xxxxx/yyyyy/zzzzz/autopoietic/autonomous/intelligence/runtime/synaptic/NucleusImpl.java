@@ -44,8 +44,7 @@ public class NucleusImpl implements Nucleus {
     }
 
     private boolean shouldFire() {
-        /// Kandel Ch.9, 12: temporal summation -> T6
-        /// Kandel Ch.51: sleep state threshold -> T7
+        /// Kandel Ch.9, 12, 51 waking/sleep - T6, T7
         return !this.signals.isEmpty();
     }
 }

@@ -12,7 +12,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synap
 
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 
@@ -42,18 +43,21 @@ public class KnowledgeImpl implements Knowledge {
     }
 
     @Override
-    public List<Trace> retrieve() {
+    public Map<String, Object> retrieve() {
         return this.semanticRepository.findAll().stream()
             .sorted(comparing(this::timestampOf))
-            .toList();
+            .collect(Collectors.toMap(
+                Trace::id,
+                Trace::content,
+                (x, y) -> y));
     }
 
     @Override
     public void promote() {
         var promotion = this.transmitter.transmit(null, Promotion.class);
         this.nucleus.integrate(promotion, () ->
-            promotion.insights().forEach(insight ->
-                this.encode(new TraceImpl(insight, insight))));
+            promotion.insights().forEach((x, y) ->
+                this.encode(new TraceImpl(x, y))));
     }
 
     @Override

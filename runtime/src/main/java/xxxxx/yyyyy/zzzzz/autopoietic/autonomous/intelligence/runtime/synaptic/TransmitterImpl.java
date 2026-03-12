@@ -36,13 +36,16 @@ public class TransmitterImpl implements Transmitter {
         Conservation.class, Autopoiesis.class,
         Promotion.class,    Knowledge.class);
     /// @formatter:on
+    public record Input(String prompt, Class<?> caller) {
+    }
+
     private final Encoder encoder;
     private final Decoder decoder;
-    private final Service<String, String> diffusicService;
+    private final Service<Input, String> diffusicService;
 
     @Inject
     public TransmitterImpl(Encoder encoder, Decoder decoder,
-                           @Diffusic Service<String, String> diffusicService) {
+                           @Diffusic Service<Input, String> diffusicService) {
         this.encoder = encoder;
         this.decoder = decoder;
         this.diffusicService = diffusicService;
@@ -58,7 +61,7 @@ public class TransmitterImpl implements Transmitter {
         if (logger.isTraceEnabled()) {
             logger.trace("\n{}", signal);
         }
-        var raw = this.diffusicService.call(signal);
+        var raw = this.diffusicService.call(new Input(signal, caller));
         if (logger.isTraceEnabled()) {
             logger.trace("\n{}", raw);
         }

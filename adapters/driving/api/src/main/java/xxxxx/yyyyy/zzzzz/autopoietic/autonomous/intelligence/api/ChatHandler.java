@@ -5,9 +5,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Episode;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory.Salience;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.StimulusImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Receptor;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,17 +14,13 @@ import java.util.Map;
 
 public class ChatHandler implements HttpHandler {
     private static final Logger logger = LoggerFactory.getLogger(ChatHandler.class);
-    private final Salience salience;
-    private final Thalamus thalamus;
-    private final Episode episode;
-    private final SseRegistry registry;
+    private final Receptor receptor;
+    private final SseRegistry sseRegistry;
 
-    public ChatHandler(Salience salience, Thalamus thalamus,
-                       Episode episode, SseRegistry registry) {
-        this.salience = salience;
-        this.thalamus = thalamus;
-        this.episode = episode;
-        this.registry = registry;
+    public ChatHandler(Receptor receptor,
+                       SseRegistry sseRegistry) {
+        this.receptor = receptor;
+        this.sseRegistry = sseRegistry;
     }
 
     @Override
@@ -42,17 +37,12 @@ public class ChatHandler implements HttpHandler {
             exchange.sendResponseHeaders(400, -1);
             return;
         }
-        this.episode.encode(new TraceImpl("user", input));
-        this.salience.orient();
-        this.registry.broadcast(
-            this.registry.buildJson("user", "user", input));
         try {
-            this.thalamus.relay(new ImpulseImpl(input, null));
-            this.salience.await();
+            this.receptor.transduce(new StimulusImpl(input));
         } catch (Exception e) {
             logger.error("[UI] respond failed", e);
-            this.registry.broadcast(
-                this.registry.buildJson(
+            this.sseRegistry.broadcast(
+                this.sseRegistry.buildJson(
                     "error", "system", e.getMessage()));
         }
         exchange.getResponseHeaders().set(

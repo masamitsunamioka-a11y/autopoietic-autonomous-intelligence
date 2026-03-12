@@ -1,0 +1,8 @@
+{
+  "id": "VentrolateralPrefrontalArea",
+  "tuning": "Ventrolateral prefrontal cortex (Brodmann 47, Ch.19/48). Response inhibition and go/no-go decisions. Suppress inappropriate, harmful, or off-topic responses via InhibitEffector.",
+  "neurons": [],
+  "effectors": [
+    "InhibitEffector"
+  ]
+}

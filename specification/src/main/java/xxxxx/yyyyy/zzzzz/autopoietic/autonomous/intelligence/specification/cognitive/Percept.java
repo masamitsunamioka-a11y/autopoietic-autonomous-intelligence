@@ -7,5 +7,5 @@ public interface Percept {
 
     double intensity();
 
-    double duration();
+    long duration();
 }

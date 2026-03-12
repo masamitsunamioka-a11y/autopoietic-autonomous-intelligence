@@ -26,6 +26,7 @@ public class EncoderImpl implements Encoder {
     private static final Logger logger = LoggerFactory.getLogger(EncoderImpl.class);
     private final Knowledge knowledge;
     private final Episode episode;
+    private final Repository<Area> areaRepository;
     private final Repository<Neuron> neuronRepository;
     private final Repository<Effector> effectorRepository;
     private final Service<Input, String> encodicService;
@@ -38,11 +39,13 @@ public class EncoderImpl implements Encoder {
 
     @Inject
     public EncoderImpl(Knowledge knowledge, Episode episode,
+                       Repository<Area> areaRepository,
                        Repository<Neuron> neuronRepository,
                        Repository<Effector> effectorRepository,
                        @Encodic Service<Input, String> encodicService) {
         this.knowledge = knowledge;
         this.episode = episode;
+        this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
         this.encodicService = encodicService;
@@ -67,7 +70,7 @@ public class EncoderImpl implements Encoder {
     }
 
     private String perception(Impulse impulse) {
-        var self = impulse.area();
+        var self = this.areaRepository.find(impulse.direction());
         return this.encodicService.call(new Input("perception.md",
             /// @formatter:off
             List.of(
@@ -98,7 +101,8 @@ public class EncoderImpl implements Encoder {
                 entry("input",      impulse.signal()),
                 entry("episode",    this.episode.retrieve()),
                 entry("knowledge",  this.knowledge.retrieve()),
-                entry("self",       impulse.area())),
+                entry("self",       this.areaRepository.find(
+                    impulse.direction()))),
             /// @formatter:on
             Set.of("areas", "neurons", "effectors")));
     }

@@ -2,11 +2,15 @@ import {defineStore} from 'pinia'
 import {ref} from 'vue'
 import {useSse} from '../composables/useSse'
 import {useNeuralStore} from './neural'
+import {useStatusStore} from './status'
+import {useTraceStore} from './trace'
+import {useMnemonicStore} from './mnemonic'
 import type {Message} from '../types'
 
 export const useChatStore = defineStore('chat', () => {
     const messages = ref<Message[]>([])
     const sending = ref(false)
+    const fontSize = ref(12)
 
     function addMessage(partial: Omit<Message, 'id'>): void {
         messages.value.push({
@@ -17,7 +21,16 @@ export const useChatStore = defineStore('chat', () => {
 
     function initSse(): void {
         const neural = useNeuralStore()
-        useSse(addMessage, neural.setTree)
+        const status = useStatusStore()
+        const trace = useTraceStore()
+        const mnemonic = useMnemonicStore()
+        useSse(
+            addMessage,
+            neural.setTree,
+            status.setStatus,
+            trace.addTrace,
+            mnemonic.setMnemonic,
+        )
     }
 
     async function sendMessage(input: string): Promise<void> {
@@ -41,5 +54,5 @@ export const useChatStore = defineStore('chat', () => {
         }
     }
 
-    return {messages, sending, addMessage, initSse, sendMessage}
+    return {messages, sending, fontSize, addMessage, initSse, sendMessage}
 })

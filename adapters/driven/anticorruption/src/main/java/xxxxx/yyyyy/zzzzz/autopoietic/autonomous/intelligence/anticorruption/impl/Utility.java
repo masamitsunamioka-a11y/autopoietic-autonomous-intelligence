@@ -34,7 +34,6 @@ public class Utility {
         }
     }
 
-    /// Fully Qualified Class Name
     public static String toFqcn(String package_, String id) {
         return package_ + "." + id;
     }

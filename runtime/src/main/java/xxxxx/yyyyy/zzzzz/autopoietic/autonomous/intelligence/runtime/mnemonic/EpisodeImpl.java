@@ -10,7 +10,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemo
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 
@@ -39,10 +40,13 @@ public class EpisodeImpl implements Episode {
     }
 
     @Override
-    public List<Trace> retrieve() {
+    public Map<String, Object> retrieve() {
         return this.episodicRepository.findAll().stream()
             .sorted(comparing(this::timestampOf))
-            .toList();
+            .collect(Collectors.toMap(
+                Trace::id,
+                Trace::content,
+                (x, y) -> y));
     }
 
     @Override

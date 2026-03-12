@@ -9,16 +9,19 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modul
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static java.lang.Thread.currentThread;
 
 @ApplicationScoped
 public class SalienceImpl implements Salience {
     private static final Logger logger = LoggerFactory.getLogger(SalienceImpl.class);
     private final AtomicBoolean oriented = new AtomicBoolean(false);
-    private volatile CountDownLatch latch;
+    private final AtomicReference<CountDownLatch> latch = new AtomicReference<>();
 
     @Override
     public void orient() {
-        this.latch = new CountDownLatch(1);
+        this.latch.set(new CountDownLatch(1));
         this.oriented.set(true);
     }
 
@@ -28,7 +31,7 @@ public class SalienceImpl implements Salience {
             return;
         }
         this.oriented.set(false);
-        var snapshot = this.latch;
+        var snapshot = this.latch.get();
         if (snapshot != null) {
             snapshot.countDown();
         }
@@ -41,12 +44,12 @@ public class SalienceImpl implements Salience {
 
     @Override
     public void await() {
-        var snapshot = this.latch;
+        var snapshot = this.latch.get();
         if (snapshot != null) {
             try {
                 snapshot.await();
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                currentThread().interrupt();
             }
         }
     }

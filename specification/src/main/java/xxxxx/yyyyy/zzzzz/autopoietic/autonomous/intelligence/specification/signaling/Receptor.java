@@ -1,7 +1,5 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling;
 
-public interface Impulse {
-    Object signal();
-
-    String direction();
+public interface Receptor {
+    void transduce(Stimulus stimulus);
 }

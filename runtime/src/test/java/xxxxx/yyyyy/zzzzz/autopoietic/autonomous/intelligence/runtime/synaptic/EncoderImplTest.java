@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EncoderImplTest {
-    /// A1->E1 and A2->E2: perception for A1 must not include E2
     @Test
     void perceptionShouldNotLeakEffectorsFromOtherAreas() {
         var e1 = effector("E1");
@@ -33,9 +32,9 @@ class EncoderImplTest {
         var a2 = area("A2", List.of("N2"), List.of("E2"));
         var encoder = new EncoderImpl(
             knowledge(), episode(),
-            repository(n1, n2), repository(e1, e2),
-            assembleService());
-        var result = encoder.encode(impulse("test", a1), Cortex.class);
+            repository(a1, a2), repository(n1, n2),
+            repository(e1, e2), assembleService());
+        var result = encoder.encode(impulse("test", "A1"), Cortex.class);
         assertTrue(result.contains("E1"), "E1 should be in perception prompt of A1");
         assertFalse(result.contains("E2"), "E2 must not leak into perception prompt of A1");
     }
@@ -88,7 +87,7 @@ class EncoderImplTest {
         return new Episode() {
             public void encode(Trace trace) { }
             public Trace retrieve(String id) { return null; }
-            public List<Trace> retrieve() { return List.of(); }
+            public Map<String, Object> retrieve() { return Map.of(); }
             public void decay() { }
         };
     }
@@ -96,15 +95,15 @@ class EncoderImplTest {
         return new Knowledge() {
             public void encode(Trace trace) { }
             public Trace retrieve(String id) { return null; }
-            public List<Trace> retrieve() { return List.of(); }
+            public Map<String, Object> retrieve() { return Map.of(); }
             public void promote() { }
             public void decay() { }
         };
     }
-    private static Impulse impulse(String signal, Area area) {
+    private static Impulse impulse(String signal, String direction) {
         return new Impulse() {
             public Object signal() { return signal; }
-            public Area area() { return area; }
+            public String direction() { return direction; }
         };
     }
     /// @formatter:on

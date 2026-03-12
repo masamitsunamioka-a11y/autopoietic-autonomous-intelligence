@@ -24,10 +24,10 @@ class AutopoiesisImplTest {
             List.of(new NewNeuron("N1", "tuning")),
             List.of());
         var autopoiesis = new AutopoiesisImpl(
+            transmitter(compensation), nucleus(),
             trackingAreaRepository(storedAreas),
             trackingNeuronRepository(storedNeurons),
-            staticEffectorRepository(List.of()),
-            transmitter(compensation), nucleus()
+            staticEffectorRepository(List.of())
         );
         autopoiesis.compensate(impulse());
         assertTrue(storedNeurons.contains("N1"), "Neuron must be stored");
@@ -49,19 +49,19 @@ class AutopoiesisImplTest {
     private static Impulse impulse() {
         return new Impulse() {
             public Object signal() { return "test"; }
-            public Area area() {
+            public String direction() { return "current"; }
+        };
+    }
+    private static Repository<Area> trackingAreaRepository(List<String> stored) {
+        return new Repository<>() {
+            public Area find(String id) {
                 return new Area() {
-                    public String id() { return "current"; }
+                    public String id() { return id; }
                     public String tuning() { return ""; }
                     public List<String> neurons() { return List.of(); }
                     public List<String> effectors() { return List.of(); }
                 };
             }
-        };
-    }
-    private static Repository<Area> trackingAreaRepository(List<String> stored) {
-        return new Repository<>() {
-            public Area find(String id) { throw new UnsupportedOperationException(); }
             public List<Area> findAll() { return List.of(); }
             public void store(Area area) { stored.add(area.id()); }
             public void remove(String id) {}

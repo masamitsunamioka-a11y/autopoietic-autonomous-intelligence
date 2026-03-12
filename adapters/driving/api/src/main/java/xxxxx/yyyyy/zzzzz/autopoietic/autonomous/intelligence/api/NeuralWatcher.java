@@ -28,7 +28,7 @@ public class NeuralWatcher {
     private final Repository<Area> areaRepository;
     private final Repository<Neuron> neuronRepository;
     private final Repository<Effector> effectorRepository;
-    private final SseRegistry registry;
+    private final SseRegistry sseRegistry;
     private final Gson gson;
     private final Path areasPath;
     private final Path neuronsPath;
@@ -40,11 +40,11 @@ public class NeuralWatcher {
     public NeuralWatcher(Repository<Area> areaRepository,
                          Repository<Neuron> neuronRepository,
                          Repository<Effector> effectorRepository,
-                         SseRegistry registry) {
+                         SseRegistry sseRegistry) {
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
-        this.registry = registry;
+        this.sseRegistry = sseRegistry;
         this.gson = new Gson();
         this.areasPath = Path.of("filesystem/neural/areas", "");
         this.neuronsPath = Path.of("filesystem/neural/neurons", "");
@@ -105,7 +105,6 @@ public class NeuralWatcher {
             }
             key.pollEvents();
             key.reset();
-            /// Debounce: wait briefly for batch file operations
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -147,7 +146,6 @@ public class NeuralWatcher {
                             .toMillis();
                         map.put(id, ts);
                     } catch (IOException e) {
-                        /// Ignore unreadable files
                     }
                 });
         } catch (IOException e) {
@@ -169,7 +167,6 @@ public class NeuralWatcher {
                             .toMillis();
                         map.put(id, ts);
                     } catch (IOException e) {
-                        /// Ignore unreadable files
                     }
                 });
         } catch (IOException e) {
@@ -182,7 +179,7 @@ public class NeuralWatcher {
         try {
             var json = "{\"type\":\"neural\","
                 + "\"content\":" + this.treeJson() + "}";
-            this.registry.broadcast(json);
+            this.sseRegistry.broadcast(json);
             logger.debug("[NEURAL] tree broadcast");
         } catch (Exception e) {
             logger.error("[NEURAL] broadcast failed", e);

@@ -19,15 +19,15 @@ public class HabituationGuard {
 
     public boolean observe(String effector) {
         if (effector.equals(this.last.get())) {
-            return this.count.incrementAndGet() >= 3;
+            if (this.count.incrementAndGet() >= 3) {
+                this.count.set(0);
+                this.last.set("");
+                return true;
+            }
+            return false;
         }
         this.last.set(effector);
         this.count.set(1);
         return false;
-    }
-
-    public void reset() {
-        this.count.set(0);
-        this.last.set("");
     }
 }
