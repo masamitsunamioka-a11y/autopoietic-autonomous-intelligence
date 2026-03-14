@@ -15,6 +15,33 @@ or any service where someone says *"AAI helped me"*, that is the goal.
 3. Kandel et al. (2013). *Principles of Neural Science*, 5th ed. McGraw Hill.
 4. Evans (2003). *Domain-Driven Design*. Addison-Wesley.
 
+## How to Run
+
+### Prerequisites
+
+- Java 25 (Early-Access)
+- [Anthropic API key](https://console.anthropic.com/)
+
+### macOS / Linux
+
+Set your API key in `aai_api.sh`, then:
+
+```bash
+./aai_api.sh
+./aai_web.sh
+```
+
+### Windows
+
+Set your API key in `aai_api.cmd`, then:
+
+```cmd
+aai_api.cmd
+aai_web.cmd
+```
+
+Open http://localhost:3000
+
 ## Disclaimer
 
 Experimental research project. Contributions and feedback welcome.
