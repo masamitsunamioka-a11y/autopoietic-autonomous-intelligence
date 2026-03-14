@@ -9,10 +9,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Event;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Mnemonic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Monitor;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.EventImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.Mnemonic;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -94,7 +94,7 @@ public class MnemonicMonitor implements Monitor {
                 break;
             }
             this.events.queue(
-                new Event("mnemonic", null, this.content()));
+                new EventImpl("mnemonic", null, this.content()));
         }
     }
 

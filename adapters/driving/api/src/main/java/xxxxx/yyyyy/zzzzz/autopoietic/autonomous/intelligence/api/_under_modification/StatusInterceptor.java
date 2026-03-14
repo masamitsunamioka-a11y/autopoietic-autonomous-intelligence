@@ -7,8 +7,8 @@ import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Event;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.EventImpl;
 
 @Interceptable
 @Interceptor
@@ -30,7 +30,7 @@ public class StatusInterceptor {
         var status = this.resolve(className, methodName);
         if (status != null) {
             this.events.queue(
-                new Event("status", "", status));
+                new EventImpl("status", "", status));
         }
         return context.proceed();
     }

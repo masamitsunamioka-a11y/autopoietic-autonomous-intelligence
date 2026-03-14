@@ -7,8 +7,8 @@ import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Event;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.EventImpl;
 
 @Interceptable
 @Interceptor
@@ -28,7 +28,7 @@ public class TracedInterceptor {
         var className = method.getDeclaringClass().getSimpleName();
         var methodName = method.getName();
         this.events.queue(
-            new Event("trace", className, methodName));
+            new EventImpl("trace", className, methodName));
         return context.proceed();
     }
 }

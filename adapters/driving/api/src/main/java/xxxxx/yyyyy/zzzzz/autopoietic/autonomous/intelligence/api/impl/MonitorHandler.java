@@ -1,14 +1,12 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api._under_modification.Exchange;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Exchange;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Handler;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Monitor;
 
-import java.io.IOException;
-
-public class MonitorHandler implements HttpHandler {
+public class MonitorHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(MonitorHandler.class);
     private final Monitor monitor;
 
@@ -17,8 +15,7 @@ public class MonitorHandler implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-        var exchange = new Exchange(httpExchange);
+    public void handle(Exchange exchange) {
         if (!"GET".equalsIgnoreCase(exchange.method())) {
             exchange.send(405);
             return;

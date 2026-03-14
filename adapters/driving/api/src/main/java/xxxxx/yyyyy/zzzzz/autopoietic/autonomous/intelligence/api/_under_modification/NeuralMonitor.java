@@ -7,10 +7,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Event;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Monitor;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Neural;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.EventImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.Neural;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
@@ -110,7 +110,7 @@ public class NeuralMonitor implements Monitor {
                 break;
             }
             this.events.queue(
-                new Event("neural", null, this.content()));
+                new EventImpl("neural", null, this.content()));
         }
     }
 

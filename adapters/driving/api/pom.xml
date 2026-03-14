@@ -72,7 +72,7 @@
                     <arguments>
                         <argument>-classpath</argument>
                         <classpath/>
-                        <argument>xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Server</argument>
+                        <argument>xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.EntryPoint</argument>
                     </arguments>
                 </configuration>
             </plugin>

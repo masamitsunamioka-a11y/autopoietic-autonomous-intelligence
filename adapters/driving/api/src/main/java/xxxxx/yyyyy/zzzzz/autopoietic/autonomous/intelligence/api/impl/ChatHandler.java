@@ -1,24 +1,24 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api._under_modification.Exchange;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Exchange;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Handler;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.StimulusImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Receptor;
 
-import java.io.IOException;
 import java.util.Map;
 
-public class ChatHandler implements HttpHandler {
+public class ChatHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(ChatHandler.class);
     private final Receptor receptor;
     private final Events events;
 
     private record Input(String payload) {
         boolean isBlank() {
-            return this.payload == null || this.payload.isBlank();
+            return this.payload == null
+                || this.payload.isBlank();
         }
     }
 
@@ -28,8 +28,7 @@ public class ChatHandler implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-        var exchange = new Exchange(httpExchange);
+    public void handle(Exchange exchange) {
         if (!"POST".equalsIgnoreCase(exchange.method())) {
             exchange.send(405);
             return;
@@ -40,9 +39,10 @@ public class ChatHandler implements HttpHandler {
             return;
         }
         try {
-            this.receptor.transduce(new StimulusImpl(input.payload()));
+            this.receptor.transduce(
+                new StimulusImpl(input.payload()));
         } catch (Exception e) {
-            this.events.queue(new Event(
+            this.events.queue(new EventImpl(
                 "error",
                 "system",
                 e.getMessage()));
