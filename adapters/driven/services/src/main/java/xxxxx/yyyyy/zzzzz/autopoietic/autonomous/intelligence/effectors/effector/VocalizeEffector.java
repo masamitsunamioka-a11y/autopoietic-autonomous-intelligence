@@ -12,11 +12,16 @@ public class VocalizeEffector implements Effector {
 
     @Override
     public String tuning() {
-        return "Broca's area speech output (Ch.60). Transforms internal representations into vocalized responses.";
+        return """
+            Broca's area speech output (Ch.60).
+            Transforms internal representations into vocalized responses.
+            """;
     }
 
     @Override
     public Map<String, Object> fire(Map<String, Object> input) {
-        return Map.of("content", input.getOrDefault("response", ""));
+        return Map.of(
+            "content",
+            input.getOrDefault("response", ""));
     }
 }

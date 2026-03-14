@@ -6,8 +6,12 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Bindic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Diffusic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Releasic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic.Autopoiesis;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Cortex;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
@@ -17,7 +21,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Transmitter;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
 import java.time.Instant;
 import java.util.Map;
@@ -32,26 +36,28 @@ public class CortexImpl implements Cortex {
     private final Event<Percept> event;
     private final Knowledge knowledge;
     private final Episode episode;
-    private final Transmitter transmitter;
     private final Nucleus nucleus;
     private final Repository<Area> areaRepository;
     private final Repository<Effector> effectorRepository;
+    private final Service<Impulse, Potential> transmitter;
     private final HabituationGuard habituationGuard;
 
     @Inject
     public CortexImpl(Autopoiesis autopoiesis, Event<Percept> event,
                       Knowledge knowledge, Episode episode,
-                      Transmitter transmitter, Nucleus nucleus,
+                      Nucleus nucleus,
                       Repository<Area> areaRepository,
-                      Repository<Effector> effectorRepository) {
+                      Repository<Effector> effectorRepository,
+                      @Releasic @Diffusic @Bindic
+                      Service<Impulse, Potential> transmitter) {
         this.autopoiesis = autopoiesis;
         this.event = event;
         this.knowledge = knowledge;
         this.episode = episode;
-        this.transmitter = transmitter;
         this.nucleus = nucleus;
         this.areaRepository = areaRepository;
         this.effectorRepository = effectorRepository;
+        this.transmitter = transmitter;
         this.habituationGuard = new HabituationGuard();
     }
 
@@ -61,18 +67,20 @@ public class CortexImpl implements Cortex {
         if (mode != null) {
             var trace = switch (mode) {
                 case CEN -> new TraceImpl("user", impulse.signal());
-                case DMN -> introspected(
-                    String.valueOf(impulse.signal()));
+                case DMN -> introspected(String.valueOf(impulse.signal()));
             };
             this.episode.encode(trace);
         }
         var start = Instant.now();
-        var decision = this.transmitter.transmit(impulse, Decision.class);
-        this.nucleus.integrate(decision, () -> {
-            switch (decision.process()) {
+        var decision = (Decision) this.transmitter.call(
+            new ImpulseImpl(
+                impulse.signal(), this.getClass(),
+                impulse.efferent(), mode));
+        this.nucleus.integrate(decision, x -> {
+            switch (x.process()) {
                 case "POTENTIATE" -> this.potentiate(impulse);
-                case "PROJECT" -> this.project(decision, impulse);
-                default -> this.execute(decision, impulse, start);
+                case "PROJECT" -> this.project(x, impulse);
+                default -> this.execute(x, impulse, start);
             }
         });
     }
@@ -88,8 +96,10 @@ public class CortexImpl implements Cortex {
             this.episode.encode(unresolvedArea(decision.area()));
             this.respond(impulse);
         } else {
-            this.respond(new ImpulseImpl(
-                impulse.signal(), null, area.id()));
+            this.respond(
+                new ImpulseImpl(
+                    impulse.signal(), this.getClass(),
+                    area.id(), null));
         }
     }
 
@@ -114,12 +124,10 @@ public class CortexImpl implements Cortex {
         }
         var input = this.input(decision);
         var output = effector.fire(input);
-        var content = String.valueOf(
-            output.getOrDefault("content", output));
+        var content = String.valueOf(output.getOrDefault("content", output));
         switch (decision.process()) {
             case "VOCALIZE" -> {
-                this.episode.encode(
-                    vocalized(impulse.direction(), content));
+                this.episode.encode(vocalized(impulse.efferent(), content));
                 this.perceive(content, impulse, decision, start);
             }
             case "INHIBIT" -> {
@@ -127,8 +135,7 @@ public class CortexImpl implements Cortex {
                 this.perceive(content, impulse, decision, start);
             }
             default -> {
-                this.episode.encode(
-                    fired(effectorName, content));
+                this.episode.encode(fired(effectorName, content));
                 this.respond(impulse);
             }
         }
@@ -141,14 +148,14 @@ public class CortexImpl implements Cortex {
         };
     }
 
-    private void perceive(
-        String content, Impulse impulse,
-        Decision decision, Instant start) {
+    private void perceive(String content, Impulse impulse,
+                          Decision decision, Instant start) {
         var duration = between(start, Instant.now()).toMillis();
-        this.event.fire(new PerceptImpl(
-            content,
-            impulse.direction(),
-            decision.confidence(),
-            duration));
+        this.event.fire(
+            new PerceptImpl(
+                content,
+                impulse.efferent(),
+                decision.confidence(),
+                duration));
     }
 }

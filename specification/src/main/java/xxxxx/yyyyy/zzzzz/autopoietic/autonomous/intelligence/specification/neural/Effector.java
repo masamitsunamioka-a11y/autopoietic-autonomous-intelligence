@@ -7,6 +7,5 @@ import java.util.Map;
 public interface Effector extends AggregateRoot {
     String tuning();
 
-    /// [Engineering] As detailed in docs/kandel.md
     Map<String, Object> fire(Map<String, Object> input);
 }

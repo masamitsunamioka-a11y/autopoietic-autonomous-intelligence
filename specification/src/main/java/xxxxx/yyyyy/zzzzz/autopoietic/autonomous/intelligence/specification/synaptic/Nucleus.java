@@ -1,6 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic;
 
+import java.util.function.Consumer;
+
 public interface Nucleus {
-    /// [Engineering] As detailed in docs/kandel.md
-    <T> void integrate(T signal, Runnable fire);
+    <T extends Potential> void integrate(T potential, Consumer<T> f);
 }

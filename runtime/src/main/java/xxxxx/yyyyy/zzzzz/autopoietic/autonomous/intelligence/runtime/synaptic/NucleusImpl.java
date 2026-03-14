@@ -2,26 +2,32 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic;
 
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.homeostatic.ModulatorImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Modulator;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 @ApplicationScoped
 public class NucleusImpl implements Nucleus {
     private static final Logger logger = LoggerFactory.getLogger(NucleusImpl.class);
-    /// [Engineering] As detailed in docs/kandel.md
+    private final Event<Modulator> event;
     private final ExecutorService executorService;
     private final Deque<Object> signals;
 
     @Inject
-    public NucleusImpl() {
+    public NucleusImpl(Event<Modulator> event) {
+        this.event = event;
         this.executorService = newCachedThreadPool();
         this.signals = new ConcurrentLinkedDeque<>();
     }
@@ -32,19 +38,20 @@ public class NucleusImpl implements Nucleus {
     }
 
     @Override
-    public <T> void integrate(T signal, Runnable fire) {
+    public <T extends Potential> void integrate(T potential, Consumer<T> f) {
         this.executorService.submit(() -> {
-            this.signals.add(signal);
+            this.signals.add(potential);
             if (!this.shouldFire()) {
                 return;
             }
             this.signals.clear();
-            fire.run();
+            f.accept(potential);
+            this.event.fire(new ModulatorImpl());
         });
     }
 
     private boolean shouldFire() {
-        /// Kandel Ch.9, 12, 51 waking/sleep - T6, T7
+        /// Kandel Ch.9, 12: temporal summation -> T6
         return !this.signals.isEmpty();
     }
 }

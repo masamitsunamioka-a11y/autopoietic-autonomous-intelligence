@@ -1,4 +1,6 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling;
 
-public record Spindle() {
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
+
+public record Spindle() implements Potential {
 }

@@ -1,6 +1,6 @@
 module xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification {
     exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification;
-    exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.modulatory;
+    exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking;
     exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic;
     exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic;
     exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive;

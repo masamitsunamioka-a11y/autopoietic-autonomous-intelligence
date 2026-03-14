@@ -5,7 +5,7 @@ open module xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime {
     requires jakarta.validation;
     requires org.slf4j;
     exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime;
-    exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.modulatory;
+    exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.networking;
     exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.homeostatic;
     exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic;
     exports xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive;

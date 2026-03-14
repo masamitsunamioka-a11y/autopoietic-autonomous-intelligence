@@ -9,13 +9,14 @@ import java.util.Map;
 
 public class Configuration {
     private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private static final String name = "configuration.yaml";
     private final Map<String, Object> yaml;
     private final String prefix;
 
     @SuppressWarnings("unchecked")
     public Configuration() {
         var classLoader = Thread.currentThread().getContextClassLoader();
-        try (InputStream is = classLoader.getResourceAsStream("configuration.yaml")) {
+        try (InputStream is = classLoader.getResourceAsStream(name)) {
             if (is == null) {
                 throw new RuntimeException();
             }
@@ -31,44 +32,59 @@ public class Configuration {
         this.prefix = prefix;
     }
 
-    /// @formatter:off
-    public Configuration neural() { return this.scope("neural"); }
-    public Configuration synaptic() { return this.scope("synaptic"); }
-    public Configuration hippocampal() { return this.scope("hippocampal"); }
-    public Configuration neocortical() { return this.scope("neocortical"); }
-    public Configuration episode() { return this.scope("episode"); }
-    public Configuration knowledge() { return this.scope("knowledge"); }
-    public Configuration function() { return this.scope("function"); }
-    public Configuration shared() { return this.scope("shared"); }
-    /// @formatter:on
-    public Configuration neural(Class<?> type) {
-        return this.scope("neural")
-            .scope(type.getSimpleName().toLowerCase() + "s");
+    private Configuration scope(String key) {
+        var newPrefix = this.prefix.isEmpty()
+            ? key
+            : this.prefix + "." + key;
+        return new Configuration(
+            this.yaml, newPrefix);
     }
 
-    public long getLong(String key) {
-        var raw = Integer.parseInt(this.get(key));
-        return raw < 0 ? Long.MAX_VALUE : raw;
+    /// @formatter:off
+    public Configuration neural() {
+        return this.scope("neural"); }
+    public Configuration synaptic() {
+        return this.scope("synaptic"); }
+    public Configuration hippocampal() {
+        return this.scope("hippocampal"); }
+    public Configuration neocortical() {
+        return this.scope("neocortical"); }
+    public Configuration episode() {
+        return this.scope("episode"); }
+    public Configuration knowledge() {
+        return this.scope("knowledge"); }
+    public Configuration function() {
+        return this.scope("function"); }
+    public Configuration shared() {
+        return this.scope("shared"); }
+    /// @formatter:on
+    public Configuration neural(Class<?> type) {
+        return this
+            .scope("neural")
+            .scope(type.getSimpleName().toLowerCase() + "s");
     }
 
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
         var fullKey = this.prefix.isEmpty()
-            ? key : this.prefix + "." + key;
-        Object current = this.yaml;
-        for (String k : fullKey.split("\\.")) {
-            current = (current instanceof Map<?, ?> m) ? m.get(k) : null;
-        }
-        if (current == null) {
-            throw new RuntimeException();
-        }
-        return (T) current;
-    }
-
-    private Configuration scope(String key) {
-        var newPrefix = this.prefix.isEmpty()
             ? key
             : this.prefix + "." + key;
-        return new Configuration(this.yaml, newPrefix);
+        Object o = this.yaml;
+        for (String k : fullKey.split("\\.")) {
+            o = (o instanceof Map<?, ?> m)
+                ? m.get(k)
+                : null;
+        }
+        if (o == null) {
+            throw new RuntimeException();
+        }
+        return (T) o;
+    }
+
+    public long getLong(String key) {
+        var raw = Integer.parseInt(this.get(key));
+        return raw < 0
+            ? Long.MAX_VALUE
+            : raw;
     }
 }

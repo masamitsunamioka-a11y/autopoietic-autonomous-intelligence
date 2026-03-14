@@ -3,6 +3,7 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
 import java.util.Objects;
 
@@ -12,7 +13,8 @@ public record Decision(
     @NotBlank String process,
     String response,
     String effector,
-    String area) {
+    String area)
+    implements Potential {
     public Decision {
         process = process.toUpperCase();
         switch (process) {

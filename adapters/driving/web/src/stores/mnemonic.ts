@@ -13,7 +13,7 @@ export const useMnemonicStore = defineStore('mnemonic', () => {
 
     async function fetchMnemonic(): Promise<void> {
         try {
-            const response = await fetch('/api/mnemonic')
+            const response = await fetch('/api/monitor/mnemonic')
             const data = await response.json() as MnemonicData
             setMnemonic(data)
         } catch {

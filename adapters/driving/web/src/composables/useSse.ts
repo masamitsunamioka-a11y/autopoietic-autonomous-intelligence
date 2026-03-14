@@ -1,6 +1,6 @@
 import type {Message, MessageType, MnemonicData, NeuralTreeData} from '../types'
 
-interface SsePayload {
+interface Event {
     type: MessageType
     location?: string
     content: string | NeuralTreeData | MnemonicData
@@ -16,7 +16,7 @@ export function useSse(
     const es = new EventSource('/api/events')
     es.onmessage = (event: MessageEvent<string>) => {
         try {
-            const data = JSON.parse(event.data) as SsePayload
+            const data = JSON.parse(event.data) as Event
             if (data.type === 'neural') {
                 onNeural(data.content as NeuralTreeData)
                 return

@@ -4,7 +4,17 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signa
 
 public record ImpulseImpl(
     Object signal,
-    Mode mode,
-    String direction) implements Impulse {
+    String afferent,
+    String efferent,
+    Mode mode) implements Impulse {
     public enum Mode {CEN, DMN}
+
+    public ImpulseImpl(Object signal, Class<?> afferent,
+                       String efferent, Mode mode) {
+        this(signal,
+            afferent.getName()
+                .replaceAll(".*\\.|\\$.*", "")
+                .replaceAll("Impl$", ""),
+            efferent, mode);
+    }
 }

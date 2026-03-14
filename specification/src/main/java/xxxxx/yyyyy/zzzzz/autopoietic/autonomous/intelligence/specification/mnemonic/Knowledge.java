@@ -9,7 +9,7 @@ public interface Knowledge {
 
     Map<String, Object> retrieve();
 
-    void promote();
-
     void decay();
+
+    void promote();
 }

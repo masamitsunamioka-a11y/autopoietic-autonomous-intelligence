@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Arousal;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Sleep;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 
@@ -18,16 +19,17 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 @ApplicationScoped
 public class SleepImpl implements Sleep {
     private static final Logger logger = LoggerFactory.getLogger(SleepImpl.class);
+    private final Arousal arousal;
     private final Thalamus thalamus;
     private final ScheduledExecutorService executorService;
 
     @Inject
-    public SleepImpl(Thalamus thalamus) {
+    public SleepImpl(Arousal arousal, Thalamus thalamus) {
+        this.arousal = arousal;
         this.thalamus = thalamus;
         this.executorService = newSingleThreadScheduledExecutor();
     }
 
-    /// [Engineering] As detailed in docs/kandel.md
     @PostConstruct
     void activate() {
         this.executorService.schedule(
@@ -43,7 +45,11 @@ public class SleepImpl implements Sleep {
 
     private void sleep() {
         try {
+            if (this.arousal.isAwake()) {
+                return;
+            }
             this.thalamus.burst();
+            this.arousal.reset();
         } catch (Exception e) {
             logger.error("[SLEEP] failed", e);
         } finally {

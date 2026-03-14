@@ -37,7 +37,7 @@ export const useNeuralStore = defineStore('neural', () => {
 
     async function fetchTree(): Promise<void> {
         try {
-            const res = await fetch('/api/neural')
+            const res = await fetch('/api/monitor/neural')
             const data = await res.json() as NeuralTreeData
             tree.value = data
         } catch {

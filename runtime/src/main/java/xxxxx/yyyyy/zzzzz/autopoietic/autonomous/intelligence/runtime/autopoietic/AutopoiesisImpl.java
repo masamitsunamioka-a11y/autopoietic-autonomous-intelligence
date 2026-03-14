@@ -5,61 +5,72 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Bindic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Diffusic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Releasic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.autopoietic.Autopoiesis;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Transmitter;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
 @ApplicationScoped
 public class AutopoiesisImpl implements Autopoiesis {
     private static final Logger logger = LoggerFactory.getLogger(AutopoiesisImpl.class);
-    private final Transmitter transmitter;
     private final Nucleus nucleus;
     private final Repository<Area> areaRepository;
     private final Repository<Neuron> neuronRepository;
     private final Repository<Effector> effectorRepository;
+    private final Service<Impulse, Potential> transmitter;
 
     @Inject
-    public AutopoiesisImpl(Transmitter transmitter, Nucleus nucleus,
+    public AutopoiesisImpl(Nucleus nucleus,
                            Repository<Area> areaRepository,
                            Repository<Neuron> neuronRepository,
-                           Repository<Effector> effectorRepository) {
-        this.transmitter = transmitter;
+                           Repository<Effector> effectorRepository,
+                           @Releasic @Diffusic @Bindic
+                           Service<Impulse, Potential> transmitter) {
         this.nucleus = nucleus;
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
+        this.transmitter = transmitter;
     }
 
     @Override
     public void compensate(Impulse impulse) {
-        var compensation = this.transmitter.transmit(impulse, Compensation.class);
-        this.nucleus.integrate(compensation, () -> {
-            this.reinforce(compensation,
-                this.areaRepository.find(impulse.direction()));
-            this.sprout(compensation);
+        var compensation = (Compensation) this.transmitter.call(
+            new ImpulseImpl(
+                impulse.signal(), this.getClass(),
+                impulse.efferent(), ((ImpulseImpl) impulse).mode()));
+        this.nucleus.integrate(compensation, x -> {
+            this.reinforce(x, this.areaRepository.find(impulse.efferent()));
+            this.sprout(x);
         });
     }
 
     @Override
     public void conserve() {
-        var conservation = this.transmitter.transmit(null, Conservation.class);
-        this.nucleus.integrate(conservation, () -> {
-            this.eliminate(conservation);
-            this.consolidate(conservation);
+        var conservation = (Conservation) this.transmitter.call(
+            new ImpulseImpl(null, this.getClass(), null, null));
+        this.nucleus.integrate(conservation, x -> {
+            this.eliminate(x);
+            this.consolidate(x);
         });
     }
 
     private void reinforce(Compensation compensation, Area area) {
         if (!compensation.newTuning().isEmpty()) {
-            this.areaRepository.store(new NewArea(
-                area.id(),
-                compensation.newTuning(),
-                area.neurons(),
-                area.effectors()));
+            this.areaRepository.store(
+                new NewArea(
+                    area.id(),
+                    compensation.newTuning(),
+                    area.neurons(),
+                    area.effectors()));
         }
     }
 

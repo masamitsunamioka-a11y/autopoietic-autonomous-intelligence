@@ -41,7 +41,7 @@ export const useChatStore = defineStore('chat', () => {
             await fetch('/api/chat', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({input: trimmed}),
+                body: JSON.stringify({payload: trimmed}),
             })
         } catch (e) {
             addMessage({

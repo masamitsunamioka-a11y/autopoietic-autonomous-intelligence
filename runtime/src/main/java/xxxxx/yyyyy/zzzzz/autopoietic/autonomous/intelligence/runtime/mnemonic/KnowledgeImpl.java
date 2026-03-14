@@ -5,10 +5,16 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Bindic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Diffusic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Releasic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Transmitter;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -20,16 +26,18 @@ import static java.util.Comparator.comparing;
 @ApplicationScoped
 public class KnowledgeImpl implements Knowledge {
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeImpl.class);
-    private final Transmitter transmitter;
     private final Nucleus nucleus;
     private final Repository<Trace> semanticRepository;
+    private final Service<Impulse, Potential> transmitter;
 
     @Inject
-    public KnowledgeImpl(Transmitter transmitter, Nucleus nucleus,
-                         @Semantic Repository<Trace> semanticRepository) {
-        this.transmitter = transmitter;
+    public KnowledgeImpl(Nucleus nucleus,
+                         @Semantic Repository<Trace> semanticRepository,
+                         @Releasic @Diffusic @Bindic
+                         Service<Impulse, Potential> transmitter) {
         this.nucleus = nucleus;
         this.semanticRepository = semanticRepository;
+        this.transmitter = transmitter;
     }
 
     @Override
@@ -47,17 +55,7 @@ public class KnowledgeImpl implements Knowledge {
         return this.semanticRepository.findAll().stream()
             .sorted(comparing(this::timestampOf))
             .collect(Collectors.toMap(
-                Trace::id,
-                Trace::content,
-                (x, y) -> y));
-    }
-
-    @Override
-    public void promote() {
-        var promotion = this.transmitter.transmit(null, Promotion.class);
-        this.nucleus.integrate(promotion, () ->
-            promotion.insights().forEach((x, y) ->
-                this.encode(new TraceImpl(x, y))));
+                Trace::id, Trace::content, (x, y) -> y));
     }
 
     @Override
@@ -78,6 +76,16 @@ public class KnowledgeImpl implements Knowledge {
         logger.debug("[DECAY] knowledge: {} → {}",
             all.size(), all.size() - expired.size());
         this.semanticRepository.removeAll(expired);
+    }
+
+    @Override
+    public void promote() {
+        var promotion = (Promotion) this.transmitter.call(
+            new ImpulseImpl(null, this.getClass(), null, null));
+        this.nucleus.integrate(promotion, x -> {
+            x.insights().forEach((y, z) ->
+                this.encode(new TraceImpl(y, z)));
+        });
     }
 
     private String prefixOf(String id) {

@@ -11,22 +11,24 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signa
 @ApplicationScoped
 public class Subscriber {
     private static final Logger logger = LoggerFactory.getLogger(Subscriber.class);
-    private final SseRegistry sseRegistry;
+    private final Events events;
 
     @Inject
-    public Subscriber(SseRegistry sseRegistry) {
-        this.sseRegistry = sseRegistry;
+    public Subscriber(Events events) {
+        this.events = events;
     }
 
     public void onStimulus(@Observes Stimulus stimulus) {
-        this.sseRegistry.broadcast(
-            this.sseRegistry.buildJson(
-                "user", "user", stimulus.signal().toString()));
+        this.events.queue(new Event(
+            "user",
+            "user",
+            stimulus.energy().toString()));
     }
 
     public void onPercept(@Observes Percept percept) {
-        this.sseRegistry.broadcast(
-            this.sseRegistry.buildJson(
-                "message", percept.location(), percept.content()));
+        this.events.queue(new Event(
+            "message",
+            percept.location(),
+            percept.content()));
     }
 }

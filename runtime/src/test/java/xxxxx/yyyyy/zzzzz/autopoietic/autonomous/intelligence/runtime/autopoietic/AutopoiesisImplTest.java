@@ -2,15 +2,18 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoieti
 
 import org.junit.jupiter.api.Test;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Service;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Transmitter;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,10 +27,11 @@ class AutopoiesisImplTest {
             List.of(new NewNeuron("N1", "tuning")),
             List.of());
         var autopoiesis = new AutopoiesisImpl(
-            transmitter(compensation), nucleus(),
+            nucleus(),
             trackingAreaRepository(storedAreas),
             trackingNeuronRepository(storedNeurons),
-            staticEffectorRepository(List.of())
+            staticEffectorRepository(List.of()),
+            transmitter(compensation)
         );
         autopoiesis.compensate(impulse());
         assertTrue(storedNeurons.contains("N1"), "Neuron must be stored");
@@ -35,22 +39,19 @@ class AutopoiesisImplTest {
     }
 
     /// @formatter:off
-    private static Transmitter transmitter(Object result) {
-        return new Transmitter() {
-            @SuppressWarnings("unchecked")
-            public <T> T transmit(Impulse i, Class<T> r) { return (T) result; }
-        };
-    }
     private static Nucleus nucleus() {
         return new Nucleus() {
-            public <T> void integrate(T transmitted, Runnable propagation) { propagation.run(); }
+            @Override
+            public <T extends Potential> void integrate(T potential, Consumer<T> f) {
+                f.accept(potential);
+            }
         };
     }
+    private static Service<Impulse, Potential> transmitter(Potential result) {
+        return x -> result;
+    }
     private static Impulse impulse() {
-        return new Impulse() {
-            public Object signal() { return "test"; }
-            public String direction() { return "current"; }
-        };
+        return new ImpulseImpl("test", "Autopoiesis", "current", null);
     }
     private static Repository<Area> trackingAreaRepository(List<String> stored) {
         return new Repository<>() {

@@ -3,5 +3,7 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.sign
 public interface Impulse {
     Object signal();
 
-    String direction();
+    String afferent();
+
+    String efferent();
 }

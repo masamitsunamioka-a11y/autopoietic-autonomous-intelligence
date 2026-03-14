@@ -12,11 +12,16 @@ public class InhibitEffector implements Effector {
 
     @Override
     public String tuning() {
-        return "Prefrontal inhibitory control (Ch.19, 48). Suppresses inappropriate or harmful responses.";
+        return """
+            Prefrontal inhibitory control (Ch.19, 48).
+            Suppresses inappropriate or harmful responses.
+            """;
     }
 
     @Override
     public Map<String, Object> fire(Map<String, Object> input) {
-        return Map.of("content", input.getOrDefault("response", ""));
+        return Map.of(
+            "content",
+            input.getOrDefault("response", ""));
     }
 }
