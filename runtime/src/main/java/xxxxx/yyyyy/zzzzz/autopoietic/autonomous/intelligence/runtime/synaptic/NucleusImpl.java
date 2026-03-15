@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
+/// In the future, per-caller Qualifier + @SessionScoped
 @ApplicationScoped
 public class NucleusImpl implements Nucleus {
     private static final Logger logger = LoggerFactory.getLogger(NucleusImpl.class);
@@ -38,14 +39,17 @@ public class NucleusImpl implements Nucleus {
     }
 
     @Override
-    public <T extends Potential> void integrate(T potential, Consumer<T> f) {
+    public <T extends Potential>
+    void integrate(T potential, Consumer<T> consumer) {
         this.executorService.submit(() -> {
-            this.signals.add(potential);
-            if (!this.shouldFire()) {
-                return;
+            synchronized (this.signals) {
+                this.signals.add(potential);
+                if (!this.shouldFire()) {
+                    return;
+                }
+                this.signals.clear();
             }
-            this.signals.clear();
-            f.accept(potential);
+            consumer.accept(potential);
             this.event.fire(new ModulatorImpl());
         });
     }
