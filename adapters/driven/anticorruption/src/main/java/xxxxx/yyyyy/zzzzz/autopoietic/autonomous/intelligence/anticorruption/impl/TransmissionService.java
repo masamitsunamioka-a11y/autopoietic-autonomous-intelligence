@@ -19,8 +19,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.autopoietic
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.cognitive.Decision;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.Promotion;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.networking.Fluctuation;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.Projection;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.Spindle;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.networking.Projection;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.networking.Spindle;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Bindic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Diffusic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Releasic;
@@ -30,11 +30,11 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemo
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking.Default;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking.Thalamus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Neuron;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
 import java.nio.file.Path;
@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Map.entry;
 import static java.util.Map.ofEntries;
-import static java.util.stream.Collectors.joining;
 
 @Releasic
 @Diffusic
@@ -58,18 +57,22 @@ public class TransmissionService implements Service<Impulse, Potential> {
         "Thalamus", Thalamus.class,
         "Default", Default.class,
         "Autopoiesis", Autopoiesis.class,
-        "Knowledge", Knowledge.class);
+        "Episode", Episode.class);
     private static final Map<String, Class<?>> RESPONSES = ofEntries(
         entry("Cortex", Decision.class),
         entry("Thalamus:relay", Projection.class),
         entry("Default", Fluctuation.class),
         entry("Autopoiesis:compensate", Compensation.class),
         entry("Autopoiesis:conserve", Conservation.class),
-        entry("Knowledge", Promotion.class));
+        entry("Episode", Promotion.class));
     private static final Set<Class<?>> SONNET_CALLERS =
         Set.of(Cortex.class, Autopoiesis.class);
     private static final Set<String> AUTOPOIESIS =
         Set.of("compensation.md", "conservation.md");
+    private static final Set<String> INNATE_AREAS = Set.of(
+        "broca_area",
+        "dorsolateral_prefrontal_area",
+        "ventrolateral_prefrontal_area");
     private final Knowledge knowledge;
     private final Episode episode;
     private final Repository<Area> areaRepository;
@@ -81,12 +84,11 @@ public class TransmissionService implements Service<Impulse, Potential> {
     private final Validator validator;
 
     @Inject
-    public TransmissionService(
-        Knowledge knowledge, Episode episode,
-        Repository<Area> areaRepository,
-        Repository<Neuron> neuronRepository,
-        Repository<Effector> effectorRepository,
-        Serializer serializer) {
+    public TransmissionService(Knowledge knowledge, Episode episode,
+                               Repository<Area> areaRepository,
+                               Repository<Neuron> neuronRepository,
+                               Repository<Effector> effectorRepository,
+                               Serializer serializer) {
         this.knowledge = knowledge;
         this.episode = episode;
         this.areaRepository = areaRepository;
@@ -137,7 +139,7 @@ public class TransmissionService implements Service<Impulse, Potential> {
                 ? this.compensation(impulse)
                 : this.conservation();
             case "Default" -> this.defaultMode();
-            case "Knowledge" -> this.promotion();
+            case "Episode" -> this.promotion();
             default -> throw new IllegalArgumentException();
         };
     }
@@ -158,15 +160,10 @@ public class TransmissionService implements Service<Impulse, Potential> {
     }
 
     private Potential bind(String signal, Class<?> response) {
-        try {
-            var result = this.serializer.deserialize(
-                signal, response);
-            this.validate(result);
-            return (Potential) result;
-        } catch (Exception e) {
-            logger.warn("root cause:\n{}", signal);
-            throw e;
-        }
+        var result = this.serializer.deserialize(
+            signal, response);
+        this.validate(result);
+        return (Potential) result;
     }
 
     private String pathwayKey(Impulse impulse, String afferent) {
@@ -217,10 +214,13 @@ public class TransmissionService implements Service<Impulse, Potential> {
     }
 
     private String conservation() {
+        var areas = this.areaRepository.findAll().stream()
+            .filter(x -> !INNATE_AREAS.contains(x.id()))
+            .toList();
         return this.render(
             "conservation.md",
-            List.of(),
-            Set.of("areas", "neurons", "effectors"));
+            List.of(entry("areas", areas)),
+            Set.of("neurons", "effectors"));
     }
 
     private String promotion() {
@@ -286,7 +286,7 @@ public class TransmissionService implements Service<Impulse, Potential> {
             case "areas" -> this.areaRepository.findAll();
             case "neurons" -> this.neuronRepository.findAll();
             case "effectors" -> this.effectorRepository.findAll();
-            default -> throw new IllegalArgumentException(key);
+            default -> throw new IllegalArgumentException();
         };
     }
 
@@ -321,8 +321,7 @@ public class TransmissionService implements Service<Impulse, Potential> {
                         key, y, isAutopoiesis))
                     .toList());
             }
-            default -> throw new IllegalArgumentException(
-                value.getClass().getName());
+            default -> throw new IllegalArgumentException();
         };
     }
 
@@ -357,12 +356,7 @@ public class TransmissionService implements Service<Impulse, Potential> {
     private <T> void validate(T result) {
         var violations = this.validator.validate(result);
         if (!violations.isEmpty()) {
-            var reasons = violations.stream()
-                .map(x -> String.format("[%s] %s",
-                    x.getPropertyPath(),
-                    x.getMessage()))
-                .collect(joining(", "));
-            throw new IllegalStateException(reasons);
+            throw new IllegalStateException();
         }
     }
 }

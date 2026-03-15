@@ -13,7 +13,8 @@ function cssClass(type: string): string {
 </script>
 <template>
   <div :class="cssClass(props.message.type)">
-    <span v-if="props.message.location" class="loc">{{ props.message.location }}&gt;</span>
+    <span v-if="props.message.type === 'user'" class="loc">User&gt;</span>
+    <span v-else-if="props.message.location" class="loc">{{ props.message.location }}&gt;</span>
     <span class="text">{{ props.message.content }}</span>
   </div>
 </template>

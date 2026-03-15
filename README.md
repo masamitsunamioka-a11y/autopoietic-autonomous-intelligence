@@ -17,30 +17,7 @@ or any service where someone says *"AAI helped me"*, that is the goal.
 
 ## How to Run
 
-### Prerequisites
-
-- Java 25 (Early-Access)
-- [Anthropic API key](https://console.anthropic.com/)
-
-### macOS / Linux
-
-Set your API key in `aai_api.sh`, then:
-
-```bash
-./aai_api.sh
-./aai_web.sh
-```
-
-### Windows
-
-Set your API key in `aai_api.cmd`, then:
-
-```cmd
-aai_api.cmd
-aai_web.cmd
-```
-
-Open http://localhost:3000
+[CLAUDE.md](CLAUDE.md#build--test--run)
 
 ## Disclaimer
 

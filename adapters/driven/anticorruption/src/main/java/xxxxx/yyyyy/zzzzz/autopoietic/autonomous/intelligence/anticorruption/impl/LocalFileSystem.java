@@ -46,7 +46,7 @@ public class LocalFileSystem implements Extern {
                 ? new FileResource(Files.readString(path, UTF_8))
                 : null;
         } catch (IOException e) {
-            throw new UncheckedIOException("Read failed: " + path, e);
+            throw new UncheckedIOException(e);
         } finally {
             this.lock.readLock().unlock();
         }
@@ -61,7 +61,7 @@ public class LocalFileSystem implements Extern {
             Files.writeString(path, resource.data(), UTF_8);
             new SpinLock().await(() -> Files.exists(path), 10, 100);
         } catch (IOException e) {
-            throw new UncheckedIOException("Write failed: " + path, e);
+            throw new UncheckedIOException(e);
         } finally {
             this.lock.writeLock().unlock();
         }
@@ -75,7 +75,7 @@ public class LocalFileSystem implements Extern {
             Files.deleteIfExists(path);
             new SpinLock().await(() -> !Files.exists(path), 10, 100);
         } catch (IOException e) {
-            throw new UncheckedIOException("Delete failed: " + path, e);
+            throw new UncheckedIOException(e);
         } finally {
             this.lock.writeLock().unlock();
         }
@@ -104,7 +104,7 @@ public class LocalFileSystem implements Extern {
                     .collect(Collectors.toSet());
             }
         } catch (IOException e) {
-            throw new UncheckedIOException("Walk failed: " + this.parent, e);
+            throw new UncheckedIOException(e);
         } finally {
             this.lock.readLock().unlock();
         }

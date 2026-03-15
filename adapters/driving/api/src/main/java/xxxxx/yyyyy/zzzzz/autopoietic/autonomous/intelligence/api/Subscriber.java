@@ -1,10 +1,10 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api;
 
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
+import java.util.concurrent.TimeUnit;
 
-public interface Subscriber {
-    void onStimulus(Stimulus stimulus);
+public interface Subscriber extends AutoCloseable {
+    String poll(int timeout, TimeUnit unit);
 
-    void onPercept(Percept percept);
+    @Override
+    void close();
 }

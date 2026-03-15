@@ -48,8 +48,8 @@ public class AutopoiesisImpl implements Autopoiesis {
                 impulse.signal(), this.getClass(),
                 impulse.efferent(), ((ImpulseImpl) impulse).mode()));
         this.nucleus.integrate(compensation, x -> {
-            this.reinforce(x, this.areaRepository.find(impulse.efferent()));
-            this.sprout(x);
+            this.transform(x, this.areaRepository.find(impulse.efferent()));
+            this.produce(x);
         });
     }
 
@@ -58,12 +58,12 @@ public class AutopoiesisImpl implements Autopoiesis {
         var conservation = (Conservation) this.transmitter.call(
             new ImpulseImpl(null, this.getClass(), null, null));
         this.nucleus.integrate(conservation, x -> {
-            this.eliminate(x);
-            this.consolidate(x);
+            this.destroy(x);
+            this.produce(x);
         });
     }
 
-    private void reinforce(Compensation compensation, Area area) {
+    private void transform(Compensation compensation, Area area) {
         if (!compensation.newTuning().isEmpty()) {
             this.areaRepository.store(
                 new NewArea(
@@ -74,7 +74,7 @@ public class AutopoiesisImpl implements Autopoiesis {
         }
     }
 
-    private void sprout(Compensation compensation) {
+    private void produce(Compensation compensation) {
         compensation.newEffectors()
             .forEach(this.effectorRepository::store);
         compensation.newNeurons()
@@ -84,7 +84,7 @@ public class AutopoiesisImpl implements Autopoiesis {
             .forEach(this.areaRepository::store);
     }
 
-    private void eliminate(Conservation conservation) {
+    private void destroy(Conservation conservation) {
         this.areaRepository.removeAll(
             conservation.mergedAreas().stream()
                 .flatMap(x -> x.sources().stream())
@@ -95,7 +95,7 @@ public class AutopoiesisImpl implements Autopoiesis {
                 .toList());
     }
 
-    private void consolidate(Conservation conservation) {
+    private void produce(Conservation conservation) {
         conservation.mergedNeurons().stream()
             .map(Conservation.MergedNeuron::newNeuron)
             .forEach(this.neuronRepository::store);

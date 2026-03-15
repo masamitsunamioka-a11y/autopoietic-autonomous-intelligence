@@ -1,10 +1,42 @@
 import type {Message, MessageType, MnemonicData, NeuralTreeData} from '../types'
 
-interface Event {
+interface BaseEvent {
     type: MessageType
-    location?: string
-    content: string | NeuralTreeData | MnemonicData
 }
+
+interface TraceEventData extends BaseEvent {
+    type: 'trace'
+    className: string
+    methodName: string
+}
+
+interface StatusEventData extends BaseEvent {
+    type: 'status'
+    status: string
+}
+
+interface MessageEventData extends BaseEvent {
+    type: 'message' | 'user' | 'error'
+    location?: string
+    content: string
+}
+
+interface NeuralEventData extends BaseEvent {
+    type: 'neural'
+    content: NeuralTreeData
+}
+
+interface MnemonicEventData extends BaseEvent {
+    type: 'mnemonic'
+    content: MnemonicData
+}
+
+type Event =
+    | TraceEventData
+    | StatusEventData
+    | MessageEventData
+    | NeuralEventData
+    | MnemonicEventData
 
 export function useSse(
     onMessage: (msg: Omit<Message, 'id'>) => void,
@@ -18,27 +50,25 @@ export function useSse(
         try {
             const data = JSON.parse(event.data) as Event
             if (data.type === 'neural') {
-                onNeural(data.content as NeuralTreeData)
+                onNeural(data.content)
                 return
             }
             if (data.type === 'status') {
-                onStatus(data.content as string)
+                onStatus(data.status)
                 return
             }
             if (data.type === 'trace') {
-                onTrace(
-                    data.location ?? '',
-                    data.content as string)
+                onTrace(data.className, data.methodName)
                 return
             }
             if (data.type === 'mnemonic') {
-                onMnemonic(data.content as MnemonicData)
+                onMnemonic(data.content)
                 return
             }
             onMessage({
                 type: data.type,
                 location: data.location ?? null,
-                content: data.content as string,
+                content: data.content,
             })
         } catch {
             // Malformed frame — silently discard

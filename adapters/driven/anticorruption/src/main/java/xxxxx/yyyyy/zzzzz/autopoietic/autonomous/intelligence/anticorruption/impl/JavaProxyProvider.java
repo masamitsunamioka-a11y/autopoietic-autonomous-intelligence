@@ -78,7 +78,7 @@ public class JavaProxyProvider<I extends Entity> implements ProxyProvider<I> {
             List.of("-classpath", this.fullClasspath(), "-Xlint:none"),
             null, List.of(javaFileObject));
         if (!task.call()) {
-            throw new IllegalStateException("Compile failed: " + fqcn);
+            throw new IllegalStateException();
         }
         try {
             return javaFileManager.loadClass(fqcn);

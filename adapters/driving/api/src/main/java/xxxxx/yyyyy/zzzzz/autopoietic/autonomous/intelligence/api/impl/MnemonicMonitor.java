@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api._under_modification;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -9,10 +9,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Monitor;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.EventImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.Mnemonic;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Publisher;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -27,7 +25,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 @ApplicationScoped
 public class MnemonicMonitor implements Monitor {
     private static final Logger logger = LoggerFactory.getLogger(MnemonicMonitor.class);
-    private final Events events;
+    private final Publisher publisher;
     private final Gson gson;
     private final Path episodePath;
     private final Path knowledgePath;
@@ -35,8 +33,8 @@ public class MnemonicMonitor implements Monitor {
     private final ExecutorService executorService;
 
     @Inject
-    public MnemonicMonitor(Events events) {
-        this.events = events;
+    public MnemonicMonitor(Publisher publisher) {
+        this.publisher = publisher;
         this.gson = new Gson();
         this.episodePath = Path.of("filesystem/hippocampal/episode", "");
         this.knowledgePath = Path.of("filesystem/neocortical/knowledge", "");
@@ -93,8 +91,8 @@ public class MnemonicMonitor implements Monitor {
                 Thread.currentThread().interrupt();
                 break;
             }
-            this.events.queue(
-                new EventImpl("mnemonic", null, this.content()));
+            this.publisher.publish(
+                new MnemonicEvent(this.content()));
         }
     }
 

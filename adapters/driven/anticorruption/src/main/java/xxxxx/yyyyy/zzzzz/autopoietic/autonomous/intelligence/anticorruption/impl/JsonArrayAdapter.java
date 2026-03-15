@@ -28,12 +28,12 @@ public class JsonArrayAdapter<I extends Entity> implements Adapter<I> {
 
     public JsonArrayAdapter(Translator<List<I>, Resource> translator, Class<?> type) {
         this.translator = translator;
-        var neocortical = type == Knowledge.class;
-        var configuration = neocortical
+        var isKnowledge = type == Knowledge.class;
+        var configuration = isKnowledge
             ? new Configuration().neocortical().knowledge()
             : new Configuration().hippocampal().episode();
         this.extern = new LocalFileSystem(Path.of(configuration.get("target"), ""));
-        this.limit = neocortical ? 1 : configuration.getLong("limit");
+        this.limit = isKnowledge ? 1 : configuration.getLong("limit");
         this.uri = this.extern.resolve(this.toName(type));
     }
 

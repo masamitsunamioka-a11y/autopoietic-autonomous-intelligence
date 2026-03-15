@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api._under_modification;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
 import com.google.gson.Gson;
 import jakarta.annotation.PostConstruct;
@@ -7,10 +7,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Monitor;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.EventImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.Neural;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Publisher;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Area;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
@@ -34,7 +32,7 @@ public class NeuralMonitor implements Monitor {
     private final Repository<Area> areaRepository;
     private final Repository<Neuron> neuronRepository;
     private final Repository<Effector> effectorRepository;
-    private final Events events;
+    private final Publisher publisher;
     private final Gson gson;
     private final Path areasPath;
     private final Path neuronsPath;
@@ -46,11 +44,11 @@ public class NeuralMonitor implements Monitor {
     public NeuralMonitor(Repository<Area> areaRepository,
                          Repository<Neuron> neuronRepository,
                          Repository<Effector> effectorRepository,
-                         Events events) {
+                         Publisher publisher) {
         this.areaRepository = areaRepository;
         this.neuronRepository = neuronRepository;
         this.effectorRepository = effectorRepository;
-        this.events = events;
+        this.publisher = publisher;
         this.gson = new Gson();
         this.areasPath = Path.of("filesystem/neural/areas", "");
         this.neuronsPath = Path.of("filesystem/neural/neurons", "");
@@ -109,8 +107,8 @@ public class NeuralMonitor implements Monitor {
                 Thread.currentThread().interrupt();
                 break;
             }
-            this.events.queue(
-                new EventImpl("neural", null, this.content()));
+            this.publisher.publish(
+                new NeuralEvent(this.content()));
         }
     }
 

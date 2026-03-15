@@ -48,10 +48,7 @@ public class SalienceImpl implements Salience {
     @Override
     public void await() {
         try {
-            var snapshot = this.latch.get();
-            if (snapshot != null) {
-                snapshot.await();
-            }
+            this.latch.get().await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

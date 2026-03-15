@@ -4,8 +4,8 @@ import com.sun.net.httpserver.HttpServer;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Monitor;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Publisher;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Server;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Sleep;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking.Default;
@@ -21,7 +21,7 @@ public class ServerImpl implements Server {
     private static final Logger logger = LoggerFactory.getLogger(ServerImpl.class);
     private static final int PORT = 8080;
     private final HttpServer httpServer;
-    private final Events events;
+    private final Publisher publisher;
 
     public ServerImpl(WeldContainer weld) {
         var receptor =
@@ -37,8 +37,8 @@ public class ServerImpl implements Server {
         monitor1.toString();
         monitor2.toString();
 
-        this.events =
-            weld.select(Events.class).get();
+        this.publisher =
+            weld.select(Publisher.class).get();
 
         try {
             this.httpServer = HttpServer.create(
@@ -48,12 +48,12 @@ public class ServerImpl implements Server {
 
             this.httpServer.createContext(
                 "/api/events",
-                x -> new EventsHandler(this.events)
+                x -> new EventsHandler(this.publisher)
                     .handle(new ExchangeImpl(x)));
 
             this.httpServer.createContext(
                 "/api/chat",
-                x -> new ChatHandler(receptor, this.events)
+                x -> new ChatHandler(receptor, this.publisher)
                     .handle(new ExchangeImpl(x)));
 
             this.httpServer.createContext(
@@ -78,7 +78,7 @@ public class ServerImpl implements Server {
 
     @Override
     public void stop() {
-        this.events.close();
+        this.publisher.close();
         this.httpServer.stop(2);
     }
 }

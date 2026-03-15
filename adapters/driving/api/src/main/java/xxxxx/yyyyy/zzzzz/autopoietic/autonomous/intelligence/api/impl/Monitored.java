@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api._under_modification;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
 import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.interceptor.InterceptorBinding;
@@ -13,10 +13,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @InterceptorBinding
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
-public @interface Interceptable {
+public @interface Monitored {
     final class Literal
-        extends AnnotationLiteral<Interceptable>
-        implements Interceptable {
+        extends AnnotationLiteral<Monitored>
+        implements Monitored {
         public static final Literal INSTANCE = new Literal();
     }
 }

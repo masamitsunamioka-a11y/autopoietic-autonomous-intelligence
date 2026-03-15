@@ -14,8 +14,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic.Re
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Arousal;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking.Default;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking.Salience;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking.Thalamus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Impulse;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Thalamus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
@@ -30,20 +30,20 @@ import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.sign
 public class DefaultImpl implements Default {
     private static final Logger logger = LoggerFactory.getLogger(DefaultImpl.class);
     private final Salience salience;
-    private final Arousal arousal;
     private final Thalamus thalamus;
+    private final Arousal arousal;
     private final Nucleus nucleus;
     private final Service<Impulse, Potential> transmitter;
     private final ScheduledExecutorService executorService;
 
     @Inject
-    public DefaultImpl(Salience salience, Arousal arousal,
-                       Thalamus thalamus, Nucleus nucleus,
+    public DefaultImpl(Salience salience, Thalamus thalamus,
+                       Arousal arousal, Nucleus nucleus,
                        @Releasic @Diffusic @Bindic
                        Service<Impulse, Potential> transmitter) {
         this.salience = salience;
-        this.arousal = arousal;
         this.thalamus = thalamus;
+        this.arousal = arousal;
         this.nucleus = nucleus;
         this.transmitter = transmitter;
         this.executorService = newSingleThreadScheduledExecutor();
@@ -68,8 +68,6 @@ public class DefaultImpl implements Default {
                 return;
             }
             this.fire();
-        } catch (Exception e) {
-            logger.error("[DMN] failed", e);
         } finally {
             this.activate();
         }

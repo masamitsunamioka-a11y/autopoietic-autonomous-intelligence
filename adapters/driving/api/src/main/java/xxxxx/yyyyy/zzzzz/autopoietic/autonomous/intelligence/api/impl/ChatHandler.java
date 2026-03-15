@@ -2,9 +2,9 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Events;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Exchange;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Handler;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Publisher;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.StimulusImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Receptor;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 public class ChatHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(ChatHandler.class);
     private final Receptor receptor;
-    private final Events events;
+    private final Publisher publisher;
 
     private record Input(String payload) {
         boolean isBlank() {
@@ -22,9 +22,9 @@ public class ChatHandler implements Handler {
         }
     }
 
-    public ChatHandler(Receptor receptor, Events events) {
+    public ChatHandler(Receptor receptor, Publisher publisher) {
         this.receptor = receptor;
-        this.events = events;
+        this.publisher = publisher;
     }
 
     @Override
@@ -42,10 +42,8 @@ public class ChatHandler implements Handler {
             this.receptor.transduce(
                 new StimulusImpl(input.payload()));
         } catch (Exception e) {
-            this.events.queue(new EventImpl(
-                "error",
-                "system",
-                e.getMessage()));
+            this.publisher.publish(
+                new ErrorEvent(e.getMessage()));
         }
         exchange.send(200, Map.of());
     }

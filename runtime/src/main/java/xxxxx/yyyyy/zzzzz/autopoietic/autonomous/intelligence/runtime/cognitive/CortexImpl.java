@@ -44,8 +44,7 @@ public class CortexImpl implements Cortex {
 
     @Inject
     public CortexImpl(Autopoiesis autopoiesis, Event<Percept> event,
-                      Knowledge knowledge, Episode episode,
-                      Nucleus nucleus,
+                      Knowledge knowledge, Episode episode, Nucleus nucleus,
                       Repository<Area> areaRepository,
                       Repository<Effector> effectorRepository,
                       @Releasic @Diffusic @Bindic
@@ -61,13 +60,14 @@ public class CortexImpl implements Cortex {
         this.habituationGuard = new HabituationGuard();
     }
 
+    /// fixme
     @Override
     public void respond(Impulse impulse) {
         var mode = ((ImpulseImpl) impulse).mode();
         if (mode != null) {
             var trace = switch (mode) {
                 case CEN -> new TraceImpl("user", impulse.signal());
-                case DMN -> introspected(String.valueOf(impulse.signal()));
+                case DMN -> introspected(impulse.signal());
             };
             this.episode.encode(trace);
         }
@@ -87,14 +87,20 @@ public class CortexImpl implements Cortex {
 
     private void potentiate(Impulse impulse) {
         this.autopoiesis.compensate(impulse);
-        this.respond(impulse);
+        this.respond(
+            new ImpulseImpl(
+                impulse.signal(), this.getClass(),
+                impulse.efferent(), null));
     }
 
     private void project(Decision decision, Impulse impulse) {
         var area = this.areaRepository.find(decision.area());
         if (area == null) {
             this.episode.encode(unresolvedArea(decision.area()));
-            this.respond(impulse);
+            this.respond(
+                new ImpulseImpl(
+                    impulse.signal(), this.getClass(),
+                    impulse.efferent(), null));
         } else {
             this.respond(
                 new ImpulseImpl(
@@ -113,13 +119,19 @@ public class CortexImpl implements Cortex {
         /// @formatter:on
         if (this.habituationGuard.observe(effectorName)) {
             this.episode.encode(habituatedEffector(effectorName));
-            this.respond(impulse);
+            this.respond(
+                new ImpulseImpl(
+                    impulse.signal(), this.getClass(),
+                    impulse.efferent(), null));
             return;
         }
         var effector = this.effectorRepository.find(effectorName);
         if (effector == null) {
             this.episode.encode(unresolvedEffector(effectorName));
-            this.respond(impulse);
+            this.respond(
+                new ImpulseImpl(
+                    impulse.signal(), this.getClass(),
+                    impulse.efferent(), null));
             return;
         }
         var input = this.input(decision);

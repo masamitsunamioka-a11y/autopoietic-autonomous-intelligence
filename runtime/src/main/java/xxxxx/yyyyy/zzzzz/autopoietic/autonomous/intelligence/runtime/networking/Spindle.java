@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.networking;
 
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 

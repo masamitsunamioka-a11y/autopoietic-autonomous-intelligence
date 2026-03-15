@@ -10,6 +10,4 @@ public interface Knowledge {
     Map<String, Object> retrieve();
 
     void decay();
-
-    void promote();
 }

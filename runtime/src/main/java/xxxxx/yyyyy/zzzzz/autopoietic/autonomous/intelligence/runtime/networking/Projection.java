@@ -1,4 +1,4 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.networking;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;

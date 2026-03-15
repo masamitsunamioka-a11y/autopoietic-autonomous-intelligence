@@ -10,4 +10,6 @@ public interface Episode {
     Map<String, Object> retrieve();
 
     void decay();
+
+    void promote();
 }
