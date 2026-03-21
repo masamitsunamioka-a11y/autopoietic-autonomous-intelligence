@@ -23,151 +23,109 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signa
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
-import java.time.Instant;
 import java.util.Map;
 
-import static java.time.Duration.between;
-import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.TraceImpl.*;
-
+/// In the future, scope to per-session
 @ApplicationScoped
 public class CortexImpl implements Cortex {
     private static final Logger logger = LoggerFactory.getLogger(CortexImpl.class);
+    private static final Map<String, String> EFFECTORS = Map.of(
+        "VOCALIZE", "VocalizeEffector",
+        "INHIBIT", "InhibitEffector");
     private final Autopoiesis autopoiesis;
-    private final Event<Percept> event;
+    private final Event<Potential> potentialEvent;
+    private final Event<Percept> perceptEvent;
     private final Knowledge knowledge;
     private final Episode episode;
     private final Nucleus nucleus;
     private final Repository<Area> areaRepository;
     private final Repository<Effector> effectorRepository;
     private final Service<Impulse, Potential> transmitter;
-    private final HabituationGuard habituationGuard;
+    private final Habituation habituation;
 
     @Inject
-    public CortexImpl(Autopoiesis autopoiesis, Event<Percept> event,
+    public CortexImpl(Autopoiesis autopoiesis,
+                      Event<Potential> potentialEvent, Event<Percept> perceptEvent,
                       Knowledge knowledge, Episode episode, Nucleus nucleus,
                       Repository<Area> areaRepository,
                       Repository<Effector> effectorRepository,
                       @Releasic @Diffusic @Bindic
                       Service<Impulse, Potential> transmitter) {
         this.autopoiesis = autopoiesis;
-        this.event = event;
+        this.potentialEvent = potentialEvent;
+        this.perceptEvent = perceptEvent;
         this.knowledge = knowledge;
         this.episode = episode;
         this.nucleus = nucleus;
         this.areaRepository = areaRepository;
         this.effectorRepository = effectorRepository;
         this.transmitter = transmitter;
-        this.habituationGuard = new HabituationGuard();
+        this.habituation = new Habituation();
     }
 
-    /// fixme
     @Override
     public void respond(Impulse impulse) {
-        var mode = ((ImpulseImpl) impulse).mode();
-        if (mode != null) {
-            var trace = switch (mode) {
-                case CEN -> new TraceImpl("user", impulse.signal());
-                case DMN -> introspected(impulse.signal());
-            };
-            this.episode.encode(trace);
+        this.respond(impulse, true);
+    }
+
+    private void respond(Impulse impulse, boolean initial) {
+        if (initial) {
+            this.encode(impulse.afferent(), impulse.signal());
         }
-        var start = Instant.now();
-        var decision = (Decision) this.transmitter.call(
-            new ImpulseImpl(
-                impulse.signal(), this.getClass(),
-                impulse.efferent(), mode));
+        var decision = (Decision) this.transmitter.call(new ImpulseImpl(impulse.signal(), this.label(), impulse.efferent()));
         this.nucleus.integrate(decision, x -> {
-            switch (x.process()) {
-                case "POTENTIATE" -> this.potentiate(impulse);
-                case "PROJECT" -> this.project(x, impulse);
-                default -> this.execute(x, impulse, start);
-            }
+            this.potentialEvent.fire(x);
+            this.process(x, impulse);
         });
     }
 
-    private void potentiate(Impulse impulse) {
-        this.autopoiesis.compensate(impulse);
-        this.respond(
-            new ImpulseImpl(
-                impulse.signal(), this.getClass(),
-                impulse.efferent(), null));
-    }
-
-    private void project(Decision decision, Impulse impulse) {
-        var area = this.areaRepository.find(decision.area());
-        if (area == null) {
-            this.episode.encode(unresolvedArea(decision.area()));
-            this.respond(
-                new ImpulseImpl(
-                    impulse.signal(), this.getClass(),
-                    impulse.efferent(), null));
-        } else {
-            this.respond(
-                new ImpulseImpl(
-                    impulse.signal(), this.getClass(),
-                    area.id(), null));
-        }
-    }
-
-    private void execute(Decision decision, Impulse impulse, Instant start) {
-        /// @formatter:off
-        var effectorName = switch (decision.process()) {
-            case "VOCALIZE" -> "VocalizeEffector";
-            case "INHIBIT"  -> "InhibitEffector";
-            default         -> decision.effector();
-        };
-        /// @formatter:on
-        if (this.habituationGuard.observe(effectorName)) {
-            this.episode.encode(habituatedEffector(effectorName));
-            this.respond(
-                new ImpulseImpl(
-                    impulse.signal(), this.getClass(),
-                    impulse.efferent(), null));
-            return;
-        }
-        var effector = this.effectorRepository.find(effectorName);
-        if (effector == null) {
-            this.episode.encode(unresolvedEffector(effectorName));
-            this.respond(
-                new ImpulseImpl(
-                    impulse.signal(), this.getClass(),
-                    impulse.efferent(), null));
-            return;
-        }
-        var input = this.input(decision);
-        var output = effector.fire(input);
-        var content = String.valueOf(output.getOrDefault("content", output));
+    private void process(Decision decision, Impulse impulse) {
         switch (decision.process()) {
-            case "VOCALIZE" -> {
-                this.episode.encode(vocalized(impulse.efferent(), content));
-                this.perceive(content, impulse, decision, start);
+            case "POTENTIATE" -> {
+                this.autopoiesis.compensate(impulse);
+                this.respond(impulse, false);
             }
-            case "INHIBIT" -> {
-                this.episode.encode(inhibited(content));
-                this.perceive(content, impulse, decision, start);
+            case "PROJECT" -> {
+                var area = this.areaRepository.find(decision.area());
+                if (area != null) {
+                    this.respond(new ImpulseImpl(impulse.signal(), impulse.afferent(), area.id()), false);
+                } else {
+                    this.encode("[SYSTEM]", "[WARNING] Area '" + decision.area() + "' not found.");
+                    this.respond(impulse, false);
+                }
+            }
+            case "VOCALIZE", "INHIBIT" -> {
+                if (this.habituation.habituated(decision)) {
+                    return;
+                }
+                var output = this.effect(this.resolve(decision), Map.of("response", decision.response()));
+                this.encode(impulse.efferent(), output.get("content"));
+                this.perceptEvent.fire(new PerceptImpl(String.valueOf(output.get("content")), impulse.efferent(), decision.amplitude(), 1));
             }
             default -> {
-                this.episode.encode(fired(effectorName, content));
-                this.respond(impulse);
+                if (this.habituation.habituated(decision)) {
+                    return;
+                }
+                var output = this.effect(this.resolve(decision), Map.of("knowledge", this.knowledge.retrieve()));
+                this.encode(impulse.efferent(), output.get("content"));
+                this.respond(impulse, false);
             }
         }
     }
 
-    private Map<String, Object> input(Decision decision) {
-        return switch (decision.process()) {
-            case "VOCALIZE", "INHIBIT" -> Map.of("response", (Object) decision.response());
-            default -> this.knowledge.retrieve();
-        };
+    private String resolve(Decision decision) {
+        return EFFECTORS.getOrDefault(decision.process(), decision.effector());
     }
 
-    private void perceive(String content, Impulse impulse,
-                          Decision decision, Instant start) {
-        var duration = between(start, Instant.now()).toMillis();
-        this.event.fire(
-            new PerceptImpl(
-                content,
-                impulse.efferent(),
-                decision.confidence(),
-                duration));
+    private Map<String, Object> effect(String id, Map<String, Object> input) {
+        return this.effectorRepository.find(id).fire(input);
+    }
+
+    private void encode(String id, Object content) {
+        this.episode.encode(new TraceImpl(id, content));
+    }
+
+    private String label() {
+        return Cortex.class.getSimpleName();
     }
 }

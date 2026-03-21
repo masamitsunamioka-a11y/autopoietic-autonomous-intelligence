@@ -24,8 +24,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl.Mode.DMN;
 
+/// In the future, scope to per-session
 @ApplicationScoped
 public class DefaultImpl implements Default {
     private static final Logger logger = LoggerFactory.getLogger(DefaultImpl.class);
@@ -64,7 +64,7 @@ public class DefaultImpl implements Default {
 
     private void fluctuate() {
         try {
-            if (this.salience.isOriented() || !this.arousal.isAwake()) {
+            if (this.salience.inhibiting() || !this.arousal.isProjecting()) {
                 return;
             }
             this.fire();
@@ -75,15 +75,18 @@ public class DefaultImpl implements Default {
 
     private void fire() {
         var fluctuation = (Fluctuation) this.transmitter.call(
-            new ImpulseImpl(null, this.getClass(), null, null));
+            new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(fluctuation, x -> {
             if (!x.aroused()) {
                 return;
             }
             this.salience.orient();
-            this.thalamus.relay(
-                new ImpulseImpl(
-                    x.signal(), this.getClass(), null, DMN));
+            this.thalamus.relay(new ImpulseImpl(
+                x.signal(), this.label(), null));
         });
+    }
+
+    private String label() {
+        return Default.class.getSimpleName();
     }
 }

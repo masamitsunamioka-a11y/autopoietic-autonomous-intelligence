@@ -1,34 +1,50 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
+import com.google.gson.Gson;
+import jakarta.ws.rs.sse.Sse;
+import jakarta.ws.rs.sse.SseEventSink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Event;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Subscriber;
 
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Flow;
 
 public class SubscriberImpl implements Subscriber {
-    private final LinkedBlockingQueue<String> queue;
-    private final List<LinkedBlockingQueue<String>> subscribers;
+    private static final Logger logger = LoggerFactory.getLogger(SubscriberImpl.class);
+    private static final Gson gson = new Gson();
+    private final SseEventSink sink;
+    private final Sse sse;
 
-    public SubscriberImpl(LinkedBlockingQueue<String> queue,
-                          List<LinkedBlockingQueue<String>> subscribers) {
-
-        this.queue = queue;
-        this.subscribers = subscribers;
+    public SubscriberImpl(SseEventSink sink, Sse sse) {
+        this.sink = sink;
+        this.sse = sse;
     }
 
     @Override
-    public String poll(int timeout, TimeUnit unit) {
-        try {
-            return this.queue.poll(timeout, unit);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return null;
+    public void onSubscribe(Flow.Subscription subscription) {
+        subscription.request(Long.MAX_VALUE);
+    }
+
+    @Override
+    public void onNext(Event event) {
+        if (this.sink.isClosed()) {
+            return;
         }
+        this.sink.send(this.sse.newEventBuilder()
+            .data(gson.toJson(event))
+            .build());
     }
 
     @Override
-    public void close() {
-        this.subscribers.remove(this.queue);
+    public void onError(Throwable throwable) {
+        logger.warn("subscriber error", throwable);
+    }
+
+    @Override
+    public void onComplete() {
+        if (!this.sink.isClosed()) {
+            this.sink.close();
+        }
     }
 }

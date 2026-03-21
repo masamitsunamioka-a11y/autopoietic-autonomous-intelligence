@@ -10,39 +10,38 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeo
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/// In the future, scope to per-session
 @ApplicationScoped
 public class ArousalImpl implements Arousal {
     private static final Logger logger = LoggerFactory.getLogger(ArousalImpl.class);
+    private static final int THRESHOLD = 10;
     private final AtomicBoolean projecting;
     private final AtomicInteger pressure;
-    private final int threshold;
 
     public ArousalImpl() {
         this.projecting = new AtomicBoolean(true);
         this.pressure = new AtomicInteger(0);
-        this.threshold = 10;
     }
 
     @Override
-    public void awaken() {
+    public void project() {
+        this.reset();
         this.projecting.set(true);
     }
 
-    @Override
-    public void accumulate(@Observes Modulator modulator) {
+    public void receive(@Observes Modulator modulator) {
         var current = this.pressure.incrementAndGet();
-        if (current >= this.threshold) {
+        if (current >= THRESHOLD) {
             this.projecting.set(false);
         }
     }
 
-    @Override
-    public boolean isAwake() {
-        return this.projecting.get();
+    public void reset() {
+        this.pressure.set(0);
     }
 
     @Override
-    public void reset() {
-        this.pressure.set(0);
+    public boolean isProjecting() {
+        return this.projecting.get();
     }
 }

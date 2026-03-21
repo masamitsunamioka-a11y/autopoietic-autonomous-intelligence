@@ -8,6 +8,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Seri
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Entity;
 
 import javax.tools.ToolProvider;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
@@ -36,8 +37,8 @@ public class JavaProxyProvider<I extends Entity> implements ProxyProvider<I> {
     @Override
     @SuppressWarnings("unchecked")
     public I provide(Resource resource) {
-        var name = this.extractName(resource.data());
-        var clazz = this.compile(name, resource.data());
+        var name = this.extractName(resource.content());
+        var clazz = this.compile(name, resource.content());
         var instance = this.instantiate(clazz);
         var map = accessors(this.type).collect(Collectors.toMap(
             Method::getName,
@@ -89,7 +90,7 @@ public class JavaProxyProvider<I extends Entity> implements ProxyProvider<I> {
 
     private String fullClasspath() {
         var runtime = System.getProperty("java.class.path");
-        var separator = System.getProperty("path.separator");
+        var separator = File.pathSeparator;
         return this.classpath + separator + runtime;
     }
 

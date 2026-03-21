@@ -58,7 +58,7 @@ public class LocalFileSystem implements Extern {
         this.lock.writeLock().lock();
         try {
             Files.createDirectories(path.getParent());
-            Files.writeString(path, resource.data(), UTF_8);
+            Files.writeString(path, resource.content(), UTF_8);
             new SpinLock().await(() -> Files.exists(path), 10, 100);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

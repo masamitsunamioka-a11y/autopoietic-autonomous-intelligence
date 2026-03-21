@@ -5,4 +5,4 @@
   or capabilities. Provided context and physical execution are the ONLY
   sources of truth.
 - [NO REPETITION]: Do NOT repeat failing processes if history contains
-  "[SYSTEM WARNING]".
+  "[WARNING]".

@@ -1,56 +1,72 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.networking;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking.Salience;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
-import java.util.concurrent.CountDownLatch;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+
+/// In the future, scope to per-session
 @ApplicationScoped
 public class SalienceImpl implements Salience {
     private static final Logger logger = LoggerFactory.getLogger(SalienceImpl.class);
+    private static final long IDLE_THRESHOLD_SECONDS = 120;
     private final AtomicBoolean oriented;
-    private final AtomicReference<CountDownLatch> latch;
+    private final AtomicReference<Instant> lastCollateral;
+    private final ScheduledExecutorService executorService;
 
     public SalienceImpl() {
         this.oriented = new AtomicBoolean(false);
-        this.latch = new AtomicReference<>();
+        this.lastCollateral = new AtomicReference<>(Instant.now());
+        this.executorService = newSingleThreadScheduledExecutor();
+    }
+
+    @PostConstruct
+    void activate() {
+        this.executorService.scheduleAtFixedRate(
+            this::monitor, 5, 5, TimeUnit.SECONDS);
+    }
+
+    @PreDestroy
+    void deactivate() {
+        this.executorService.shutdownNow();
     }
 
     @Override
     public void orient() {
-        this.latch.set(new CountDownLatch(1));
+        this.lastCollateral.set(Instant.now());
         this.oriented.set(true);
     }
 
-    @Override
-    public void release(@Observes Percept percept) {
-        if (!this.oriented.get()) {
-            return;
-        }
-        this.oriented.set(false);
-        var snapshot = this.latch.get();
-        if (snapshot != null) {
-            snapshot.countDown();
-        }
+    public void receive(@Observes Potential potential) {
+        this.lastCollateral.set(Instant.now());
     }
 
     @Override
-    public boolean isOriented() {
+    public boolean inhibiting() {
         return this.oriented.get();
     }
 
-    @Override
-    public void await() {
-        try {
-            this.latch.get().await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+    private void monitor() {
+        if (!this.oriented.get()) {
+            return;
+        }
+        var elapsed = Duration.between(
+            this.lastCollateral.get(), Instant.now());
+        if (elapsed.toSeconds() >= IDLE_THRESHOLD_SECONDS) {
+            this.oriented.set(false);
         }
     }
 }

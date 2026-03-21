@@ -6,8 +6,8 @@ will be physically deleted.
 
 # PRIMARY CONTEXT
 
-- Source Materials (Areas): {{areas}}
-- Source Materials (Neurons): {{neurons}}
+- Source Materials (Areas): {{area_non_innate}}
+- Source Materials (Neurons): {{neuron_all}}
 
 # ABSOLUTE IRON RULES
 
@@ -30,7 +30,7 @@ will be physically deleted.
 
 # KNOWLEDGE ASSETS
 
-- Available Effector Inventory: {{effectors}}
+- Available Effector Inventory: {{effector_all}}
 
 ---
 

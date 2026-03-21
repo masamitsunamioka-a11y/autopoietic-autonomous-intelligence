@@ -45,8 +45,8 @@ public class AutopoiesisImpl implements Autopoiesis {
     public void compensate(Impulse impulse) {
         var compensation = (Compensation) this.transmitter.call(
             new ImpulseImpl(
-                impulse.signal(), this.getClass(),
-                impulse.efferent(), ((ImpulseImpl) impulse).mode()));
+                impulse.signal(), this.label(),
+                impulse.efferent()));
         this.nucleus.integrate(compensation, x -> {
             this.transform(x, this.areaRepository.find(impulse.efferent()));
             this.produce(x);
@@ -56,7 +56,7 @@ public class AutopoiesisImpl implements Autopoiesis {
     @Override
     public void conserve() {
         var conservation = (Conservation) this.transmitter.call(
-            new ImpulseImpl(null, this.getClass(), null, null));
+            new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(conservation, x -> {
             this.destroy(x);
             this.produce(x);
@@ -115,5 +115,9 @@ public class AutopoiesisImpl implements Autopoiesis {
             area.effectors().stream()
                 .filter(this.effectorRepository::exists)
                 .toList());
+    }
+
+    private String label() {
+        return Autopoiesis.class.getSimpleName();
     }
 }

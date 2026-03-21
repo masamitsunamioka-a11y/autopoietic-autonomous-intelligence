@@ -9,11 +9,9 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemo
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 
 import java.util.HashSet;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.List;
 
-import static java.util.Comparator.comparing;
-
+/// In the future, scope to per-session
 @ApplicationScoped
 public class KnowledgeImpl implements Knowledge {
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeImpl.class);
@@ -35,14 +33,8 @@ public class KnowledgeImpl implements Knowledge {
     }
 
     @Override
-    public Map<String, Object> retrieve() {
-        return this.semanticRepository.findAll().stream()
-            .map(x -> (TraceImpl) x)
-            .sorted(comparing(TraceImpl::timestampOf))
-            .collect(Collectors.toMap(
-                TraceImpl::id,
-                TraceImpl::content,
-                (x, y) -> y));
+    public List<Trace> retrieve() {
+        return this.semanticRepository.findAll();
     }
 
     @Override
@@ -52,11 +44,10 @@ public class KnowledgeImpl implements Knowledge {
             return;
         }
         var seen = new HashSet<String>();
-        var expired = all.stream()
-            .map(x -> (TraceImpl) x)
-            .sorted(comparing(TraceImpl::timestampOf).reversed())
-            .filter(x -> !seen.add(x.prefixOf()))
-            .map(TraceImpl::id)
+        var reversed = all.reversed();
+        var expired = reversed.stream()
+            .filter(x -> !seen.add(x.id()))
+            .map(Trace::id)
             .toList();
         this.semanticRepository.removeAll(expired);
     }

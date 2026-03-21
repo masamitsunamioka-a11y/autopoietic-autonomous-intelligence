@@ -28,7 +28,7 @@ self-directed activity — not a response to input.
 
 # KNOWLEDGE ASSETS
 
-- Active Areas (cortical areas currently instantiated): {{areas}}
+- Active Areas (cortical areas currently instantiated): {{area_all}}
 
 ---
 
@@ -45,7 +45,6 @@ self-directed activity — not a response to input.
   "reasoning": "Why this signal is worth expressing, or why silence is correct",
   "confidence": 0.85,
   "aroused": true,
-  "area": "Exact area name (REQUIRED if aroused, null if not)",
   "signal": "The thought (REQUIRED if aroused, null if not)"
 }
 ```

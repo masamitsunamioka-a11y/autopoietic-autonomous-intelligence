@@ -8,7 +8,7 @@ creating or updating Areas, Neurons, and Effectors to address the gap.
 - Latest User Input: {{input}}
 - Conversation History: {{episode}}
 - Knowledge (effector results, accumulated facts): {{knowledge}}
-- You are currently operating as the following area. Analyze yourself: {{self}}
+- You are currently operating as the following area. Analyze yourself: {{area_self}}
 
 # ABSOLUTE IRON RULES
 
@@ -19,7 +19,7 @@ creating or updating Areas, Neurons, and Effectors to address the gap.
 - GUIDELINE INHERITANCE: Every new area MUST include `CoreDirectiveNeuron` in
   its `neurons` array.
 - REPOSITORY INTEGRITY: Output all rawJson and source code without losing bytes.
-- TUNING PRESERVATION: If no changes needed, return tuning from {{self}} unchanged.
+- TUNING PRESERVATION: If no changes needed, return tuning from {{area_self}} unchanged.
 - TUNING CONCISENESS: Keep each tuning under 500 chars. Capture essential purpose
   only — never repeat instructions verbatim from other neurons or areas.
 - SINGLE RESPONSIBILITY: If tuning approaches 500 chars, split into a new area.
@@ -36,9 +36,9 @@ creating or updating Areas, Neurons, and Effectors to address the gap.
 
 # KNOWLEDGE ASSETS
 
-- Existing Area Lineage: {{areas}}
-- Knowledge Neurons: {{neurons}}
-- Available Capabilities: {{effectors}}
+- Existing Area Lineage: {{area_all}}
+- Knowledge Neurons: {{neuron_all}}
+- Available Capabilities: {{effector_all}}
 
 ---
 

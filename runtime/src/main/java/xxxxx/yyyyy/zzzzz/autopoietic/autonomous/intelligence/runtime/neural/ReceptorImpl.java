@@ -11,8 +11,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.netwo
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Receptor;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
 
-import static xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.ImpulseImpl.Mode.CEN;
-
 @ApplicationScoped
 public class ReceptorImpl implements Receptor {
     private static final Logger logger = LoggerFactory.getLogger(ReceptorImpl.class);
@@ -32,9 +30,11 @@ public class ReceptorImpl implements Receptor {
     public void transduce(Stimulus stimulus) {
         this.event.fire(stimulus);
         this.salience.orient();
-        this.thalamus.relay(
-            new ImpulseImpl(
-                stimulus.energy(), this.getClass(), null, CEN));
-        this.salience.await();
+        this.thalamus.relay(new ImpulseImpl(
+            stimulus.energy(), this.label(), null));
+    }
+
+    private String label() {
+        return Receptor.class.getSimpleName();
     }
 }

@@ -8,7 +8,7 @@ available Neurons, and Effectors, then determine the appropriate response proces
 - Latest User Input: {{input}}
 - Conversation History: {{episode}}
 - Knowledge (accumulated semantic insights): {{knowledge}}
-- You are currently operating as the following area. Analyze yourself: {{self}}
+- You are currently operating as the following area. Analyze yourself: {{area_self}}
 
 # ABSOLUTE IRON RULES
 
@@ -23,9 +23,11 @@ available Neurons, and Effectors, then determine the appropriate response proces
   select VOCALIZE. If the same Effector appears 3+ times in Conversation History,
   break the loop via VOCALIZE or POTENTIATE.
   NOTE: Does NOT override AREA BOUNDARY.
-- EFFECTOR-FIRST: If a corresponding Effector exists in {{effectors}} AND its
+- EFFECTOR-FIRST: If a non-terminal Effector exists in {{effector_self}} AND its
   result is not yet visible in Latest User Input or Conversation History,
   use FIRE. If an Effector result is already present, use VOCALIZE.
+  Terminal Effectors (VocalizeEffector, InhibitEffector) are NEVER fired via
+  FIRE — always use VOCALIZE or INHIBIT process instead.
 - EVOLUTION FIRST: If a required capability is missing, use POTENTIATE.
 
 # REASONING PROTOCOLS
@@ -34,9 +36,9 @@ available Neurons, and Effectors, then determine the appropriate response proces
 
 # KNOWLEDGE ASSETS
 
-- Available Areas: {{areas}}
-- Specialized Knowledge Neurons: {{neurons}}
-- Executable Effectors: {{effectors}}
+- Available Areas: {{area_all}}
+- Specialized Knowledge Neurons: {{neuron_self}}
+- Executable Effectors: {{effector_self}}
 
 ---
 

@@ -7,11 +7,11 @@ import java.util.Map;
 
 public record NewEffector(
     @NotBlank String id,
-    @NotBlank String tuning)
-    implements Effector {
+    @NotBlank String tuning
+) implements Effector {
     @Override
-    public Map<String, Object> fire(
-        Map<String, Object> input) {
-        throw new UnsupportedOperationException();
+    public Map<String, Object>
+    fire(Map<String, Object> input) {
+        return Map.of();
     }
 }

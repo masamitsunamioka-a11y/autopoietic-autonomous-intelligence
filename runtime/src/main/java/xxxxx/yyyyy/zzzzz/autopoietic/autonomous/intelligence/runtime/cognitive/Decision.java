@@ -5,27 +5,12 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
-import java.util.Objects;
-
 public record Decision(
     @NotBlank String reasoning,
-    @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
+    @DecimalMin("0.0") @DecimalMax("1.0") double amplitude,
     @NotBlank String process,
     String response,
     String effector,
-    String area)
-    implements Potential {
-    public Decision {
-        process = process.toUpperCase();
-        switch (process) {
-            case "VOCALIZE", "INHIBIT" -> Objects.requireNonNull(
-                response, "`response` is required for this process.");
-            case "FIRE" -> Objects.requireNonNull(
-                effector, "`effector` is required for FIRE process.");
-            case "PROJECT" -> Objects.requireNonNull(
-                area, "`area` is required for PROJECT process.");
-            default -> {
-            }
-        }
-    }
+    String area
+) implements Potential {
 }

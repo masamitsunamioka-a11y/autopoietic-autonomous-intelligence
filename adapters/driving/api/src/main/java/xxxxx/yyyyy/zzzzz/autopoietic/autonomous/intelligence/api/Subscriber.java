@@ -1,10 +1,6 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Flow;
 
-public interface Subscriber extends AutoCloseable {
-    String poll(int timeout, TimeUnit unit);
-
-    @Override
-    void close();
+public interface Subscriber extends Flow.Subscriber<Event> {
 }

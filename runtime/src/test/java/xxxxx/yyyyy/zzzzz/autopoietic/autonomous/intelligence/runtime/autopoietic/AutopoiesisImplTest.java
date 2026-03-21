@@ -51,7 +51,7 @@ class AutopoiesisImplTest {
         return x -> result;
     }
     private static Impulse impulse() {
-        return new ImpulseImpl("test", "Autopoiesis", "current", null);
+        return new ImpulseImpl("test", "Autopoiesis", "current");
     }
     private static Repository<Area> trackingAreaRepository(List<String> stored) {
         return new Repository<>() {

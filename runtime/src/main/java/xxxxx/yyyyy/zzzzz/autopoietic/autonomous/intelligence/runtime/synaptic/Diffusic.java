@@ -3,9 +3,13 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.synaptic;
 import jakarta.inject.Qualifier;
 
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Qualifier
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RUNTIME)
+@Target({TYPE, METHOD, FIELD, PARAMETER})
 public @interface Diffusic {
 }

@@ -23,7 +23,7 @@ public class JsonObjectProxyProvider<I extends Entity> implements ProxyProvider<
     @Override
     @SuppressWarnings("unchecked")
     public I provide(Resource resource) {
-        Map<String, Object> map = this.serializer.deserialize(resource.data(), Map.class);
+        Map<String, Object> map = this.serializer.deserialize(resource.content(), Map.class);
         var string = this.serializer.serialize(map);
         return (I) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
