@@ -24,7 +24,7 @@ public class JsonArrayTranslator<I extends Entity, E extends Resource> implement
     @SuppressWarnings("unchecked")
     public List<I> internalize(E resource) {
         return List.of((I[]) this.serializer.deserialize(
-            resource.data(), Array.newInstance(this.type, 0).getClass()));
+            resource.content(), Array.newInstance(this.type, 0).getClass()));
     }
 
     @Override

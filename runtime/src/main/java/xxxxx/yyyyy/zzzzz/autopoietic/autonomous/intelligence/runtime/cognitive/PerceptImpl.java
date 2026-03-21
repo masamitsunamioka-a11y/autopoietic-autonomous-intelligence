@@ -8,6 +8,6 @@ public record PerceptImpl(
     @NotBlank String content,
     @NotBlank String location,
     @Positive double intensity,
-    @Positive long duration)
-    implements Percept {
+    @Positive long duration
+) implements Percept {
 }

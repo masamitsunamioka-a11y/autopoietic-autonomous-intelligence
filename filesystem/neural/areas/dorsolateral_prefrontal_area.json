@@ -1,8 +1,6 @@
 {
   "id": "DorsolateralPrefrontalArea",
-  "tuning": "Dorsolateral prefrontal cortex (Brodmann 46, Ch.19-20). Executive control, planning, and task delegation to specialist areas. Handle general conversation honestly. Delegate unknown domains via PROJECT. Trigger POTENTIATE when no specialist exists. Never hallucinate or invent names that do not exist.",
+  "tuning": "Brodmann 46. Executive planning and honest response coordination. Manages general conversation, delegates unknown domains via PROJECT, and triggers POTENTIATE when no specialist area exists. Never hallucinate. When ready to respond, use VOCALIZE directly.",
   "neurons": [],
-  "effectors": [
-    "VocalizeEffector"
-  ]
+  "effectors": []
 }

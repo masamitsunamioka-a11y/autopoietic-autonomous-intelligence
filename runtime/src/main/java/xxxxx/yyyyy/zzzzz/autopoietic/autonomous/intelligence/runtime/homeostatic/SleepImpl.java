@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
+/// In the future, scope to per-session
 @ApplicationScoped
 public class SleepImpl implements Sleep {
     private static final Logger logger = LoggerFactory.getLogger(SleepImpl.class);
@@ -42,11 +43,10 @@ public class SleepImpl implements Sleep {
 
     private void sleep() {
         try {
-            if (this.arousal.isAwake()) {
+            if (this.arousal.isProjecting()) {
                 return;
             }
-            this.arousal.reset();
-            this.arousal.awaken();
+            this.arousal.project();
         } finally {
             this.activate();
         }

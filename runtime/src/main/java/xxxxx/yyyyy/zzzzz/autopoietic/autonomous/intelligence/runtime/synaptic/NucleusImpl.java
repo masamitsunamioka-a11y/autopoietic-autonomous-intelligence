@@ -18,19 +18,19 @@ import java.util.function.Consumer;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
-/// In the future, per-caller Qualifier + @SessionScoped
+/// In the future, scope to per-session, per-caller
 @ApplicationScoped
 public class NucleusImpl implements Nucleus {
     private static final Logger logger = LoggerFactory.getLogger(NucleusImpl.class);
     private final Event<Modulator> event;
     private final ExecutorService executorService;
-    private final Deque<Object> signals;
+    private final Deque<Object> deque;
 
     @Inject
     public NucleusImpl(Event<Modulator> event) {
         this.event = event;
         this.executorService = newCachedThreadPool();
-        this.signals = new ConcurrentLinkedDeque<>();
+        this.deque = new ConcurrentLinkedDeque<>();
     }
 
     @PreDestroy
@@ -42,12 +42,12 @@ public class NucleusImpl implements Nucleus {
     public <T extends Potential>
     void integrate(T potential, Consumer<T> consumer) {
         this.executorService.submit(() -> {
-            synchronized (this.signals) {
-                this.signals.add(potential);
+            synchronized (this.deque) {
+                this.deque.add(potential);
                 if (!this.shouldFire()) {
                     return;
                 }
-                this.signals.clear();
+                this.deque.clear();
             }
             consumer.accept(potential);
             this.event.fire(new ModulatorImpl());
@@ -55,7 +55,7 @@ public class NucleusImpl implements Nucleus {
     }
 
     private boolean shouldFire() {
-        /// Kandel Ch.9, 12: temporal summation -> T6
-        return !this.signals.isEmpty();
+        /// Kandel Ch.9, 12: temporal summation -T6
+        return !this.deque.isEmpty();
     }
 }

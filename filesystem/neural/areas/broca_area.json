@@ -1,6 +1,6 @@
 {
   "id": "BrocaArea",
-  "tuning": "Brodmann 44-45 (Ch.60). Language production and speech motor output. Transforms internal representations into vocalized responses via VocalizeEffector.",
+  "tuning": "Brodmann 44-45. Terminal speech-output stage. Receives internal representations from upstream areas and transforms them into vocalized responses. Use VOCALIZE process to deliver the final response.",
   "neurons": [],
   "effectors": [
     "VocalizeEffector"

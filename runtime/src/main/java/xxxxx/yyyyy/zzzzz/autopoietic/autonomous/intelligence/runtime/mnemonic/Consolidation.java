@@ -1,0 +1,16 @@
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic;
+
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
+
+import java.util.Map;
+
+public record Consolidation(
+    @NotBlank String reasoning,
+    @DecimalMin("0.0") @DecimalMax("1.0") double amplitude,
+    @NotNull Map<@NotBlank String, @NotBlank String> insights
+) implements Potential {
+}

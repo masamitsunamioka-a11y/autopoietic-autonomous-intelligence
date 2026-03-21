@@ -14,25 +14,40 @@ app.post('/api/chat', async (c) => {
         headers: {'Content-Type': 'application/json'},
         body,
     })
-    return c.json(await res.json(), res.status as 200)
+    const text = await res.text()
+    if (!text) {
+        return c.body(null, res.status as 200)
+    }
+    return c.json(JSON.parse(text), res.status as 200)
 })
-app.get('/api/monitor/neural', async (c) => {
-    const res = await fetch(`${backend}/api/monitor/neural`)
-    return c.json(await res.json(), res.status as 200)
+app.get('/api/monitor', async (c) => {
+    try {
+        const res = await fetch(`${backend}/api/monitor`)
+        return c.json(await res.json(), res.status as 200)
+    } catch {
+        return c.json([], 200)
+    }
 })
 app.get('/api/events', async (c) => {
-    const res = await fetch(`${backend}/api/events`)
-    if (!res.body) return c.text('no body', 502)
     c.header('Content-Type', 'text/event-stream')
     c.header('Cache-Control', 'no-cache')
     c.header('Connection', 'keep-alive')
     return streamSSE(c, async (s) => {
-        const reader = res.body!.getReader()
-        const decoder = new TextDecoder()
         while (true) {
-            const {done, value} = await reader.read()
-            if (done) break
-            await s.write(decoder.decode(value, {stream: true}))
+            try {
+                const res = await fetch(`${backend}/api/events`)
+                if (!res.body) break
+                const reader = res.body.getReader()
+                const decoder = new TextDecoder()
+                while (true) {
+                    const {done, value} = await reader.read()
+                    if (done) break
+                    await s.write(decoder.decode(value, {stream: true}))
+                }
+            } catch {
+                // backend disconnected, retry after delay
+            }
+            await new Promise(resolve => setTimeout(resolve, 3000))
         }
     })
 })

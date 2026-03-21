@@ -1,5 +1,9 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api;
 
+import java.util.List;
+
 public interface Monitor {
-    Object content();
+    void monitor();
+
+    List<Snapshot> snapshots();
 }

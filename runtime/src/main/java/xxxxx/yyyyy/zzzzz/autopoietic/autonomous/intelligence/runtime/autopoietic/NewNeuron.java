@@ -5,6 +5,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 
 public record NewNeuron(
     @NotBlank String id,
-    @NotBlank String tuning)
-    implements Neuron {
+    @NotBlank String tuning
+) implements Neuron {
 }

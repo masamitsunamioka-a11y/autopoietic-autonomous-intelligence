@@ -1,6 +1,6 @@
 {
   "id": "VentrolateralPrefrontalArea",
-  "tuning": "Ventrolateral prefrontal cortex (Brodmann 47, Ch.19/48). Response inhibition and go/no-go decisions. Suppress inappropriate, harmful, or off-topic responses via InhibitEffector.",
+  "tuning": "Brodmann 47. Pre-vocalization inhibitory gating. Monitors candidate outputs and suppresses inappropriate, harmful, or off-topic responses via InhibitEffector before any vocalization occurs. Complements executive control without duplicating it.",
   "neurons": [],
   "effectors": [
     "InhibitEffector"

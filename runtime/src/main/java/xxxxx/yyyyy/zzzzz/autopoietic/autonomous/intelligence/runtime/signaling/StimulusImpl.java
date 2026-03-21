@@ -4,6 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
 
 public record StimulusImpl(
-    @NotBlank String energy)
-    implements Stimulus {
+    @NotBlank String energy
+) implements Stimulus {
 }

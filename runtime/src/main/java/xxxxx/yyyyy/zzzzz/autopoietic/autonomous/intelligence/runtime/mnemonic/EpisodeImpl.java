@@ -18,11 +18,9 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signa
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.List;
 
-import static java.util.Comparator.comparing;
-
+/// In the future, scope to per-session
 @ApplicationScoped
 public class EpisodeImpl implements Episode {
     private static final Logger logger = LoggerFactory.getLogger(EpisodeImpl.class);
@@ -57,14 +55,8 @@ public class EpisodeImpl implements Episode {
     }
 
     @Override
-    public Map<String, Object> retrieve() {
-        return this.episodicRepository.findAll().stream()
-            .map(x -> (TraceImpl) x)
-            .sorted(comparing(TraceImpl::timestampOf))
-            .collect(Collectors.toMap(
-                TraceImpl::id,
-                TraceImpl::content,
-                (x, y) -> y));
+    public List<Trace> retrieve() {
+        return this.episodicRepository.findAll();
     }
 
     @Override
@@ -75,18 +67,16 @@ public class EpisodeImpl implements Episode {
             return;
         }
         var expired = all.stream()
-            .map(x -> (TraceImpl) x)
-            .sorted(comparing(TraceImpl::timestampOf))
             .limit(all.size() - capacity)
-            .map(TraceImpl::id)
+            .map(Trace::id)
             .toList();
         this.episodicRepository.removeAll(expired);
     }
 
     @Override
     public void promote() {
-        var promotion = (Promotion) this.transmitter.call(
-            new ImpulseImpl(null, this.getClass(), null, null));
+        var promotion = (Consolidation) this.transmitter.call(
+            new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(promotion, x -> {
             x.insights().forEach((y, z) ->
                 this.knowledge.encode(new TraceImpl(y, z)));
@@ -96,5 +86,9 @@ public class EpisodeImpl implements Episode {
     private int calculateCapacity() {
         int size = this.areaRepository.findAll().size();
         return CAPACITY_PER_AREA * size;
+    }
+
+    private String label() {
+        return Episode.class.getSimpleName();
     }
 }

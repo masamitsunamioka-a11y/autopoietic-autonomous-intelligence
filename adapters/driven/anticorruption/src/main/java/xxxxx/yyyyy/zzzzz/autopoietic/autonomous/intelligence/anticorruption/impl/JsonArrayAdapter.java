@@ -6,11 +6,14 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adap
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Extern;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Resource;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Translator;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.TraceImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Entity;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -46,16 +49,29 @@ public class JsonArrayAdapter<I extends Entity> implements Adapter<I> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<I> fetchAll() {
         return this.targetResources()
             .flatMap(this::getAndTranslate)
+            .map(x -> x instanceof Trace t
+                ? (I) new TraceImpl(this.prefixOf(t.id()), t.content())
+                : x)
             .toList();
     }
 
+    private String prefixOf(String id) {
+        var at = id.lastIndexOf('@');
+        return at >= 0 ? id.substring(0, at) : id;
+    }
+
     @Override
+    @SuppressWarnings("unchecked")
     public void publish(I object) {
         var all = new ArrayList<>(this.fetchLatest());
-        all.add(object);
+        all.add(object instanceof Trace x
+            ? (I) new TraceImpl(
+            x.id() + "@" + Instant.now(), x.content())
+            : object);
         this.translateAndPut(this.uri, all);
     }
 

@@ -1,13 +1,13 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic;
 
-import java.util.Map;
+import java.util.List;
 
 public interface Knowledge {
     void encode(Trace trace);
 
     Trace retrieve(String id);
 
-    Map<String, Object> retrieve();
+    List<Trace> retrieve();
 
     void decay();
 }

@@ -1,11 +1,9 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api;
 
-public interface Publisher {
-    void publish(Event event);
+import java.util.concurrent.Flow;
 
-    Subscriber subscribe();
-
-    boolean isPoison(String value);
+public interface Publisher extends Flow.Publisher<Event> {
+    int submit(Event event);
 
     void close();
 }

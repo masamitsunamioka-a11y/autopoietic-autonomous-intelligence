@@ -9,14 +9,15 @@ import java.util.Map;
 
 public class Configuration {
     private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
-    private static final String name = "configuration.yaml";
+    private static final String NAME = "configuration.yaml";
+    private static final String BASE = System.getProperty("aai.home", "");
     private final Map<String, Object> yaml;
     private final String prefix;
 
     @SuppressWarnings("unchecked")
     public Configuration() {
         var classLoader = Thread.currentThread().getContextClassLoader();
-        try (InputStream is = classLoader.getResourceAsStream(name)) {
+        try (InputStream is = classLoader.getResourceAsStream(NAME)) {
             if (is == null) {
                 throw new RuntimeException();
             }
@@ -77,6 +78,10 @@ public class Configuration {
         }
         if (o == null) {
             throw new RuntimeException();
+        }
+        if (o instanceof String s
+            && !BASE.isEmpty() && s.contains("/")) {
+            return (T) (BASE + "/" + s);
         }
         return (T) o;
     }

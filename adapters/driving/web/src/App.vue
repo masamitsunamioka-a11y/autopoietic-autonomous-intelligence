@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue'
-import {useChatStore} from './stores/chat'
-import NeuralTree from './components/NeuralTree.vue'
-import ChatLog from './components/ChatLog.vue'
-import ChatInput from './components/ChatInput.vue'
-import RightPanel from './components/RightPanel.vue'
+import {useChatStore} from './features/chat/stores/chat'
+import NeuralPanel from './features/neural/organisms/Panel.vue'
+import ChatPanel from './features/chat/organisms/Panel.vue'
+import MonitorPanel from './features/monitor/organisms/Panel.vue'
 
 const store = useChatStore()
 onMounted(() => {
@@ -54,18 +53,17 @@ function onRightUp() {
     <div :style="{
       width: leftWidth + 'px',
       minWidth: leftWidth + 'px'}">
-      <NeuralTree/>
+      <NeuralPanel/>
     </div>
     <div class="resizer" @mousedown="onLeftDown"/>
     <div class="main">
-      <ChatLog/>
-      <ChatInput/>
+      <ChatPanel/>
     </div>
     <div class="resizer" @mousedown="onRightDown"/>
     <div :style="{
       width: rightWidth + 'px',
       minWidth: rightWidth + 'px'}">
-      <RightPanel/>
+      <MonitorPanel/>
     </div>
   </div>
 </template>

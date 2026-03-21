@@ -29,6 +29,7 @@ import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
+/// In the future, scope to per-session
 @ApplicationScoped
 public class ThalamusImpl implements Thalamus {
     private static final Logger logger = LoggerFactory.getLogger(ThalamusImpl.class);
@@ -73,7 +74,7 @@ public class ThalamusImpl implements Thalamus {
 
     private void oscillate() {
         try {
-            if (this.arousal.isAwake()) {
+            if (this.arousal.isProjecting()) {
                 return;
             }
             this.burst();
@@ -86,19 +87,16 @@ public class ThalamusImpl implements Thalamus {
     public void relay(Impulse impulse) {
         var projection = (Projection) this.transmitter.call(
             new ImpulseImpl(
-                impulse.signal(), this.getClass(),
-                null, ((ImpulseImpl) impulse).mode()));
+                impulse.signal(), this.label(), null));
         this.nucleus.integrate(projection, x -> {
-            this.cortex.respond(
-                new ImpulseImpl(
-                    impulse.signal(), this.getClass(),
-                    x.area(), ((ImpulseImpl) impulse).mode()));
+            this.cortex.respond(new ImpulseImpl(
+                impulse.signal(), impulse.afferent(), x.area()));
         });
     }
 
     @Override
     public void burst() {
-        this.nucleus.integrate(new Spindle(), x -> {
+        this.nucleus.integrate(new Spindle(1.0), x -> {
             this.autopoiesis.conserve();
             this.episode.promote();
             allOf(
@@ -106,5 +104,9 @@ public class ThalamusImpl implements Thalamus {
                 runAsync(this.knowledge::decay)
             ).join();
         });
+    }
+
+    private String label() {
+        return Thalamus.class.getSimpleName();
     }
 }

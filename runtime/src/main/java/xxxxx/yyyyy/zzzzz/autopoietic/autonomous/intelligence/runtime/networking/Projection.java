@@ -7,7 +7,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synap
 
 public record Projection(
     @NotBlank String reasoning,
-    @DecimalMin("0.0") @DecimalMax("1.0") double confidence,
-    @NotBlank String area)
-    implements Potential {
+    @DecimalMin("0.0") @DecimalMax("1.0") double amplitude,
+    @NotBlank String area
+) implements Potential {
 }

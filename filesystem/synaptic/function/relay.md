@@ -23,7 +23,7 @@ domain alignment. This is a pure routing decision — no content generation.
 
 # KNOWLEDGE ASSETS
 
-- Available Specialists: {{areas}}
+- Available Specialists: {{area_all}}
 
 ---
 

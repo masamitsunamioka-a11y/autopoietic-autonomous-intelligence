@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Observer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Publisher;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.e.PerceptGenerated;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.e.StimulusReceived;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
 
@@ -22,13 +24,12 @@ public class ObserverImpl implements Observer {
 
     @Override
     public void onStimulus(@Observes Stimulus stimulus) {
-        this.publisher.publish(
-            new UserEvent(stimulus.energy()));
+        this.publisher.submit(new StimulusReceived(stimulus.energy()));
     }
 
     @Override
     public void onPercept(@Observes Percept percept) {
-        this.publisher.publish(
-            new MessageEvent(percept.location(), percept.content()));
+        this.publisher.submit(
+            new PerceptGenerated(percept.location(), percept.content()));
     }
 }

@@ -34,8 +34,8 @@ public class JsonSerializer implements Serializer {
     }
 
     @Override
-    public <T> T deserialize(String data, Type type) {
-        return this.gson.fromJson(this.clean(data), type);
+    public <T> T deserialize(String string, Type type) {
+        return this.gson.fromJson(this.clean(string), type);
     }
 
     @Override
