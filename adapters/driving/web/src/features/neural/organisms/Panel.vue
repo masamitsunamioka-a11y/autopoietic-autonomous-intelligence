@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import Current from '../../network/molecules/Current.vue'
-import Tree from '../molecules/Tree.vue'
+import Current from "../../network/molecules/Current.vue";
+import Tree from "../molecules/Tree.vue";
 </script>
 <template>
   <div class="neural-panel">
-    <Current/>
-    <Tree/>
+    <Current />
+    <Tree />
   </div>
 </template>
 <style scoped>

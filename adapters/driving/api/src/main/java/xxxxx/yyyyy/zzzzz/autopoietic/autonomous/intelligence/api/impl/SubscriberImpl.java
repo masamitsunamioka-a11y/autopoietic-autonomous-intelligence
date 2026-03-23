@@ -1,6 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import java.util.concurrent.Flow;
 
 public class SubscriberImpl implements Subscriber {
     private static final Logger logger = LoggerFactory.getLogger(SubscriberImpl.class);
-    private static final Gson gson = new Gson();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final SseEventSink sink;
     private final Sse sse;
 
@@ -32,7 +33,7 @@ public class SubscriberImpl implements Subscriber {
             return;
         }
         this.sink.send(this.sse.newEventBuilder()
-            .data(gson.toJson(event))
+            .data(this.toJson(event))
             .build());
     }
 
@@ -45,6 +46,14 @@ public class SubscriberImpl implements Subscriber {
     public void onComplete() {
         if (!this.sink.isClosed()) {
             this.sink.close();
+        }
+    }
+
+    private String toJson(Object object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 }

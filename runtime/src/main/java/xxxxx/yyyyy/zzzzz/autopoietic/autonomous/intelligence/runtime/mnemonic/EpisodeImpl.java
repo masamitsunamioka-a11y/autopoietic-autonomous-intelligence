@@ -78,8 +78,12 @@ public class EpisodeImpl implements Episode {
         var promotion = (Consolidation) this.transmitter.call(
             new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(promotion, x -> {
-            x.insights().forEach((y, z) ->
-                this.knowledge.encode(new TraceImpl(y, z)));
+            try {
+                x.insights().forEach((y, z) ->
+                    this.knowledge.encode(new TraceImpl(y, z)));
+            } catch (Exception e) {
+                logger.error("promote failed", e);
+            }
         });
     }
 

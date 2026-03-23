@@ -7,8 +7,10 @@ anticorruption:
   neural:
     areas:
       target: "../../../filesystem/neural/areas"
+      limit: "-1"
     neurons:
       target: "../../../filesystem/neural/neurons"
+      limit: "-1"
     effectors:
       package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors.effector"
       source: "../../../adapters/driven/services/src/main/java"
@@ -22,3 +24,4 @@ anticorruption:
   neocortical:
     knowledge:
       target: "../../../filesystem/neocortical/knowledge"
+      limit: "1"

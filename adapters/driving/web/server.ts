@@ -3,7 +3,6 @@ import {serve} from '@hono/node-server'
 import {serveStatic} from '@hono/node-server/serve-static'
 import {streamSSE} from 'hono/streaming'
 import * as fs from 'node:fs'
-
 const backend = process.env.AAI_BACKEND_URL ?? 'http://localhost:8080'
 const port = Number(process.env.PORT ?? 3000)
 const app = new Hono()

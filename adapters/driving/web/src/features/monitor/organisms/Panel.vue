@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import Episode from '../molecules/Episode.vue'
-import Knowledge from '../molecules/Knowledge.vue'
-import System from '../molecules/System.vue'
+import Episode from "../molecules/Episode.vue";
+import Knowledge from "../molecules/Knowledge.vue";
+import System from "../molecules/System.vue";
 </script>
 <template>
   <div class="panel">
-    <Episode/>
-    <Knowledge/>
-    <System/>
+    <Episode />
+    <Knowledge />
+    <System />
   </div>
 </template>
 <style scoped>

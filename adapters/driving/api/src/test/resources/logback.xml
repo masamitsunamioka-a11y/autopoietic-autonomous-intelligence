@@ -26,4 +26,10 @@
     <logger name="org.hibernate.validator" level="WARN"/>
     <logger name="ch.qos.logback" level="WARN"/>
     <logger name="org.jboss.weld" level="WARN"/>
+    <logger name="org.jboss.arquillian" level="WARN"/>
+    <logger name="org.jboss.as.arquillian" level="WARN"/>
+    <logger name="org.jboss.remoting" level="WARN"/>
+    <logger name="org.xnio" level="WARN"/>
+    <logger name="org.wildfly" level="WARN"/>
+    <logger name="org.jboss.as.protocol" level="WARN"/>
 </configuration>

@@ -77,12 +77,16 @@ public class DefaultImpl implements Default {
         var fluctuation = (Fluctuation) this.transmitter.call(
             new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(fluctuation, x -> {
-            if (!x.aroused()) {
-                return;
+            try {
+                if (!x.aroused()) {
+                    return;
+                }
+                this.salience.orient();
+                this.thalamus.relay(new ImpulseImpl(
+                    x.signal(), this.label(), null));
+            } catch (Exception e) {
+                logger.error("fire failed", e);
             }
-            this.salience.orient();
-            this.thalamus.relay(new ImpulseImpl(
-                x.signal(), this.label(), null));
         });
     }
 

@@ -13,6 +13,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Publisher;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.e.StimulusFired;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.signaling.StimulusImpl;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Receptor;
 
@@ -24,14 +26,17 @@ import static jakarta.ws.rs.core.Response.serverError;
 public class ChatResource {
     private static final Logger logger = LoggerFactory.getLogger(ChatResource.class);
     private final Receptor receptor;
+    private final Publisher publisher;
 
     public ChatResource() {
         this.receptor = null;
+        this.publisher = null;
     }
 
     @Inject
-    public ChatResource(Receptor receptor) {
+    public ChatResource(Receptor receptor, Publisher publisher) {
         this.receptor = receptor;
+        this.publisher = publisher;
     }
 
     private record Input(@NotBlank String payload) {
@@ -42,6 +47,7 @@ public class ChatResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response chat(@Valid @NotNull Input input) {
         try {
+            this.publisher.submit(new StimulusFired(input.payload()));
             this.receptor.transduce(new StimulusImpl(input.payload()));
             return ok("{}").build();
         } catch (Exception e) {

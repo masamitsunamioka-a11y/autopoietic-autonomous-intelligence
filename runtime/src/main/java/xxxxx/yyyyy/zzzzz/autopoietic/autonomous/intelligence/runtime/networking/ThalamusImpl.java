@@ -89,20 +89,28 @@ public class ThalamusImpl implements Thalamus {
             new ImpulseImpl(
                 impulse.signal(), this.label(), null));
         this.nucleus.integrate(projection, x -> {
-            this.cortex.respond(new ImpulseImpl(
-                impulse.signal(), impulse.afferent(), x.area()));
+            try {
+                this.cortex.respond(new ImpulseImpl(
+                    impulse.signal(), impulse.afferent(), x.area()));
+            } catch (Exception e) {
+                logger.error("relay failed", e);
+            }
         });
     }
 
     @Override
     public void burst() {
         this.nucleus.integrate(new Spindle(1.0), x -> {
-            this.autopoiesis.conserve();
-            this.episode.promote();
-            allOf(
-                runAsync(this.episode::decay),
-                runAsync(this.knowledge::decay)
-            ).join();
+            try {
+                this.autopoiesis.conserve();
+                this.episode.promote();
+                allOf(
+                    runAsync(this.episode::decay),
+                    runAsync(this.knowledge::decay)
+                ).join();
+            } catch (Exception e) {
+                logger.error("burst failed", e);
+            }
         });
     }
 

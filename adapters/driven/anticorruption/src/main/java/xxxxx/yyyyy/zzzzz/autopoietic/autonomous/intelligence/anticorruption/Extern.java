@@ -11,7 +11,7 @@ public interface Extern {
 
     Resource get(URI uri);
 
-    void put(URI uri, Resource resource);
+    void put(Resource resource);
 
     void remove(URI uri);
 

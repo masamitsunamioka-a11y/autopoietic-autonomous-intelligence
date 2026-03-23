@@ -1,5 +1,8 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
-public interface Resource {
-    String content();
+import java.net.URI;
+
+public sealed interface Resource
+    permits TextResource, BinaryResource {
+    URI uri();
 }

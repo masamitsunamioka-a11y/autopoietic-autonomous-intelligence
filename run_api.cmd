@@ -21,5 +21,5 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 echo [AAI] Starting...
-java -Daai.home="%cd%" -jar adapters\driving\api\target\api-1.0.0-SNAPSHOT-bootable.jar
+java -jar adapters\driving\api\target\api-1.0.0-SNAPSHOT-bootable.jar
 pause

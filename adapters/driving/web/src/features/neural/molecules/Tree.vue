@@ -1,85 +1,90 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from 'vue'
-import {useSnapshotStore} from '../../../shared/stores/snapshot'
-import type {Snapshot} from '../../../shared/types'
-import Timestamp from '../../../shared/atoms/Timestamp.vue'
-import Node from '../atoms/Node.vue'
-import Header from '../../../shared/atoms/Header.vue'
-
-const store = useSnapshotStore()
+import { computed, onMounted, ref, watch } from "vue";
+import { useSnapshotStore } from "../../../shared/stores/snapshot";
+import type { Snapshot } from "../../../shared/types";
+import Timestamp from "../../../shared/atoms/Timestamp.vue";
+import Node from "../atoms/Node.vue";
+import Header from "../../../shared/atoms/Header.vue";
+const store = useSnapshotStore();
+const toSnakeCase = (s: string) =>
+  s
+    .replace(/([A-Z])/g, "_$1")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
 onMounted(() => {
-  store.fetchSnapshots()
-})
-
+  store.fetchSnapshots();
+});
 interface AreaNode {
-  snapshot: Snapshot
-  neurons: Snapshot[]
-  effectors: Snapshot[]
+  snapshot: Snapshot;
+  neurons: Snapshot[];
+  effectors: Snapshot[];
 }
-
 const tree = computed(() => {
-  const all = store.snapshots
-  const snapshotMap = new Map(all.map(x => [x.name, x]))
-  const areas: AreaNode[] = []
+  const all = store.snapshots;
+  const snapshotMap = new Map(all.map((x) => [x.name, x]));
+  const areas: AreaNode[] = [];
   for (const s of all) {
-    const content = s.content as Record<string, unknown> | null
-    if (!content || !('neurons' in content && 'effectors' in content)) {
-      continue
+    const content = s.content as Record<string, unknown> | null;
+    if (!content || !("neurons" in content && "effectors" in content)) {
+      continue;
     }
-    const neuronIds = (content.neurons ?? []) as string[]
-    const effectorIds = (content.effectors ?? []) as string[]
+    const neuronIds = (content.neurons ?? []) as string[];
+    const effectorIds = (content.effectors ?? []) as string[];
     areas.push({
       snapshot: s,
       neurons: neuronIds
-          .map(id => snapshotMap.get(id + '.json'))
-          .filter((x): x is Snapshot => x != null),
+        .map((id) => snapshotMap.get("neurons/" + toSnakeCase(id) + ".json"))
+        .filter((x): x is Snapshot => x != null),
       effectors: effectorIds
-          .map(id => snapshotMap.get(id + '.java'))
-          .filter((x): x is Snapshot => x != null),
-    })
+        .map((id) => snapshotMap.get("effector/" + id + ".java"))
+        .filter((x): x is Snapshot => x != null),
+    });
   }
-  return areas
-})
-const fresh = ref<Set<string>>(new Set())
-watch(() => store.badgeGeneration, () => {
-  const ids = new Set(store.badges.keys())
-  fresh.value = ids
-  setTimeout(() => {
-    fresh.value = new Set()
-  }, 500)
-})
+  return areas;
+});
+const fresh = ref<Set<string>>(new Set());
+watch(
+  () => store.badgeGeneration,
+  () => {
+    const ids = new Set(store.badges.keys());
+    fresh.value = ids;
+    setTimeout(() => {
+      fresh.value = new Set();
+    }, 500);
+  },
+);
 </script>
 <template>
   <div>
     <div class="title">Neural</div>
-    <div v-if="tree.length === 0" class="empty">
-      No areas
-    </div>
+    <div v-if="tree.length === 0" class="empty">No areas</div>
     <div v-for="area in tree" :key="area.snapshot.name" class="area">
       <div class="area-header">
-        <Node :name="area.snapshot.name" :bold="true"
-              :fresh="fresh.has(area.snapshot.name)"/>
+        <Node
+          :name="area.snapshot.name"
+          :bold="true"
+          :fresh="fresh.has(area.snapshot.name)"
+        />
         <span class="area-meta">
-          <Timestamp :value="area.snapshot.timestamp"/>
+          <Timestamp :value="area.snapshot.timestamp" />
         </span>
       </div>
       <div v-if="area.neurons.length > 0" class="group">
-        <Header text="neurons"/>
+        <Header text="neurons" />
         <div v-for="n in area.neurons" :key="n.name" class="leaf-row">
-          <Node :name="n.name"
-                :fresh="fresh.has(n.name)"/>
+          <Node :name="n.name" :fresh="fresh.has(n.name)" />
           <span class="leaf-meta">
-            <Timestamp :value="n.timestamp"/>
+            <Timestamp :value="n.timestamp" />
           </span>
         </div>
       </div>
       <div v-if="area.effectors.length > 0" class="group">
-        <Header text="effectors"/>
+        <Header text="effectors" />
         <div v-for="e in area.effectors" :key="e.name" class="leaf-row">
-          <Node :name="e.name"
-                :fresh="fresh.has(e.name)"/>
+          <Node :name="e.name" :fresh="fresh.has(e.name)" />
           <span class="leaf-meta">
-            <Timestamp :value="e.timestamp"/>
+            <Timestamp :value="e.timestamp" />
           </span>
         </div>
       </div>
@@ -93,16 +98,13 @@ watch(() => store.badgeGeneration, () => {
   color: #888;
   margin-bottom: 12px;
 }
-
 .empty {
   color: #555;
   font-style: italic;
 }
-
 .area {
   margin-bottom: 14px;
 }
-
 .area-header {
   display: flex;
   align-items: baseline;
@@ -110,19 +112,16 @@ watch(() => store.badgeGeneration, () => {
   margin-bottom: 4px;
   flex-wrap: wrap;
 }
-
 .area-meta {
   display: flex;
   align-items: center;
   gap: 4px;
   margin-left: auto;
 }
-
 .group {
   margin-left: 12px;
   margin-bottom: 4px;
 }
-
 .leaf-row {
   display: flex;
   align-items: baseline;
@@ -130,7 +129,6 @@ watch(() => store.badgeGeneration, () => {
   margin-left: 8px;
   padding: 1px 0;
 }
-
 .leaf-meta {
   display: flex;
   align-items: center;

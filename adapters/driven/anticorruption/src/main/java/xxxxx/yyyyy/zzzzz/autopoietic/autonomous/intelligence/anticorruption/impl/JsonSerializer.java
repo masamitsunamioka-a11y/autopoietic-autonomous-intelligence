@@ -1,66 +1,58 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Serializer;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.TraceImpl;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 
 import java.lang.reflect.Type;
 
 @ApplicationScoped
 public class JsonSerializer implements Serializer {
     private static final Logger logger = LoggerFactory.getLogger(JsonSerializer.class);
-    private final Gson gson;
+    private final ObjectMapper objectMapper;
 
     public JsonSerializer() {
-        this.gson = new GsonBuilder()
-            .serializeNulls()
-            .disableHtmlEscaping()
-            ///.setPrettyPrinting()
-            .registerTypeAdapter(Trace.class,
-                (JsonDeserializer<Trace>) (json, type, context) -> {
-                    var obj = json.getAsJsonObject();
-                    var id = obj.get("id").getAsString();
-                    var content = context.deserialize(
-                        obj.get("content"), Object.class);
-                    return new TraceImpl(id, content);
-                })
-            .create();
+        this.objectMapper = new ObjectMapper()
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     @Override
     public <T> T deserialize(String string, Type type) {
-        return this.gson.fromJson(this.clean(string), type);
+        try {
+            return this.objectMapper.readValue(this.clean(string), this.objectMapper.constructType(type));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public String serialize(Object object) {
-        return this.gson.toJson(object);
+        try {
+            return this.objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private String clean(String data) {
-        if (data == null || data.isBlank()) {
+    private String clean(String s) {
+        if (s == null || s.isBlank()) {
             return "{}";
         }
-        var trimmed = data.trim();
-        if (trimmed.startsWith("[")) {
-            var start = data.indexOf("[");
-            var end = data.lastIndexOf("]");
-            if (start == -1 || end == -1 || start >= end) {
-                return "[]";
-            }
-            return data.substring(start, end + 1).trim();
-        }
-        var start = data.indexOf("{");
-        var end = data.lastIndexOf("}");
-        if (start == -1 || end == -1 || start >= end) {
-            return "{}";
-        }
-        return data.substring(start, end + 1).trim();
+        var arrayStart = s.indexOf('[');
+        var objectStart = s.indexOf('{');
+        var isArray = arrayStart != -1 && (objectStart == -1 || arrayStart < objectStart);
+        var open = isArray ? '[' : '{';
+        var close = isArray ? ']' : '}';
+        var start = isArray ? arrayStart : objectStart;
+        var end = s.lastIndexOf(close);
+        return (start == -1 || end == -1 || start >= end)
+            ? "" + open + close
+            : s.substring(start, end + 1).trim();
     }
 }

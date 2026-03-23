@@ -1,15 +1,13 @@
 <script setup lang="ts">
 defineProps<{
-  disabled?: boolean
-}>()
+  disabled?: boolean;
+}>();
 defineEmits<{
-  click: []
-}>()
+  click: [];
+}>();
 </script>
 <template>
-  <button class="send-btn"
-          :disabled="disabled"
-          @click="$emit('click')">
+  <button class="send-btn" :disabled="disabled" @click="$emit('click')">
     Send
   </button>
 </template>
@@ -23,11 +21,9 @@ defineEmits<{
   padding: 2px 10px;
   cursor: pointer;
 }
-
 .send-btn:hover:not(:disabled) {
   background: #444;
 }
-
 .send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;

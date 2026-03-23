@@ -74,8 +74,12 @@ public class CortexImpl implements Cortex {
         }
         var decision = (Decision) this.transmitter.call(new ImpulseImpl(impulse.signal(), this.label(), impulse.efferent()));
         this.nucleus.integrate(decision, x -> {
-            this.potentialEvent.fire(x);
-            this.process(x, impulse);
+            try {
+                this.potentialEvent.fire(x);
+                this.process(x, impulse);
+            } catch (Exception e) {
+                logger.error("respond failed", e);
+            }
         });
     }
 

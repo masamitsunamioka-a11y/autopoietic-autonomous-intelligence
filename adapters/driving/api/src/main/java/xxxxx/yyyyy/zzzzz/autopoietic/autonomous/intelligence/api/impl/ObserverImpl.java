@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Observer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Publisher;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.e.PerceptGenerated;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.e.StimulusReceived;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.cognitive.Percept;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signaling.Stimulus;
 
 @ApplicationScoped
 public class ObserverImpl implements Observer {
@@ -20,11 +18,6 @@ public class ObserverImpl implements Observer {
     @Inject
     public ObserverImpl(Publisher publisher) {
         this.publisher = publisher;
-    }
-
-    @Override
-    public void onStimulus(@Observes Stimulus stimulus) {
-        this.publisher.submit(new StimulusReceived(stimulus.energy()));
     }
 
     @Override

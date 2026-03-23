@@ -48,8 +48,12 @@ public class AutopoiesisImpl implements Autopoiesis {
                 impulse.signal(), this.label(),
                 impulse.efferent()));
         this.nucleus.integrate(compensation, x -> {
-            this.transform(x, this.areaRepository.find(impulse.efferent()));
-            this.produce(x);
+            try {
+                this.transform(x, this.areaRepository.find(impulse.efferent()));
+                this.produce(x);
+            } catch (Exception e) {
+                logger.error("compensate failed", e);
+            }
         });
     }
 
@@ -58,8 +62,12 @@ public class AutopoiesisImpl implements Autopoiesis {
         var conservation = (Conservation) this.transmitter.call(
             new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(conservation, x -> {
-            this.destroy(x);
-            this.produce(x);
+            try {
+                this.destroy(x);
+                this.produce(x);
+            } catch (Exception e) {
+                logger.error("conserve failed", e);
+            }
         });
     }
 
