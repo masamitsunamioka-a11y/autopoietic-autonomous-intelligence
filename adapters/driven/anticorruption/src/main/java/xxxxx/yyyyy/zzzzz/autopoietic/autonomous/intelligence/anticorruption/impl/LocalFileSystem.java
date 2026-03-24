@@ -135,6 +135,7 @@ public class LocalFileSystem implements Extern {
         try (var stream = Files.walk(this.base)) {
             return stream
                 .filter(Files::isRegularFile)
+                .filter(x -> !x.getFileName().toString().startsWith("."))
                 .map(Path::toUri)
                 .collect(toSet());
         } catch (IOException e) {

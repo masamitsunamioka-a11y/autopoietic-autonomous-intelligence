@@ -20,6 +20,9 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synap
 
 import java.util.List;
 
+import static java.time.LocalDateTime.now;
+import static java.time.format.DateTimeFormatter.ofPattern;
+
 /// In the future, scope to per-session
 @ApplicationScoped
 public class EpisodeImpl implements Episode {
@@ -44,9 +47,12 @@ public class EpisodeImpl implements Episode {
         this.transmitter = transmitter;
     }
 
+    /// [Engineering] hippocampus timestamps traces at encoding
     @Override
     public void encode(Trace trace) {
-        this.episodicRepository.store(trace);
+        var timestamp = now().format(ofPattern("yyyyMMddHHmmss"));
+        this.episodicRepository.store(
+            new TraceImpl(timestamp + "_" + trace.id(), trace.content()));
     }
 
     @Override

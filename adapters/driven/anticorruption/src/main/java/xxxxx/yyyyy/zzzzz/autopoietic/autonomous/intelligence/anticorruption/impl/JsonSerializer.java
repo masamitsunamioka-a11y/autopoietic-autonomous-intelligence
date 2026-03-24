@@ -40,19 +40,19 @@ public class JsonSerializer implements Serializer {
         }
     }
 
-    private String clean(String s) {
-        if (s == null || s.isBlank()) {
+    private String clean(String string) {
+        if (string == null || string.isBlank()) {
             return "{}";
         }
-        var arrayStart = s.indexOf('[');
-        var objectStart = s.indexOf('{');
-        var isArray = arrayStart != -1 && (objectStart == -1 || arrayStart < objectStart);
-        var open = isArray ? '[' : '{';
-        var close = isArray ? ']' : '}';
-        var start = isArray ? arrayStart : objectStart;
-        var end = s.lastIndexOf(close);
-        return (start == -1 || end == -1 || start >= end)
-            ? "" + open + close
-            : s.substring(start, end + 1).trim();
+        var as = string.indexOf('[');
+        var os = string.indexOf('{');
+        var isArray = as != -1 && (os == -1 || as < os);
+        var o = isArray ? '[' : '{';
+        var c = isArray ? ']' : '}';
+        var s = isArray ? as : os;
+        var e = string.lastIndexOf(c);
+        return (s == -1 || e == -1 || s >= e)
+            ? "" + o + c
+            : string.substring(s, e + 1).trim();
     }
 }
