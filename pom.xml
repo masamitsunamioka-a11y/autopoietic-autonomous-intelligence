@@ -87,11 +87,6 @@
                 <version>2.20.1</version>
             </dependency>
             <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>2.6</version>
-            </dependency>
-            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>specification</artifactId>
                 <version>${project.version}</version>

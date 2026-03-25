@@ -46,6 +46,7 @@ public class JavaTranslator<I extends Entity> implements Translator<I, JavaResou
     @Override
     @SuppressWarnings("unchecked")
     public I internalize(JavaResource resource) {
+        if (resource == null) return null;
         var clazz = this.compile(resource);
         var instance = this.instantiate(clazz);
         var map = this.accessors().collect(toMap(Method::getName, x -> this.invoke(x, instance)));

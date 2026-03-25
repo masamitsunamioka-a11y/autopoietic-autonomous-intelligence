@@ -33,6 +33,11 @@ public class RepositoryImpl<T extends AggregateRoot> implements Repository<T> {
     }
 
     @Override
+    public void storeAll(List<? extends T> objects) {
+        objects.forEach(this::store);
+    }
+
+    @Override
     public void remove(String id) {
         this.adapter.revoke(id);
     }

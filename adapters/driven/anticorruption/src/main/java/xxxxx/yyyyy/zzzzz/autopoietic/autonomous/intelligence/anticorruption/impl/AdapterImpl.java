@@ -28,9 +28,8 @@ public class AdapterImpl<I extends Entity, E extends Resource> implements Adapte
 
     @Override
     public I fetch(String id) {
-        var name = this.plugin.onNaming(id);
-        var resource = (E) this.extern.get(this.extern.resolve(name));
-        return resource != null ? this.translator.internalize(resource) : null;
+        var uri = this.extern.resolve(this.plugin.onNaming(id));
+        return this.translator.internalize((E) this.extern.get(uri));
     }
 
     @Override
@@ -52,17 +51,17 @@ public class AdapterImpl<I extends Entity, E extends Resource> implements Adapte
 
     private E locate(E resource, java.net.URI uri) {
         return (E) switch (resource) {
-            case JsonResource r -> new JsonResource(uri, r.content());
-            case JavaResource r -> new JavaResource(uri, r.content());
-            case MarkdownResource r -> new MarkdownResource(uri, r.content());
+            case JsonResource x -> new JsonResource(uri, x.content());
+            case JavaResource x -> new JavaResource(uri, x.content());
+            case MarkdownResource x -> new MarkdownResource(uri, x.content());
             default -> throw new IllegalArgumentException();
         };
     }
 
     @Override
     public void revoke(String id) {
-        var name = this.plugin.onNaming(id);
-        this.extern.remove(this.extern.resolve(name));
+        var uri = this.extern.resolve(this.plugin.onNaming(id));
+        this.extern.remove(uri);
     }
 
     @Override

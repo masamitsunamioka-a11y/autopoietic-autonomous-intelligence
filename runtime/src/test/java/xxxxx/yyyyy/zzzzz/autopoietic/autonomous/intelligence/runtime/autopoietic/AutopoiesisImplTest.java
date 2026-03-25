@@ -65,6 +65,7 @@ class AutopoiesisImplTest {
             }
             public List<Area> findAll() { return List.of(); }
             public void store(Area area) { stored.add(area.id()); }
+            public void storeAll(List<? extends Area> objects) { objects.forEach(this::store); }
             public void remove(String id) {}
             public void removeAll(List<String> ids) {}
             public boolean exists(String id) { throw new UnsupportedOperationException(); }
@@ -75,6 +76,7 @@ class AutopoiesisImplTest {
             public Neuron find(String id) { throw new UnsupportedOperationException(); }
             public List<Neuron> findAll() { return List.of(); }
             public void store(Neuron neuron) { stored.add(neuron.id()); }
+            public void storeAll(List<? extends Neuron> objects) { objects.forEach(this::store); }
             public void remove(String id) {}
             public void removeAll(List<String> ids) {}
             public boolean exists(String id) { return stored.contains(id); }
@@ -85,6 +87,7 @@ class AutopoiesisImplTest {
             public Effector find(String id) { throw new UnsupportedOperationException(); }
             public List<Effector> findAll() { return items; }
             public void store(Effector effector) {}
+            public void storeAll(List<? extends Effector> objects) { objects.forEach(this::store); }
             public void remove(String id) {}
             public void removeAll(List<String> ids) { throw new UnsupportedOperationException(); }
             public boolean exists(String id) { return items.stream().anyMatch(e -> e.id().equals(id)); }

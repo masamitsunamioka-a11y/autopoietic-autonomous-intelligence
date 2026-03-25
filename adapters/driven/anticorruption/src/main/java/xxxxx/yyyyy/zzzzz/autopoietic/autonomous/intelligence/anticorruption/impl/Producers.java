@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.AdapterPlugin;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Serializer;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.s.JavaTranslator;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.s.JsonTranslator;
@@ -27,9 +28,10 @@ public class Producers {
     @ApplicationScoped
     public Repository<Area> areaRepository(Serializer serializer) {
         var configuration = new Configuration().resolve(Area.class);
-        var translator = new JsonTranslator<>(serializer, configuration, Area.class);
         var extern = new LocalFileSystem(Path.of(configuration.get("target"), ""));
-        var adapter = new AdapterImpl<>(extern, translator, this::jsonNaming);
+        var translator = new JsonTranslator<>(serializer, configuration, Area.class);
+        var plugin = new JsonNamingPlugin();
+        var adapter = new AdapterImpl<>(extern, translator, plugin);
         return new RepositoryImpl<>(adapter);
     }
 
@@ -37,9 +39,10 @@ public class Producers {
     @ApplicationScoped
     public Repository<Neuron> neuronRepository(Serializer serializer) {
         var configuration = new Configuration().resolve(Neuron.class);
-        var translator = new JsonTranslator<>(serializer, configuration, Neuron.class);
         var extern = new LocalFileSystem(Path.of(configuration.get("target"), ""));
-        var adapter = new AdapterImpl<>(extern, translator, this::jsonNaming);
+        var translator = new JsonTranslator<>(serializer, configuration, Neuron.class);
+        var plugin = new JsonNamingPlugin();
+        var adapter = new AdapterImpl<>(extern, translator, plugin);
         return new RepositoryImpl<>(adapter);
     }
 
@@ -47,10 +50,10 @@ public class Producers {
     @ApplicationScoped
     public Repository<Effector> effectorRepository(Serializer serializer) {
         var configuration = new Configuration().resolve(Effector.class);
-        var translator = new JavaTranslator<>(serializer, configuration, Effector.class);
         var extern = new LocalFileSystem(Path.of(configuration.get("source"), ""));
-        var package_ = (String) configuration.get("package");
-        var adapter = new AdapterImpl<>(extern, translator, id -> (package_ + "." + id).replace(".", "/") + ".java");
+        var translator = new JavaTranslator<>(serializer, configuration, Effector.class);
+        var plugin = new JavaNamingPlugin(configuration.get("package"));
+        var adapter = new AdapterImpl<>(extern, translator, plugin);
         return new RepositoryImpl<>(adapter);
     }
 
@@ -59,9 +62,10 @@ public class Producers {
     @ApplicationScoped
     public Repository<Trace> semanticRepository(Serializer serializer) {
         var configuration = new Configuration().resolve(Knowledge.class);
-        var translator = new JsonTranslator<>(serializer, configuration, Trace.class);
         var extern = new LocalFileSystem(Path.of(configuration.get("target"), ""));
-        var adapter = new AdapterImpl<>(extern, translator, this::jsonNaming);
+        var translator = new JsonTranslator<>(serializer, configuration, Trace.class);
+        var plugin = new JsonNamingPlugin();
+        var adapter = new AdapterImpl<>(extern, translator, plugin);
         return new RepositoryImpl<>(adapter);
     }
 
@@ -70,20 +74,29 @@ public class Producers {
     @ApplicationScoped
     public Repository<Trace> episodicRepository(Serializer serializer) {
         var configuration = new Configuration().resolve(Episode.class);
-        var translator = new JsonTranslator<>(serializer, configuration, Trace.class);
         var extern = new LocalFileSystem(Path.of(configuration.get("target"), ""));
-        var adapter = new AdapterImpl<>(extern, translator, this::jsonNaming);
+        var translator = new JsonTranslator<>(serializer, configuration, Trace.class);
+        var plugin = new JsonNamingPlugin();
+        var adapter = new AdapterImpl<>(extern, translator, plugin);
         return new RepositoryImpl<>(adapter);
     }
 
-    private String jsonNaming(String id) {
-        return this.toSnakeCase(id) + ".json";
+    /// @formatter:off
+    private static class JsonNamingPlugin implements AdapterPlugin {
+        @Override
+        public String onNaming(String id) {
+            return id.replaceAll("([A-Z])", "_$1").toLowerCase().replaceAll("[^a-z0-9]+", "_").replaceAll("^_|_$", "") + ".json";
+        }
     }
-
-    private String toSnakeCase(String id) {
-        return id.replaceAll("([A-Z])", "_$1")
-            .toLowerCase()
-            .replaceAll("[^a-z0-9]+", "_")
-            .replaceAll("^_|_$", "");
+    private static class JavaNamingPlugin implements AdapterPlugin {
+        private final String package_;
+        public JavaNamingPlugin(String package_) {
+            this.package_ = package_;
+        }
+        @Override
+        public String onNaming(String id) {
+            return (this.package_ + "." + id).replace(".", "/") + ".java";
+        }
     }
+    /// @formatter:on
 }

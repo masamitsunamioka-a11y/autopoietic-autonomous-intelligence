@@ -15,12 +15,12 @@ will be physically deleted.
 
 - TOTAL REPLACEMENT: Any Area or Neuron NOT in the output will be PHYSICALLY
   DELETED. To preserve an entity, it MUST appear in the output.
-- LINEAGE TRACEABILITY: Every merged item MUST list all original source names
-  in `sources`. Never invent names not in source materials.
+- LINEAGE TRACEABILITY: Every obsolete item MUST be an actual name from source
+  materials. Never invent names not in source materials.
 - TUNING INTEGRITY: When merging, SYNTHESIZE a concise summary (max 500 chars)
   that captures the essential purpose. Never concatenate source tunings verbatim.
 - NEURON REFERENCE REPAIR: When neurons are merged/renamed, inspect ALL areas
-  for stale references. Update affected areas in `mergedAreas` with corrected
+  for stale references. Update affected areas in `newAreas` with corrected
   `neurons` lists. Stale references cause runtime crashes.
 
 # REASONING PROTOCOLS
@@ -46,37 +46,31 @@ will be physically deleted.
 {
   "reasoning": "Detailed justification for the consolidation decisions",
   "confidence": 0.95,
-  "mergedAreas": [
+  "newAreas": [
     {
-      "sources": [
-        "OldAreaName1",
-        "OldAreaName2"
+      "id": "AreaName",
+      "tuning": "Full synthesized tuning",
+      "neurons": [
+        "NeuronName1"
       ],
-      "reasoning": "Reason for merging or updating",
-      "newArea": {
-        "id": "MergedAreaName",
-        "tuning": "Full synthesized tuning",
-        "neurons": [
-          "NeuronName1"
-        ],
-        "effectors": [
-          "EffectorName1"
-        ]
-      }
+      "effectors": [
+        "EffectorName1"
+      ]
     }
   ],
-  "mergedNeurons": [
+  "newNeurons": [
     {
-      "sources": [
-        "OldNeuronName1",
-        "OldNeuronName2"
-      ],
-      "reasoning": "Reason for merging or updating",
-      "newNeuron": {
-        "id": "MergedNeuronName",
-        "tuning": "Full synthesized tuning"
-      }
+      "id": "NeuronName",
+      "tuning": "Full synthesized tuning"
     }
+  ],
+  "obsoleteAreas": [
+    "OldAreaName1",
+    "OldAreaName2"
+  ],
+  "obsoleteNeurons": [
+    "OldNeuronName1",
+    "OldNeuronName2"
   ]
 }
 ```

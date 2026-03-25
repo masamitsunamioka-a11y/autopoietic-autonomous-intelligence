@@ -125,12 +125,8 @@ public class FileSystemMonitor implements Monitor {
 
     private File toFile(Path path) {
         try {
-            var parent = path.getParent().getFileName().toString();
-            var name = parent + "/" + path.getFileName().toString();
-            return new File(name,
-                Files.readString(path),
-                Files.getLastModifiedTime(path).toMillis()
-            );
+            var name = path.getParent().getFileName() + "/" + path.getFileName();
+            return new File(name, Files.readString(path), Files.getLastModifiedTime(path).toMillis());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

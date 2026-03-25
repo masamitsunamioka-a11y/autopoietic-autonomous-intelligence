@@ -26,6 +26,7 @@ public class JsonTranslator<I extends Entity> implements Translator<I, JsonResou
     @Override
     @SuppressWarnings("unchecked")
     public I internalize(JsonResource resource) {
+        if (resource == null) return null;
         Map<String, Object> map = this.serializer.deserialize(resource.content(), Map.class);
         return (I) Proxy.newProxyInstance(
             this.type.getClassLoader(),

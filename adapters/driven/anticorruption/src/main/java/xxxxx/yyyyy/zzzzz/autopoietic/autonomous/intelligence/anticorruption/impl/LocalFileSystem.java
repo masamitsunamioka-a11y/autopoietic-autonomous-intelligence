@@ -37,7 +37,6 @@ public class LocalFileSystem implements Extern {
         return this.base.resolve(name).toUri();
     }
 
-    @Override
     public URI resolve(Path path) {
         return this.base.resolve(path).toUri();
     }

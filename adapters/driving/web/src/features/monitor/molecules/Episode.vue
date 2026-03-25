@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watchEffect } from "vue";
+import { computed, nextTick, ref, TransitionGroup, watchEffect } from "vue";
 import { useSnapshotStore } from "../../../shared/stores/snapshot";
 import type { MnemonicEntry } from "../../../shared/types";
 import { extractCue, extractTime } from "../../../shared/composables/useText";
 import Header from "../../../shared/atoms/Header.vue";
-import Timestamp from "../../../shared/atoms/Timestamp.vue";
 import Entry from "../atoms/Entry.vue";
 const snapshot = useSnapshotStore();
 const el = ref<HTMLDivElement | null>(null);
@@ -24,14 +23,15 @@ watchEffect(async () => {
     <Header text="Episode" />
     <div ref="el" class="section-body">
       <div v-if="episodes.length === 0" class="empty">No episodes</div>
-      <div v-for="ep in episodes" :key="ep.name" class="mnemonic-item">
-        <Timestamp :value="ep.timestamp" />
-        <Entry
-          :time="extractTime((ep.content as MnemonicEntry)?.id ?? '')"
-          :cue="extractCue((ep.content as MnemonicEntry)?.id ?? '')"
-          :content="(ep.content as MnemonicEntry)?.content ?? ''"
-        />
-      </div>
+      <TransitionGroup name="highlight">
+        <div v-for="ep in episodes" :key="ep.name" class="mnemonic-item">
+          <Entry
+            :time="extractTime((ep.content as MnemonicEntry)?.id ?? '')"
+            :cue="extractCue((ep.content as MnemonicEntry)?.id ?? '')"
+            :content="(ep.content as MnemonicEntry)?.content ?? ''"
+          />
+        </div>
+      </TransitionGroup>
     </div>
   </div>
 </template>

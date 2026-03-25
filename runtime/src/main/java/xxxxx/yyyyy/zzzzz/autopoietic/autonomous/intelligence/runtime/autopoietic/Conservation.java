@@ -12,20 +12,9 @@ import java.util.List;
 public record Conservation(
     @NotBlank String reasoning,
     @DecimalMin("0.0") @DecimalMax("1.0") double amplitude,
-    @NotNull List<@Valid MergedArea> mergedAreas,
-    @NotNull List<@Valid MergedNeuron> mergedNeurons
+    @NotNull List<@Valid NewArea> newAreas,
+    @NotNull List<@Valid NewNeuron> newNeurons,
+    @NotNull List<String> obsoleteAreas,
+    @NotNull List<String> obsoleteNeurons
 ) implements Potential {
-    public record MergedArea(
-        @NotNull List<String> sources,
-        @NotBlank String reasoning,
-        @NotNull @Valid NewArea newArea
-    ) {
-    }
-
-    public record MergedNeuron(
-        @NotNull List<String> sources,
-        @NotBlank String reasoning,
-        @NotNull @Valid NewNeuron newNeuron
-    ) {
-    }
 }

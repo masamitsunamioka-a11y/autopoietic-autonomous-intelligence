@@ -11,6 +11,8 @@ public interface Repository<T extends AggregateRoot> {
 
     void store(T object);
 
+    void storeAll(List<? extends T> objects);
+
     void remove(String id);
 
     void removeAll(List<String> ids);

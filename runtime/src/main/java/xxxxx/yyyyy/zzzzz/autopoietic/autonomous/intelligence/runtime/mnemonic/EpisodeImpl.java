@@ -18,9 +18,10 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.signa
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Nucleus;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.synaptic.Potential;
 
+import java.time.ZoneId;
 import java.util.List;
 
-import static java.time.LocalDateTime.now;
+import static java.time.ZonedDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 /// In the future, scope to per-session
@@ -50,7 +51,7 @@ public class EpisodeImpl implements Episode {
     /// [Engineering] hippocampus timestamps traces at encoding
     @Override
     public void encode(Trace trace) {
-        var timestamp = now().format(ofPattern("yyyyMMddHHmmss"));
+        var timestamp = now(ZoneId.of("Asia/Tokyo")).format(ofPattern("yyyyMMddHHmmss"));
         this.episodicRepository.store(
             new TraceImpl(timestamp + "_" + trace.id(), trace.content()));
     }

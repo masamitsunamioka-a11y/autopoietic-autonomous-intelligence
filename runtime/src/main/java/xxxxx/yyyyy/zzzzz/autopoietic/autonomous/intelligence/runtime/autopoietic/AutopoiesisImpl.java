@@ -83,34 +83,19 @@ public class AutopoiesisImpl implements Autopoiesis {
     }
 
     private void produce(Compensation compensation) {
-        compensation.newEffectors()
-            .forEach(this.effectorRepository::store);
-        compensation.newNeurons()
-            .forEach(this.neuronRepository::store);
-        compensation.newAreas().stream()
-            .map(this::sanitize)
-            .forEach(this.areaRepository::store);
+        this.effectorRepository.storeAll(compensation.newEffectors());
+        this.neuronRepository.storeAll(compensation.newNeurons());
+        this.areaRepository.storeAll(compensation.newAreas().stream().map(this::sanitize).toList());
     }
 
     private void destroy(Conservation conservation) {
-        this.areaRepository.removeAll(
-            conservation.mergedAreas().stream()
-                .flatMap(x -> x.sources().stream())
-                .toList());
-        this.neuronRepository.removeAll(
-            conservation.mergedNeurons().stream()
-                .flatMap(x -> x.sources().stream())
-                .toList());
+        this.areaRepository.removeAll(conservation.obsoleteAreas());
+        this.neuronRepository.removeAll(conservation.obsoleteNeurons());
     }
 
     private void produce(Conservation conservation) {
-        conservation.mergedNeurons().stream()
-            .map(Conservation.MergedNeuron::newNeuron)
-            .forEach(this.neuronRepository::store);
-        conservation.mergedAreas().stream()
-            .map(Conservation.MergedArea::newArea)
-            .map(this::sanitize)
-            .forEach(this.areaRepository::store);
+        this.neuronRepository.storeAll(conservation.newNeurons());
+        this.areaRepository.storeAll(conservation.newAreas().stream().map(this::sanitize).toList());
     }
 
     private NewArea sanitize(NewArea area) {

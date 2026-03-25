@@ -41,7 +41,7 @@ class KandelCircuitIT {
             calculate the annual reduction rate needed to meet Paris Agreement 2030 targets,
             and create a priority ranking with specific policy recommendations
             based on each country's energy mix and industrial structure."""
-        ).forEach(x -> this.stimulate(x, 10));
+        ).forEach(x -> this.stimulate(x, 15));
     }
 
     @Test
