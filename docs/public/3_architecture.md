@@ -236,6 +236,31 @@ Autopoiesis.conserve()
 [R4] DMN        -> Thalamus.relay()    Internal impulse enters CEN pathway
 ```
 
+### CQRS - Command Query Responsibility Segregation
+
+```
+[Write Side]
+Runtime                          ACL
+Command ──> CommandPublisher ──> CommandHandler
+                                 ├── domain logic
+                                 ├── EventStore.save(events)
+                                 └── EventPublisher.publish(event)
+                                      └── EventHandler.handle(event)
+                                           └── Adapter.publish/revoke  (update ReadModel)
+
+[Read Side]
+Runtime
+Repository.find/findAll ──> Adapter.fetch/fetchAll  (read from ReadModel)
+```
+
+Command types (runtime): `CompensateNeural`, `ConserveNeural`,
+`EncodeEpisode`, `DecayEpisode`, `EncodeKnowledge`, `DecayKnowledge`.
+
+Event types (anticorruption): `AreaCreated`, `AreaRemoved`, `NeuronCreated`,
+`NeuronRemoved`, `EffectorCreated`, `TraceEncoded`, `StrengthDecayed`, `TraceRemoved`.
+
+Repository is read-only (find, findAll, exists). All writes go through Commands.
+
 ---
 
 ## Module Structure
@@ -268,29 +293,39 @@ adapters/driving/web        Vue 3 + TypeScript + Vite + Pinia SPA
 
 ```
 filesystem/
-  neural/neurons/          Neuron definitions (JSON)
-  neural/areas/            Area definitions (JSON)
-  synaptic/function/       Function prompt templates (perception, relay, compensation, conservation, default, promotion)
-  synaptic/shared/         Shared templates (executive_control, output_integrity)
-  hippocampal/episode/     episode_yyyyMMddHHmmss.json
-  neocortical/knowledge/   knowledge.json
+  eventsourcing/
+    data/                            ReadModel (query side)
+      neural/areas/                  Area definitions (JSON)
+      neural/neurons/                Neuron definitions (JSON)
+      hippocampal/episode/           episode_yyyyMMddHHmmss.json
+      neocortical/knowledge/         knowledge.json
+    event/                           EventStore (append-only JSON)
+  master/
+    synaptic/function/               Function prompt templates (perception, relay, compensation, conservation, default, consolidation)
+    synaptic/shared/                 Shared templates (executive_control, output_integrity)
 ```
+
+CQRS separation: `eventsourcing/data/` is the ReadModel updated by EventHandlers.
+`eventsourcing/event/` is the append-only EventStore.
+`master/` contains static templates (not event-sourced).
 
 ### Configuration
 
 `adapters/driving/api/src/main/resources/configuration.yaml`
 
-| Key                                                           | Description                              |
-|---------------------------------------------------------------|------------------------------------------|
-| `anticorruption.neural.areas.target`                          | Area JSON directory                      |
-| `anticorruption.neural.neurons.target`                        | Neuron JSON directory                    |
-| `anticorruption.synaptic.function.source`                     | Function prompt templates directory      |
-| `anticorruption.synaptic.shared.source`                       | Shared prompt templates directory        |
-| `anticorruption.hippocampal.episode.target`                   | Episode memory directory                 |
-| `anticorruption.hippocampal.episode.limit`                    | Past sessions to load (-1 = all)         |
-| `anticorruption.neocortical.knowledge.target`                 | Knowledge memory directory               |
-| `anticorruption.neural.effectors.package`                     | Effector Java package name               |
-| `anticorruption.neural.effectors.source`                      | Effector .java source directory          |
-| `anticorruption.neural.effectors.target`                      | Effector .class target directory         |
-| `anticorruption.neural.effectors.compiler.classpath.strategy` | `manual` or system class path            |
-| `anticorruption.neural.effectors.compiler.classpath.value`    | Classpath value (when strategy = manual) |
+URI-aligned: each entry has `scheme` + `path` for resource location.
+
+| Key                                                | Description                             |
+|----------------------------------------------------|-----------------------------------------|
+| `anticorruption.neural.areas.scheme/path`          | Area JSON directory (ReadModel)         |
+| `anticorruption.neural.neurons.scheme/path`        | Neuron JSON directory (ReadModel)       |
+| `anticorruption.neural.effectors.package`          | Effector Java package name              |
+| `anticorruption.neural.effectors.scheme/path`      | Effector .java source directory         |
+| `anticorruption.neural.effectors.compiler.*`       | Classpath and output for compilation    |
+| `anticorruption.synaptic.function.scheme/path`     | Function prompt templates directory     |
+| `anticorruption.synaptic.shared.scheme/path`       | Shared prompt templates directory       |
+| `anticorruption.hippocampal.episode.scheme/path`   | Episode memory directory (ReadModel)    |
+| `anticorruption.hippocampal.episode.threshold`     | Engram strength threshold for retrieval |
+| `anticorruption.hippocampal.episode.decay`         | Engram strength decay factor            |
+| `anticorruption.neocortical.knowledge.scheme/path` | Knowledge memory directory (ReadModel)  |
+| `anticorruption.eventstore.scheme/path`            | EventStore directory (append-only)      |

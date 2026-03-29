@@ -9,15 +9,15 @@
 
 ## Summary
 
-**Kandel compliance: 95.7%** - OK / Total = 133 / 139
+**Kandel compliance: 95.4%** - OK / Total = 124 / 130
 
 | Rating            | Count | Description                                  |
 |-------------------|-------|----------------------------------------------|
-| **OK**            | 133   | Kandel-compliant                             |
+| **OK**            | 124   | Kandel-compliant                             |
 | **[Engineering]** | 6     | Kandel deviations with engineering rationale |
-| **Total**         | 139   |                                              |
+| **Total**         | 130   |                                              |
 
-No Kandel Equivalent (I1-I4) excluded from Total.
+No Kandel Equivalent (I1-I6) excluded from Total.
 
 **Common prerequisites** (excluded from Engineering count):
 
@@ -55,12 +55,14 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 
 #### No Kandel Equivalent
 
-| #  | Target                                | Description                                                       |
-|----|---------------------------------------|-------------------------------------------------------------------|
-| I1 | `Entity`                              | Evans DDD identity                                                |
-| I2 | `AggregateRoot`                       | Evans DDD aggregate root. Extends Entity                          |
-| I3 | `Repository<T extends AggregateRoot>` | Persistence SPI (find, findAll, store, remove, removeAll, exists) |
-| I4 | `Service<I, O>`                       | External service call port                                        |
+| #  | Target                                | Description                                       |
+|----|---------------------------------------|---------------------------------------------------|
+| I1 | `Entity`                              | Evans DDD identity                                |
+| I2 | `AggregateRoot`                       | Evans DDD aggregate root. Extends Entity          |
+| I3 | `Repository<T extends AggregateRoot>` | Read-only query SPI (find, findAll, exists). CQRS |
+| I4 | `Service<I, O>`                       | External service call port                        |
+| I5 | `Command`                             | CQRS command marker interface (Greg Young)        |
+| I6 | `CommandPublisher`                    | CQRS command bus - publishes commands to handlers |
 
 ---
 
@@ -113,6 +115,9 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 | **Episode**         | OK     | Ch.65-67 episodic memory (Tulving) - autobiographical, time-stamped memory                |
 | `.consolidate()`    | OK     | Ch.65-67 hippocampal replay - episodic->semantic transfer during sleep                    |
 | **Knowledge**       | OK     | Ch.65-67 semantic memory (Tulving) - general world knowledge                              |
+| **Engram**          | OK     | Ch.65-67 memory engram - Trace envelope with synaptic weight (strength)                   |
+| `.strength()`       | OK     | Ch.65-67 synaptic weight - strength of the memory trace encoding                          |
+| `.trace()`          | OK     | Ch.65 memory trace - the underlying Trace wrapped by this engram                          |
 
 #### `specification.networking`
 
@@ -167,31 +172,29 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 
 #### `runtime` (root - SPI)
 
-| Class / Method                                      | Rating | Kandel Rationale / Comment        |
-|-----------------------------------------------------|--------|-----------------------------------|
-| **Repository\<T extends AggregateRoot\>**           | I3     | No Kandel equivalent. Infra       |
-| `.find()` / `.findAll()` / `.store()` / `.remove()` | I3     | Standard repository operations    |
-| `.removeAll(List<String>)`                          | I3     | Batch deletion. Infra for decay() |
-| `.exists()`                                         | I3     | Existence check                   |
-| **Service\<I, O\>**                                 | I4     | External service call port        |
+| Class / Method                            | Rating | Kandel Rationale / Comment             |
+|-------------------------------------------|--------|----------------------------------------|
+| **Repository\<T extends AggregateRoot\>** | I3     | No Kandel equivalent. Read-only (CQRS) |
+| `.find()` / `.findAll()` / `.exists()`    | I3     | Query-side repository operations       |
+| **Command**                               | I5     | CQRS command marker interface          |
+| **CommandPublisher**                      | I6     | CQRS command bus                       |
+| `.publish(T)`                             | I6     | Fire command to CommandHandlers        |
+| **Service\<I, O\>**                       | I4     | External service call port             |
 
 #### `runtime.autopoietic`
 
-| Class / Method                    | Rating | M&V / Kandel Rationale / Comment                                                                   |
-|-----------------------------------|--------|----------------------------------------------------------------------------------------------------|
-| **AutopoiesisImpl**               | OK     | M&V autopoiesis - self-production and organizational identity maintenance                          |
-| `.compensate()`                   | OK     | Transmitter -> nucleus.integrate -> reinforce (tuning change) -> sprout (new structure generation) |
-| `.conserve()`                     | OK     | Transmitter -> nucleus.integrate -> eliminate (redundancy removal) -> consolidate                  |
-| `.reinforce()`                    | OK     | Ch.63 synaptic reinforcement - strengthening existing Area's tuning                                |
-| `.sprout()`                       | OK     | Ch.63-64 axonal/dendritic sprouting - growth of new connections/structures                         |
-| `.eliminate()`                    | OK     | Ch.64 synaptic elimination - removal of unnecessary connections                                    |
-| `.consolidate()`                  | OK     | Ch.67 memory/synaptic consolidation - persistence of integrated results                            |
-| `.sanitize()`                     | OK     | Reference integrity validation before store                                                        |
-| **Compensation**                  | OK     | M&V perturbation response output model                                                             |
-| `.newTuning`                      | OK     | New tuning after reinforcement                                                                     |
-| `.newAreas/Neurons/Effectors`     | OK     | Sprouting results. NewArea, NewNeuron, NewEffector implement spec interfaces                       |
-| **Conservation**                  | OK     | M&V adaptation preservation output model                                                           |
-| `.mergedAreas` / `.mergedNeurons` | OK     | sources + result for consolidation targets                                                         |
+| Class / Method                    | Rating | M&V / Kandel Rationale / Comment                                                 |
+|-----------------------------------|--------|----------------------------------------------------------------------------------|
+| **AutopoiesisImpl**               | OK     | M&V autopoiesis. CQRS: compensate/conserve publish Commands via CommandPublisher |
+| `.compensate()`                   | OK     | Transmitter -> Nucleus -> CommandPublisher.publish(CompensateNeural)             |
+| `.conserve()`                     | OK     | Transmitter -> Nucleus -> CommandPublisher.publish(ConserveNeural)               |
+| **CompensateNeural**              | I5     | CQRS command record. Wraps Compensation for neural structure creation            |
+| **ConserveNeural**                | I5     | CQRS command record. Wraps Conservation for neural structure pruning             |
+| **Compensation**                  | OK     | M&V perturbation response output model                                           |
+| `.newTuning`                      | OK     | New tuning after reinforcement                                                   |
+| `.newAreas/Neurons/Effectors`     | OK     | Sprouting results. NewArea, NewNeuron, NewEffector implement spec interfaces     |
+| **Conservation**                  | OK     | M&V adaptation preservation output model                                         |
+| `.mergedAreas` / `.mergedNeurons` | OK     | sources + result for consolidation targets                                       |
 
 #### `runtime.cognitive`
 
@@ -230,24 +233,27 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 
 #### `runtime.mnemonic`
 
-| Class / Method         | Rating | Kandel Rationale / Comment                                                                                                                 |
-|------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| **TraceImpl**          | OK     | Pure record box (id + content). Timestamp managed by ACL                                                                                   |
-| **@Episodic**          | OK     | CDI qualifier. Identifies episodic memory Repository                                                                                       |
-| **@Semantic**          | OK     | CDI qualifier. Identifies semantic memory Repository                                                                                       |
-| **EpisodeImpl**        | OK     | Ch.65-67 episodic memory                                                                                                                   |
-| `.encode()`            | OK     | Memory encoding                                                                                                                            |
-| `.retrieve(String)`    | OK     | Cued recall via repository lookup                                                                                                          |
-| `.retrieve()`          | OK     | Free recall - sorted by timestamp                                                                                                          |
-| `.decay()`             | OK     | Ch.67 sleep consolidation. removeAll for traces exceeding area-proportional capacity. Called from Thalamus.burst()                         |
-| `.consolidate()`       | OK     | Ch.65-67 hippocampal replay. Transmitter -> Nucleus pipeline extracts insights from Episode into Knowledge.encode()                        |
-| `CAPACITY_PER_AREA=10` | OK     | Ch.65-67 area-proportional capacity. Hippocampal encoding integrates multiple cortical association areas - capacity scales with area count |
-| **Consolidation**      | OK     | Ch.65-67 memory consolidation. LLM output record for consolidate(). reasoning + amplitude + insights (extracted semantic knowledge)        |
-| **KnowledgeImpl**      | OK     | Ch.65-67 semantic memory                                                                                                                   |
-| `.encode()`            | OK     | Memory encoding. Ch.66 retroactive interference                                                                                            |
-| `.retrieve(String)`    | OK     | Cued recall via repository lookup                                                                                                          |
-| `.retrieve()`          | OK     | Free recall - sorted by timestamp                                                                                                          |
-| `.decay()`             | OK     | Prefix deduplication. Retains only latest trace per prefix. Corresponds to Ch.66 interference theory                                       |
+| Class / Method      | Rating | Kandel Rationale / Comment                                                                                                          |
+|---------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------|
+| **TraceImpl**       | OK     | Pure record box (id + content). Timestamp managed by ACL                                                                            |
+| **@Episodic**       | OK     | CDI qualifier. Identifies episodic memory Repository                                                                                |
+| **@Semantic**       | OK     | CDI qualifier. Identifies semantic memory Repository                                                                                |
+| **EpisodeImpl**     | OK     | Ch.65-67 episodic memory. CQRS: encode/decay publish Commands                                                                       |
+| `.encode()`         | OK     | Memory encoding via CommandPublisher.publish(EncodeEpisode)                                                                         |
+| `.retrieve(String)` | OK     | Cued recall via read-only Repository                                                                                                |
+| `.retrieve()`       | OK     | Free recall - sorted by timestamp                                                                                                   |
+| `.decay()`          | OK     | Ch.67 sleep consolidation via CommandPublisher.publish(DecayEpisode). Called from Thalamus.burst()                                  |
+| `.consolidate()`    | OK     | Ch.65-67 hippocampal replay. Transmitter -> Nucleus pipeline extracts insights from Episode into Knowledge.encode()                 |
+| **Consolidation**   | OK     | Ch.65-67 memory consolidation. LLM output record for consolidate(). reasoning + amplitude + insights (extracted semantic knowledge) |
+| **EncodeEpisode**   | I5     | CQRS command record. Wraps Trace for encoding                                                                                       |
+| **DecayEpisode**    | I5     | CQRS command record. Triggers episodic memory decay                                                                                 |
+| **KnowledgeImpl**   | OK     | Ch.65-67 semantic memory. CQRS: encode/decay publish Commands                                                                       |
+| `.encode()`         | OK     | Memory encoding via CommandPublisher.publish(EncodeKnowledge). Ch.66 retroactive interference                                       |
+| `.retrieve(String)` | OK     | Cued recall via read-only Repository                                                                                                |
+| `.retrieve()`       | OK     | Free recall - sorted by timestamp                                                                                                   |
+| `.decay()`          | OK     | Prefix deduplication via CommandPublisher.publish(DecayKnowledge). Ch.66 interference theory                                        |
+| **EncodeKnowledge** | I5     | CQRS command record. Wraps Trace for encoding                                                                                       |
+| **DecayKnowledge**  | I5     | CQRS command record. Triggers semantic memory decay                                                                                 |
 
 #### `runtime.networking`
 

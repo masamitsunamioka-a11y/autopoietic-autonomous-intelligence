@@ -1,5 +1,8 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Serializer;
@@ -51,11 +54,16 @@ public class JavaTranslator<I extends Entity> implements Translator<I, JavaResou
         var instance = this.instantiate(clazz);
         var map = this.accessors().collect(toMap(Method::getName, x -> this.invoke(x, instance)));
         var string = this.serializer.serialize(map);
+        var node = new ObjectMapper().valueToTree(map);
         return (I) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
-            new Class<?>[]{this.type},
+            new Class<?>[]{this.type, JsonSerializable.class},
             (proxy, method, args) -> {
                 return switch (method.getName()) {
+                    case "serialize", "serializeWithType" -> {
+                        ((JsonGenerator) args[0]).writeObject(node);
+                        yield null;
+                    }
                     case "toString" -> string;
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "equals" -> args != null && args.length == 1 && proxy == args[0];

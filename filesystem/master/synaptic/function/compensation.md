@@ -62,7 +62,10 @@ creating or updating Areas, Neurons, and Effectors to address the gap.
   "newArea": {
     "id": "ExactCurrentAreaName",
     "tuning": "The complete, updated tuning for the CURRENT area",
-    "neurons": ["ExistingNeuron1", "NewNeuron1"]
+    "neurons": [
+      "ExistingNeuron1",
+      "NewNeuron1"
+    ]
   },
   "newAreas": [
     {

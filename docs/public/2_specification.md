@@ -92,7 +92,7 @@ All specification interfaces map to three categories derived from neuron anatomy
 | `autopoietic` | M&V                | [Autopoiesis](#autopoiesis-interface--mv)                                                                                                                            |
 | `cognitive`   | Part VII           | [Cortex](#cortex-interface--part-vii), [Percept](#percept-interface--ch21-25)                                                                                        |
 | `homeostatic` | Ch.48, 51          | [Drive](#drive-interface--ch48), [Sleep](#sleep-interface--ch51-65-67), [Arousal](#arousal-interface--ch51), [Modulator](#modulator-interface--ch51)                 |
-| `mnemonic`    | Ch.65-67           | [Trace](#trace-interface--ch63-67), [Episode](#episode-interface--ch65-67), [Knowledge](#knowledge-interface--ch65-67)                                               |
+| `mnemonic`    | Ch.65-67           | [Trace](#trace-interface--ch63-67), [Episode](#episode-interface--ch65-67), [Knowledge](#knowledge-interface--ch65-67), [Engram](#engram-interface--ch65-67)         |
 | `networking`  | Ch.23, 46, 62, 63  | [Thalamus](#thalamus-interface--ch23-26-46), [Default](#default-interface--ch62), [Salience](#salience-interface--ch63-seeley-2007)                                  |
 | `neural`      | Ch.1, 2, 21, 26-27 | [Receptor](#receptor-interface--ch21), [Area](#area-interface--ch1-26-27), [Neuron](#neuron-interface--ch2-26), [Effector](#effector-interface--ch35-36)             |
 | `signaling`   | Ch.7, 21           | [Stimulus](#stimulus-interface--ch21), [Impulse](#impulse-interface--ch7)                                                                                            |
@@ -228,6 +228,16 @@ Semantic memory (Tulving): general world knowledge, cross-session.
 | `retrieve(String)` | Cue-based retrieval                                                                                            |
 | `retrieve()`       | Associative recall as Map (cue->content). Ch.65: semantic memory is cue-based, unlike episodic (temporal List) |
 | `decay()`          | Forgetting without reinforcement                                                                               |
+
+#### `Engram` interface - Ch.65-67
+
+Memory engram envelope. Wraps a Trace with its current strength (synaptic weight).
+Used by episodic memory for strength-based decay and retrieval filtering.
+
+| Method       | Basis                                                            |
+|--------------|------------------------------------------------------------------|
+| `strength()` | Ch.65-67 synaptic weight - strength of the memory trace encoding |
+| `trace()`    | Ch.65 memory trace - the underlying Trace wrapped by this engram |
 
 ---
 
