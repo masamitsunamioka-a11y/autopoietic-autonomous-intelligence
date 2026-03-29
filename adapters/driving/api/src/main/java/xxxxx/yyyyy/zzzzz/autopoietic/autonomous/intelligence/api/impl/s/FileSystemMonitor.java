@@ -35,11 +35,11 @@ public class FileSystemMonitor implements Monitor {
     public FileSystemMonitor(Publisher publisher) {
         this.publisher = publisher;
         this.paths = List.of(
-            Path.of("filesystem/neural/areas", ""),
-            Path.of("filesystem/neural/neurons", ""),
+            Path.of("filesystem/eventsourcing/data/neural/areas", ""),
+            Path.of("filesystem/eventsourcing/data/neural/neurons", ""),
             Path.of("adapters/driven/services/src/main/java/xxxxx/yyyyy/zzzzz/autopoietic/autonomous/intelligence/effectors/effector", ""),
-            Path.of("filesystem/hippocampal/episode", ""),
-            Path.of("filesystem/neocortical/knowledge", ""));
+            Path.of("filesystem/eventsourcing/data/hippocampal/episode", ""),
+            Path.of("filesystem/eventsourcing/data/neocortical/knowledge", ""));
         try {
             this.watchService = FileSystems.getDefault().newWatchService();
         } catch (IOException e) {
@@ -103,7 +103,7 @@ public class FileSystemMonitor implements Monitor {
     private List<Snapshot> detect(WatchKey key) {
         var watchable = (Path) key.watchable();
         return key.pollEvents().stream()
-            .map(event -> watchable.resolve((Path) event.context()))
+            .map(x -> watchable.resolve((Path) x.context()))
             .map(this::toFile)
             .filter(File::isMonitorable)
             .map(File::snapshot)

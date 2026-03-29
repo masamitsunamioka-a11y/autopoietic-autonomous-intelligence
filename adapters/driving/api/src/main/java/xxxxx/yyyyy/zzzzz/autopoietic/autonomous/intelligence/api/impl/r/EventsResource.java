@@ -44,10 +44,8 @@ public class EventsResource {
 
     @GET
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    public void events(
-        @Context SseEventSink sink,
-        @Context Sse sse,
-        @HeaderParam("Last-Event-ID") String lastEventId) {
+    public void events(@Context SseEventSink sink, @Context Sse sse,
+                       @HeaderParam("Last-Event-ID") String lastEventId) {
         this.replay(sink, sse, lastEventId);
         this.publisher.subscribe(new SubscriberImpl(sink, sse));
     }

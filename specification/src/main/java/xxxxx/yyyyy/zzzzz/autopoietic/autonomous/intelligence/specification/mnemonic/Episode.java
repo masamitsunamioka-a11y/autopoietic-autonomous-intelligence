@@ -11,5 +11,5 @@ public interface Episode {
 
     void decay();
 
-    void promote();
+    void consolidate();
 }

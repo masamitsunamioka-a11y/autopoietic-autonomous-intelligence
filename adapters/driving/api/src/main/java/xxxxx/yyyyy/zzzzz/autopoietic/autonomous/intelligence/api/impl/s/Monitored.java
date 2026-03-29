@@ -14,9 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface Monitored {
-    final class Literal
-        extends AnnotationLiteral<Monitored>
-        implements Monitored {
+    public static class Literal extends AnnotationLiteral<Monitored> implements Monitored {
         public static final Literal INSTANCE = new Literal();
     }
 }

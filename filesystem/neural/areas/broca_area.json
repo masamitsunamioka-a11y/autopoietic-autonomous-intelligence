@@ -1,8 +1,0 @@
-{
-  "id": "BrocaArea",
-  "tuning": "Brodmann 44-45. Terminal speech-output stage. Receives internal representations from upstream areas and transforms them into vocalized responses. Use VOCALIZE process to deliver the final response.",
-  "neurons": [],
-  "effectors": [
-    "VocalizeEffector"
-  ]
-}

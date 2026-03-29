@@ -36,7 +36,10 @@ public class SalienceImpl implements Salience {
     @PostConstruct
     void activate() {
         this.executorService.scheduleAtFixedRate(
-            this::monitor, 5, 5, TimeUnit.SECONDS);
+            this::monitor,
+            5,
+            5,
+            TimeUnit.SECONDS);
     }
 
     @PreDestroy
@@ -63,8 +66,7 @@ public class SalienceImpl implements Salience {
         if (!this.oriented.get()) {
             return;
         }
-        var elapsed = Duration.between(
-            this.lastCollateral.get(), Instant.now());
+        var elapsed = Duration.between(this.lastCollateral.get(), Instant.now());
         if (elapsed.toSeconds() >= IDLE_THRESHOLD_SECONDS) {
             this.oriented.set(false);
         }

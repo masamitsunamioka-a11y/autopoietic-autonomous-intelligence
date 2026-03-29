@@ -5,16 +5,19 @@ import { useSnapshotStore } from "../../../shared/stores/snapshot";
 import { useNetworkStore } from "../../network/stores/network";
 import { useMonitorStore } from "../../monitor/stores/monitor";
 import type { Message } from "../../../shared/types";
+
 export const useChatStore = defineStore("chat", () => {
   const messages = ref<Message[]>([]);
   const sending = ref(false);
   const fontSize = ref(12);
+
   function addMessage(partial: Omit<Message, "id">): void {
     messages.value.push({
       id: crypto.randomUUID(),
       ...partial,
     });
   }
+
   function initSse(): void {
     const snapshot = useSnapshotStore();
     const network = useNetworkStore();
@@ -26,6 +29,7 @@ export const useChatStore = defineStore("chat", () => {
       monitor.addTrace,
     );
   }
+
   async function sendMessage(input: string): Promise<void> {
     const trimmed = input.trim();
     if (!trimmed || sending.value) return;
@@ -46,5 +50,6 @@ export const useChatStore = defineStore("chat", () => {
       sending.value = false;
     }
   }
+
   return { messages, sending, fontSize, addMessage, initSse, sendMessage };
 });

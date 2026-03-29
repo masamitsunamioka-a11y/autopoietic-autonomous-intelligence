@@ -13,10 +13,9 @@ public class MonitoredExtension implements Extension {
     private static final String SPECIFICATION =
         "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification";
 
-    public <T> void addMonitored(
-        @Observes
-        @WithAnnotations(ApplicationScoped.class)
-        ProcessAnnotatedType<T> event) {
+    public <T> void addMonitored(@Observes
+                                 @WithAnnotations(ApplicationScoped.class)
+                                 ProcessAnnotatedType<T> event) {
         var type = event.getAnnotatedType().getJavaClass();
         if (this.implementsSpecification(type)) {
             event.configureAnnotatedType().add(Monitored.Literal.INSTANCE);

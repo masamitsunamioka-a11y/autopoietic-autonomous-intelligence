@@ -50,11 +50,16 @@ buildNumber.properties
 ## -----
 tmp/
 .idea/
-filesystem/hippocampal/episode/*
-!filesystem/hippocampal/episode/.gitkeep
-filesystem/neocortical/knowledge/*
-!filesystem/neocortical/knowledge/.gitkeep
+filesystem/eventsourcing/data/hippocampal/episode/*
+!filesystem/eventsourcing/data/hippocampal/episode/.gitkeep
+filesystem/eventsourcing/data/neocortical/knowledge/*
+!filesystem/eventsourcing/data/neocortical/knowledge/.gitkeep
 adapters/driving/web/node/
 adapters/driving/web/node_modules/
 adapters/driving/web/dist/
 
+
+# Event sourcing runtime data
+filesystem/eventsourcing/event/*.json
+
+node_modules/

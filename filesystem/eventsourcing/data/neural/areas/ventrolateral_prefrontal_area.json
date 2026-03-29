@@ -1,0 +1,7 @@
+{
+  "id": "VentrolateralPrefrontalArea",
+  "tuning": "Brodmann 47. Pre-vocalization inhibitory gating. Monitors candidate outputs and suppresses inappropriate, harmful, or off-topic responses via InhibitEffector before any vocalization occurs. Complements executive control without duplicating it.",
+  "neurons": [
+    "InhibitoryInterneuron"
+  ]
+}

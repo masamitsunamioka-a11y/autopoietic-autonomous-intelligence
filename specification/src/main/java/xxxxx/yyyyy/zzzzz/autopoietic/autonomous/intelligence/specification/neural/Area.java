@@ -8,6 +8,4 @@ public interface Area extends AggregateRoot {
     String tuning();
 
     List<String> neurons();
-
-    List<String> effectors();
 }

@@ -25,8 +25,7 @@ public class ReceptorImpl implements Receptor {
     @Override
     public void transduce(Stimulus stimulus) {
         this.salience.orient();
-        this.thalamus.relay(new ImpulseImpl(
-            stimulus.energy(), this.label(), null));
+        this.thalamus.relay(new ImpulseImpl(stimulus.energy(), this.label(), null));
     }
 
     private String label() {

@@ -2,6 +2,7 @@ export function extractCue(id: string): string {
   const underscore = id.indexOf("_");
   return underscore >= 0 ? id.substring(underscore + 1) : id;
 }
+
 export function extractTime(id: string): number {
   const underscore = id.indexOf("_");
   if (underscore < 0) return 0;
@@ -21,6 +22,7 @@ export function extractTime(id: string): number {
     raw.substring(12, 14);
   return new Date(iso).getTime();
 }
+
 export function stripImpl(name: string): string {
   return name.replace(/Impl$/, "");
 }

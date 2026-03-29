@@ -1,35 +1,43 @@
 import type { Message, MessageType, Snapshot } from "../types";
+
 interface BaseEvent {
   type: MessageType;
 }
+
 interface MethodInvokedData extends BaseEvent {
   type: "method-invoked";
   className: string;
   methodName: string;
 }
+
 interface NetworkSwitchedData extends BaseEvent {
   type: "network-switched";
   status: string;
 }
+
 interface StimulusFiredData extends BaseEvent {
   type: "stimulus-fired";
   content: string;
 }
+
 interface PerceptGeneratedData extends BaseEvent {
   type: "percept-generated";
   location?: string;
   content: string;
 }
+
 interface FileSystemChangedData extends BaseEvent {
   type: "filesystem-changed";
   content: Snapshot[];
 }
+
 type Event =
   | MethodInvokedData
   | NetworkSwitchedData
   | StimulusFiredData
   | PerceptGeneratedData
   | FileSystemChangedData;
+
 export function useSse(
   onMessage: (msg: Omit<Message, "id">) => void,
   onSnapshot: (data: Snapshot[]) => void,

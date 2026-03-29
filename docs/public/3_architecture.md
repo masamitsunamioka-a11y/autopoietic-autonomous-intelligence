@@ -147,7 +147,7 @@ Thalamus.oscillate()                                        Ch.51
     └── Nucleus.integrate(Spindle, Consumer)                Ch.9,12
         └── [thread pool]
             ├── Autopoiesis.conserve()
-            ├── Episode.promote()                           Ch.65-67
+            ├── Episode.consolidate()                       Ch.65-67
             │   ├── @Releasic @Diffusic @Bindic
             │   │   Service<Impulse, Potential>.call(Impulse)
             │   │   └── Consolidation{reasoning, amplitude,

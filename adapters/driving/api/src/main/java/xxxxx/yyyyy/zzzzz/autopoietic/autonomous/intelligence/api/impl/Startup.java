@@ -1,8 +1,7 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Initialized;
-import jakarta.enterprise.event.Observes;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +9,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.Monitor;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.homeostatic.Sleep;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.networking.Default;
 
-@ApplicationScoped
+@Singleton
+@jakarta.ejb.Startup
 public class Startup {
     private static final Logger logger = LoggerFactory.getLogger(Startup.class);
     private final Default defaultMode;
@@ -24,9 +24,8 @@ public class Startup {
         this.monitor = monitor;
     }
 
-    public void onStartup(
-        @Observes @Initialized(ApplicationScoped.class)
-        Object event) {
+    @PostConstruct
+    public void onStartup() {
         this.defaultMode.toString();
         this.sleep.toString();
         this.monitor.toString();

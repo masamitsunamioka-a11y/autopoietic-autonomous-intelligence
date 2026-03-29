@@ -1,27 +1,39 @@
 anticorruption:
   synaptic:
     function:
-      source: "../../../filesystem/synaptic/function"
+      scheme: "file://"
+      path: "../../../filesystem/master/synaptic/function"
     shared:
-      source: "../../../filesystem/synaptic/shared"
+      scheme: "file://"
+      path: "../../../filesystem/master/synaptic/shared"
   neural:
     areas:
-      target: "../../../filesystem/neural/areas"
+      scheme: "file://"
+      path: "../../../filesystem/eventsourcing/data/neural/areas"
       limit: "-1"
     neurons:
-      target: "../../../filesystem/neural/neurons"
+      scheme: "file://"
+      path: "../../../filesystem/eventsourcing/data/neural/neurons"
       limit: "-1"
     effectors:
       package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors.effector"
-      source: "../../../adapters/driven/services/src/main/java"
-      target: "../../../adapters/driven/services/target/classes"
+      scheme: "file://"
+      path: "../../../adapters/driven/services/src/main/java"
       compiler:
         classpath: ""
+        output: "../../../adapters/driven/services/target/classes"
   hippocampal:
     episode:
-      target: "../../../filesystem/hippocampal/episode"
+      scheme: "file://"
+      path: "../../../filesystem/eventsourcing/data/hippocampal/episode"
       limit: "-1"
+      threshold: "0.1"
+      decay: "0.8"
+  eventstore:
+    scheme: "file://"
+    path: "../../../filesystem/eventsourcing/event"
   neocortical:
     knowledge:
-      target: "../../../filesystem/neocortical/knowledge"
+      scheme: "file://"
+      path: "../../../filesystem/eventsourcing/data/neocortical/knowledge"
       limit: "1"

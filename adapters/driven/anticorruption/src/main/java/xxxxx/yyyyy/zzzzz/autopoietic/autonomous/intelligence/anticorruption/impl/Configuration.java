@@ -46,7 +46,10 @@ public class Configuration {
 
     public Configuration resolve(Class<?> type) {
         var path = SCOPES.get(type.getSimpleName());
-        return stream(path.split("\\.")).reduce(this, Configuration::scope, (x, y) -> y);
+        return stream(path.split("\\."))
+            .reduce(this,
+                Configuration::scope,
+                (x, y) -> y);
     }
 
     public <T> T get(String key) {

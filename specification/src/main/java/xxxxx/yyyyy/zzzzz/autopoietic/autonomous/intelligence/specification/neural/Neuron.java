@@ -2,6 +2,10 @@ package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neur
 
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.AggregateRoot;
 
+import java.util.List;
+
 public interface Neuron extends AggregateRoot {
     String tuning();
+
+    List<String> effectors();
 }

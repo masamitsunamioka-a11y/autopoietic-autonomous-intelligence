@@ -12,7 +12,7 @@ import java.util.List;
 public record Compensation(
     @NotBlank String reasoning,
     @DecimalMin("0.0") @DecimalMax("1.0") double amplitude,
-    @NotBlank String newTuning,
+    @NotNull @Valid NewArea newArea,
     @NotNull List<@Valid NewArea> newAreas,
     @NotNull List<@Valid NewNeuron> newNeurons,
     @NotNull List<@Valid NewEffector> newEffectors

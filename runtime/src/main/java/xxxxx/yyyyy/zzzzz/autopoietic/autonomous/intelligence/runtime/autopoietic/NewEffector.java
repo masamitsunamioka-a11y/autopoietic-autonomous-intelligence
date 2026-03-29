@@ -7,7 +7,7 @@ import java.util.Map;
 
 public record NewEffector(
     @NotBlank String id,
-    @NotBlank String tuning
+    @NotBlank String program
 ) implements Effector {
     @Override
     public Map<String, Object>

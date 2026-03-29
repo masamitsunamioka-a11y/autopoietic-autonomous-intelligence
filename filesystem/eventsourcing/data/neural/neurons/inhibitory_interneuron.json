@@ -1,0 +1,7 @@
+{
+  "id": "InhibitoryInterneuron",
+  "tuning": "Inhibitory interneuron for ventrolateral prefrontal cortex. Projects to InhibitEffector for response suppression.",
+  "effectors": [
+    "InhibitEffector"
+  ]
+}

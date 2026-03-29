@@ -1,11 +1,13 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Snapshot } from "../types";
+
 export type Badge = "added" | "updated";
 export const useSnapshotStore = defineStore("snapshot", () => {
   const snapshots = ref<Snapshot[]>([]);
   const badges = ref<Map<string, Badge>>(new Map());
   const badgeGeneration = ref(0);
+
   function mergeSnapshots(incoming: Snapshot[]): void {
     const previous = new Map(snapshots.value.map((x) => [x.name, x.timestamp]));
     const next = new Map<string, Badge>();
@@ -27,6 +29,7 @@ export const useSnapshotStore = defineStore("snapshot", () => {
       badgeGeneration.value++;
     }
   }
+
   async function fetchSnapshots(): Promise<void> {
     try {
       const res = await fetch("/api/monitor");
@@ -36,5 +39,6 @@ export const useSnapshotStore = defineStore("snapshot", () => {
       // Silently fail — will retry on next SSE event
     }
   }
+
   return { snapshots, badges, badgeGeneration, mergeSnapshots, fetchSnapshots };
 });

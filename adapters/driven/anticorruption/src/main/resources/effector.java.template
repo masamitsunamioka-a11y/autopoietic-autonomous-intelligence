@@ -3,7 +3,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neura
 import java.util.Map;
 public class {{id}} implements Effector {
     @Override public String id() { return "{{id}}"; }
-    @Override public String tuning() { return "{{tuning}}"; }
+    @Override public String program() { return "{{program}}"; }
     @Override
     public Map<String, Object> fire(Map<String, Object> input) {
         return Map.of(

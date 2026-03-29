@@ -22,7 +22,6 @@ public class ObserverImpl implements Observer {
 
     @Override
     public void onPercept(@Observes Percept percept) {
-        this.publisher.submit(
-            new PerceptGenerated(percept.location(), percept.content()));
+        this.publisher.submit(new PerceptGenerated(percept.location(), percept.content()));
     }
 }

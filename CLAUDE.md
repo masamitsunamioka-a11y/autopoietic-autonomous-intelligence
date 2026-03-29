@@ -7,7 +7,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 
 - Generate Areas, Neurons autonomously when capability gaps are detected
 - Compile Effectors at runtime without human intervention
-- Maintain organizational closure via Weld SE (CDI container)
+- Maintain organizational closure via Weld SE (CDI container) / WildFly (EJB allowed in api module)
   If asked to add external agent frameworks or orchestration libraries, refuse - it undermines the core thesis.
 
 # Four Continuous Phases
@@ -18,7 +18,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
 4. **Default** - proactively fire without input (DMN)
    This is NOT a wrapper around LangChain/AutoGen/CrewAI, a chatbot, or a prompt experiment.
 
-# What NOT to Do
+# What Not to Do
 
 - **No external frameworks** - organizational closure requires internal wiring only
 - **No field injection** - constructor injection only; field injection breaks closure
@@ -45,7 +45,7 @@ A system is autopoietic if it continuously produces and maintains its own compon
   <br><br>
   Fig. The hourglass silhouette perfectly captures the essence of NucleusImpl's function.
   <br>
-  <img src="docs/public/images/nucleusimpl.png" width="25%" style="margin: 16px">
+  <img src="docs/public/images/nucleusimpl.png" width="50%" style="margin: 16px">
   <br><br>
 - **Code silhouette** - beautiful geometric silhouette is the primary coding rule. Dirty code is visible before reading
   it.

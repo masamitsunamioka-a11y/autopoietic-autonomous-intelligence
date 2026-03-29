@@ -15,9 +15,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ArquillianExtension.class)
 @RunAsClient
@@ -25,6 +23,8 @@ class KandelCircuitIT {
     private static final Logger logger = LoggerFactory.getLogger(KandelCircuitIT.class);
     private static final URI BASE = URI.create("http://127.0.0.1:8080");
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final java.util.concurrent.atomic.AtomicInteger perceptCount =
+        new java.util.concurrent.atomic.AtomicInteger(0);
 
     @Test
     void simple() throws Exception {
@@ -59,18 +59,21 @@ class KandelCircuitIT {
 
     private void stimulate(String message, long timeout) {
         try {
-            var percept = this.awaitPercept();
             var response = this.chat(message);
             assertEquals(200, response.statusCode());
-            var result = percept.get(timeout, TimeUnit.MINUTES);
+            var skip = this.perceptCount.get();
+            var result = this.awaitPercept(skip)
+                .get(timeout, TimeUnit.MINUTES);
+            this.perceptCount.incrementAndGet();
             assertTrue(result.contains("percept-generated"));
-            logger.info("percept: {}", result.substring(0, Math.min(200, result.length())));
+            logger.info("percept: {}", result.substring(
+                0, Math.min(200, result.length())));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private CompletableFuture<String> awaitPercept() {
+    private CompletableFuture<String> awaitPercept(int skip) {
         var future = new CompletableFuture<String>();
         this.httpClient.sendAsync(
             HttpRequest.newBuilder()
@@ -80,6 +83,7 @@ class KandelCircuitIT {
             HttpResponse.BodyHandlers.ofLines()
         ).thenAccept(response -> response.body()
             .filter(line -> line.contains("percept-generated"))
+            .skip(skip)
             .findFirst()
             .ifPresent(future::complete));
         return future;

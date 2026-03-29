@@ -11,7 +11,7 @@ public class VocalizeEffector implements Effector {
     }
 
     @Override
-    public String tuning() {
+    public String program() {
         return """
             Broca's area speech output (Ch.60).
             Transforms internal representations into vocalized responses.

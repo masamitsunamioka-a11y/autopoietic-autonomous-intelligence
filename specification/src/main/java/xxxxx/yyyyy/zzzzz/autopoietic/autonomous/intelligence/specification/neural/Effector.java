@@ -5,7 +5,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Aggre
 import java.util.Map;
 
 public interface Effector extends AggregateRoot {
-    String tuning();
+    String program();
 
     Map<String, Object> fire(Map<String, Object> input);
 }

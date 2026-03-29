@@ -9,7 +9,6 @@ import java.util.List;
 public record NewArea(
     @NotBlank String id,
     @NotBlank String tuning,
-    @NotNull List<String> neurons,
-    @NotNull List<String> effectors
+    @NotNull List<String> neurons
 ) implements Area {
 }

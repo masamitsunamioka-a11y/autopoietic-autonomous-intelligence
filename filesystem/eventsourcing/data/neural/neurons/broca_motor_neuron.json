@@ -1,0 +1,7 @@
+{
+  "id": "BrocaMotorNeuron",
+  "tuning": "Motor output neuron for Broca's area. Projects to VocalizeEffector for speech production.",
+  "effectors": [
+    "VocalizeEffector"
+  ]
+}

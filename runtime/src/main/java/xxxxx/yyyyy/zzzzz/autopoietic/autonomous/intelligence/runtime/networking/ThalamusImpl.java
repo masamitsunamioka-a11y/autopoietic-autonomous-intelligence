@@ -85,13 +85,10 @@ public class ThalamusImpl implements Thalamus {
 
     @Override
     public void relay(Impulse impulse) {
-        var projection = (Projection) this.transmitter.call(
-            new ImpulseImpl(
-                impulse.signal(), this.label(), null));
+        var projection = (Projection) this.transmitter.call(new ImpulseImpl(impulse.signal(), this.label(), null));
         this.nucleus.integrate(projection, x -> {
             try {
-                this.cortex.respond(new ImpulseImpl(
-                    impulse.signal(), impulse.afferent(), x.area()));
+                this.cortex.respond(new ImpulseImpl(impulse.signal(), impulse.afferent(), x.area()));
             } catch (Exception e) {
                 logger.error("relay failed", e);
             }
@@ -103,7 +100,7 @@ public class ThalamusImpl implements Thalamus {
         this.nucleus.integrate(new Spindle(1.0), x -> {
             try {
                 this.autopoiesis.conserve();
-                this.episode.promote();
+                this.episode.consolidate();
                 allOf(
                     runAsync(this.episode::decay),
                     runAsync(this.knowledge::decay)

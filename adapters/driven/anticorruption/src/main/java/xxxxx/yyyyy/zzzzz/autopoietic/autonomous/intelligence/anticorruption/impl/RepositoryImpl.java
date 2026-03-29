@@ -6,8 +6,8 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adap
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.AggregateRoot;
 
+import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.Objects;
 
 public class RepositoryImpl<T extends AggregateRoot> implements Repository<T> {
     private static final Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
@@ -19,7 +19,11 @@ public class RepositoryImpl<T extends AggregateRoot> implements Repository<T> {
 
     @Override
     public T find(String id) {
-        return this.adapter.fetch(id);
+        try {
+            return this.adapter.fetch(id);
+        } catch (UncheckedIOException e) {
+            return null;
+        }
     }
 
     @Override
@@ -28,27 +32,7 @@ public class RepositoryImpl<T extends AggregateRoot> implements Repository<T> {
     }
 
     @Override
-    public void store(T object) {
-        this.adapter.publish(object);
-    }
-
-    @Override
-    public void storeAll(List<? extends T> objects) {
-        objects.forEach(this::store);
-    }
-
-    @Override
-    public void remove(String id) {
-        this.adapter.revoke(id);
-    }
-
-    @Override
-    public void removeAll(List<String> ids) {
-        this.adapter.revokeAll(ids);
-    }
-
-    @Override
     public boolean exists(String id) {
-        return Objects.nonNull(this.find(id));
+        return this.find(id) != null;
     }
 }

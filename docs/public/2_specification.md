@@ -215,7 +215,7 @@ Episodic memory (Tulving): autobiographical, time-stamped, per-session.
 | `retrieve(String)` | Cue-based retrieval                                                       |
 | `retrieve()`       | All stored traces                                                         |
 | `decay()`          | Forgetting without reinforcement                                          |
-| `promote()`        | Hippocampal replay -> episodic->semantic transfer during sleep (Ch.65-67) |
+| `consolidate()`    | Hippocampal replay -> episodic->semantic transfer during sleep (Ch.65-67) |
 
 #### `Knowledge` interface - Ch.65-67
 
@@ -240,7 +240,7 @@ Large-scale brain networks (DMN, SN) that regulate network state transitions.
 | Method           | Basis                                                                         |
 |------------------|-------------------------------------------------------------------------------|
 | `relay(Impulse)` | Void. Tonic mode - routes unrouted Impulse to appropriate Area, fires Cortex. |
-| `burst()`        | Void. Burst mode - sleep spindle firing drives conserve, promote, decay.      |
+| `burst()`        | Void. Burst mode - sleep spindle firing drives conserve, consolidate, decay.  |
 
 #### `Default` interface - Ch.62
 
@@ -293,7 +293,7 @@ Motor output structures (muscles, glands). In AAI: compiled action capabilities.
 
 | Method      | Basis                                                                                     |
 |-------------|-------------------------------------------------------------------------------------------|
-| `tuning()`  | Ch.35-36, 38-40 - motor tuning (Georgopoulos population vector)                           |
+| `program()` | Ch.38-39 - motor program, coordinated action patterns                                     |
 | `fire(Map)` | "neurons fire action potentials" - execute action, return result. [E1] KV map models I/O. |
 
 #### `Receptor` interface - Ch.21

@@ -11,7 +11,7 @@ public class InhibitEffector implements Effector {
     }
 
     @Override
-    public String tuning() {
+    public String program() {
         return """
             Prefrontal inhibitory control (Ch.19, 48).
             Suppresses inappropriate or harmful responses.

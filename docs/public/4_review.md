@@ -35,7 +35,7 @@ No Kandel Equivalent (I1-I4) excluded from Total.
 | #  | Target               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |----|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | T6 | Per-neuron Nucleus   | Ch.9, 12, 51 each neuron has its own soma for synaptic integration. Current NucleusImpl is a singleton. Includes sleep/waking threshold (burst vs tonic firing). Summation (Ch.9, 12): Nucleus core behavior - amplitude accumulation -> threshold -> fire (shouldFire()). Habituation (Ch.63): separate class - presynaptic amplitude decay, used by NucleusImpl to modulate input before summation. Flow: Potential -> [Habituation: decay] -> [Summation: accumulate] -> shouldFire(). Separate research direction |
-| T7 | NREM/REM sleep cycle | Ch.51 NREM/REM ~90min cycle. NREM: faithful hippocampal replay -> promote(). REM: recombination of Episode fragments -> novel Knowledge (dreaming). Separate research direction                                                                                                                                                                                                                                                                                                                                       |
+| T7 | NREM/REM sleep cycle | Ch.51 NREM/REM ~90min cycle. NREM: faithful hippocampal replay -> consolidate(). REM: recombination of Episode fragments -> novel Knowledge (dreaming). Separate research direction                                                                                                                                                                                                                                                                                                                                   |
 | T8 | Temperament          | Ch.48-49 emotion, amygdala, reward system. Individual personality traits as neural architecture. Personality expressed through Neuron tuning (e.g. BabyPersonalityNeuron) + natural accumulation via Knowledge. Separate research direction                                                                                                                                                                                                                                                                           |
 
 ### Engineering
@@ -111,7 +111,7 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 | `.retrieve()`       | OK     | Ch.65 free recall - recall of all memories                                                |
 | `.decay()`          | OK     | Ch.65 forgetting / decay theory - memory decay over time                                  |
 | **Episode**         | OK     | Ch.65-67 episodic memory (Tulving) - autobiographical, time-stamped memory                |
-| `.promote()`        | OK     | Ch.65-67 hippocampal replay - episodic->semantic transfer during sleep                    |
+| `.consolidate()`    | OK     | Ch.65-67 hippocampal replay - episodic->semantic transfer during sleep                    |
 | **Knowledge**       | OK     | Ch.65-67 semantic memory (Tulving) - general world knowledge                              |
 
 #### `specification.networking`
@@ -134,7 +134,7 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 | **Neuron**             | OK            | Ch.2 individual nerve cell. Has tuning selectivity for response characteristics        |
 | `.tuning()`            | OK            | Ch.26 - single neuron selectivity                                                      |
 | **Effector**           | OK            | Ch.35-36 motor output - projection from motor cortex to muscles/glands                 |
-| `.tuning()`            | OK            | Effector's operational characteristics. Corresponds to motor neuron tuning property    |
+| `.program()`           | OK            | Ch.38-39 motor program - coordinated action patterns for motoneurons                   |
 | `.fire(Map)`           | [Engineering] | KV map models effector I/O; biology uses synaptic signals. Annotated                   |
 | **Receptor**           | OK            | Ch.21 sensory receptor - transduction of external stimuli into neural signals          |
 | `.transduce(Stimulus)` | OK            | Ch.21 sensory transduction - converts stimulus energy into neural impulse              |
@@ -240,9 +240,9 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 | `.retrieve(String)`    | OK     | Cued recall via repository lookup                                                                                                          |
 | `.retrieve()`          | OK     | Free recall - sorted by timestamp                                                                                                          |
 | `.decay()`             | OK     | Ch.67 sleep consolidation. removeAll for traces exceeding area-proportional capacity. Called from Thalamus.burst()                         |
-| `.promote()`           | OK     | Ch.65-67 hippocampal replay. Transmitter -> Nucleus pipeline extracts insights from Episode into Knowledge.encode()                        |
+| `.consolidate()`       | OK     | Ch.65-67 hippocampal replay. Transmitter -> Nucleus pipeline extracts insights from Episode into Knowledge.encode()                        |
 | `CAPACITY_PER_AREA=10` | OK     | Ch.65-67 area-proportional capacity. Hippocampal encoding integrates multiple cortical association areas - capacity scales with area count |
-| **Consolidation**      | OK     | Ch.65-67 memory consolidation. LLM output record for promote(). reasoning + amplitude + insights (extracted semantic knowledge)            |
+| **Consolidation**      | OK     | Ch.65-67 memory consolidation. LLM output record for consolidate(). reasoning + amplitude + insights (extracted semantic knowledge)        |
 | **KnowledgeImpl**      | OK     | Ch.65-67 semantic memory                                                                                                                   |
 | `.encode()`            | OK     | Memory encoding. Ch.66 retroactive interference                                                                                            |
 | `.retrieve(String)`    | OK     | Cued recall via repository lookup                                                                                                          |
@@ -255,7 +255,7 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 |---------------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------|
 | **ThalamusImpl**                | OK            | Ch.21 thalamic relay + Ch.51 intrinsic oscillation. Self-governs burst via Arousal state                                       |
 | `.relay()`                      | OK            | Void. Determines Area via Transmitter + Nucleus, fires Cortex as axonal projection. Thalamic relay                             |
-| `.burst()`                      | OK            | Ch.51 thalamic burst firing. Spindle -> Nucleus -> conserve/promote/decay. Sleep consolidation                                 |
+| `.burst()`                      | OK            | Ch.51 thalamic burst firing. Spindle -> Nucleus -> conserve/consolidate/decay. Sleep consolidation                             |
 | `.oscillate()`                  | OK            | Ch.51 intrinsic oscillation. Periodically checks Arousal; bursts when not projecting                                           |
 | `.activate()`                   | [Engineering] | Timed oscillation (10-20s). Biology: seconds-scale spindle bursts (Ch.51); interval is engineering compromise                  |
 | **Projection**                  | OK            | Ch.18 "thalamic projection" - output of thalamic-to-cortical projection. reasoning + amplitude + area is Nucleus output format |

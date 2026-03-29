@@ -4,11 +4,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.CommandPublisher;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.Repository;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Knowledge;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 
-import java.util.HashSet;
 import java.util.List;
 
 /// In the future, scope to per-session
@@ -16,15 +16,18 @@ import java.util.List;
 public class KnowledgeImpl implements Knowledge {
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeImpl.class);
     private final Repository<Trace> semanticRepository;
+    private final CommandPublisher commandPublisher;
 
     @Inject
-    public KnowledgeImpl(@Semantic Repository<Trace> semanticRepository) {
+    public KnowledgeImpl(@Semantic Repository<Trace> semanticRepository,
+                         CommandPublisher commandPublisher) {
         this.semanticRepository = semanticRepository;
+        this.commandPublisher = commandPublisher;
     }
 
     @Override
     public void encode(Trace trace) {
-        this.semanticRepository.store(trace);
+        this.commandPublisher.publish(new EncodeKnowledge(trace));
     }
 
     @Override
@@ -39,16 +42,6 @@ public class KnowledgeImpl implements Knowledge {
 
     @Override
     public void decay() {
-        var all = this.semanticRepository.findAll();
-        if (all.size() <= 1) {
-            return;
-        }
-        var seen = new HashSet<String>();
-        var reversed = all.reversed();
-        var expired = reversed.stream()
-            .filter(x -> !seen.add(x.id()))
-            .map(Trace::id)
-            .toList();
-        this.semanticRepository.removeAll(expired);
+        this.commandPublisher.publish(new DecayKnowledge());
     }
 }
