@@ -5,7 +5,10 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Adapter;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.CommandHandler;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.EventStore;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.AggregateNotFoundException;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.e.TraceEncoded;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.e.TraceRemoved;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.DecayKnowledge;
@@ -13,7 +16,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.En
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.Semantic;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -22,15 +24,12 @@ public class SemanticCommandHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(SemanticCommandHandler.class);
     private final Adapter<Trace> adapter;
     private final EventStore eventStore;
-    private final EventPublisher eventPublisher;
 
     @Inject
     public SemanticCommandHandler(@Semantic Adapter<Trace> adapter,
-                                  EventStore eventStore,
-                                  EventPublisher eventPublisher) {
+                                  EventStore eventStore) {
         this.adapter = adapter;
         this.eventStore = eventStore;
-        this.eventPublisher = eventPublisher;
     }
 
     public void handle(@Observes EncodeKnowledge command) {
@@ -42,9 +41,16 @@ public class SemanticCommandHandler implements CommandHandler {
     }
 
     private void onEncode(Trace trace) {
-        var events = List.<Event>of(new TraceEncoded(trace.id(), System.currentTimeMillis(), trace.content()));
-        this.eventStore.save(events);
-        events.forEach(this.eventPublisher::publish);
+        var aggregateId = "neocortical/knowledge/" + trace.id();
+        var lastVersion = 0;
+        try {
+            var existing = this.eventStore.eventsForAggregate(aggregateId);
+            lastVersion = existing.getLast().version();
+        } catch (AggregateNotFoundException e) {
+            lastVersion = 0;
+        }
+        var event = new TraceEncoded(trace.id(), System.currentTimeMillis(), lastVersion + 1, trace.content());
+        this.eventStore.save(aggregateId, List.of(event), lastVersion);
     }
 
     private void onDecay() {
@@ -54,13 +60,12 @@ public class SemanticCommandHandler implements CommandHandler {
         }
         var seen = new HashSet<String>();
         var reversed = all.reversed();
-        var expired = reversed.stream()
+        reversed.stream()
             .filter(x -> !seen.add(x.id()))
             .map(Trace::id)
-            .toList();
-        var events = new ArrayList<Event>();
-        expired.forEach(x -> events.add(new TraceRemoved(x, System.currentTimeMillis())));
-        this.eventStore.save(events);
-        events.forEach(this.eventPublisher::publish);
+            .forEach(x -> {
+                var event = new TraceRemoved(x, System.currentTimeMillis(), 0);
+                this.eventStore.save("neocortical/knowledge/" + x, List.of(event), -1);
+            });
     }
 }

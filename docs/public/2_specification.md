@@ -88,7 +88,7 @@ All specification interfaces map to three categories derived from neuron anatomy
 
 | Package       | Kandel             | Interfaces                                                                                                                                                           |
 |---------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| *(root)*      | Evans DDD          | [Entity](#entity-interface), [AggregateRoot](#aggregateroot-interface)                                                                                               |
+| *(root)*      | Evans DDD / CQRS   | [Entity](#entity-interface), [AggregateRoot](#aggregateroot-interface), [Message](#message-interface)                                                                |
 | `autopoietic` | M&V                | [Autopoiesis](#autopoiesis-interface--mv)                                                                                                                            |
 | `cognitive`   | Part VII           | [Cortex](#cortex-interface--part-vii), [Percept](#percept-interface--ch21-25)                                                                                        |
 | `homeostatic` | Ch.48, 51          | [Drive](#drive-interface--ch48), [Sleep](#sleep-interface--ch51-65-67), [Arousal](#arousal-interface--ch51), [Modulator](#modulator-interface--ch51)                 |
@@ -120,6 +120,12 @@ but are required by the domain model (e.g., Entity, AggregateRoot).
 
 Extends Entity. Marker for Repository-managed domain objects.
 Area, Neuron, Effector, Trace are AggregateRoots.
+
+#### `Message` interface
+
+[Engineering] Marker interface for CQRS message types (Greg Young).
+Common root for Command (runtime) and Event (anticorruption).
+Unified message protocol enabling shared routing and type hierarchy.
 
 ---
 

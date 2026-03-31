@@ -16,12 +16,12 @@ anticorruption:
       path: "../../../filesystem/eventsourcing/data/neural/neurons"
       limit: "-1"
     effectors:
-      package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors.effector"
+      package: "xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.service"
       scheme: "file://"
-      path: "../../../adapters/driven/services/src/main/java"
+      path: "../../../adapters/driven/service/src/main/java"
       compiler:
         classpath: ""
-        output: "../../../adapters/driven/services/target/classes"
+        output: "../../../adapters/driven/service/target/classes"
   hippocampal:
     episode:
       scheme: "file://"

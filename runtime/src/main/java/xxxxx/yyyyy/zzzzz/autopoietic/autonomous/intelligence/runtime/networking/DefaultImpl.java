@@ -74,7 +74,8 @@ public class DefaultImpl implements Default {
     }
 
     private void fire() {
-        var fluctuation = (Fluctuation) this.transmitter.call(new ImpulseImpl(null, this.label(), null));
+        var fluctuation = (Fluctuation) this.transmitter.call(
+            new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(fluctuation, x -> {
             try {
                 if (!x.aroused()) {

@@ -7,6 +7,7 @@ import java.util.List;
 public record AreaCreated(
     String id,
     long occurredOn,
+    int version,
     String tuning,
     List<String> neurons
 ) implements Event {

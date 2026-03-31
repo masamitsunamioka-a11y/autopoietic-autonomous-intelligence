@@ -124,7 +124,9 @@ public class TransmissionService implements Service<Impulse, Potential> {
 
         private String pathwayKey(Impulse impulse) {
             return switch (impulse.afferent()) {
-                case "Autopoiesis" -> impulse.signal() != null ? "Autopoiesis:compensate" : "Autopoiesis:conserve";
+                case "Autopoiesis" -> impulse.signal() != null
+                    ? "Autopoiesis:compensate"
+                    : "Autopoiesis:conserve";
                 default -> impulse.afferent();
             };
         }
@@ -261,7 +263,9 @@ public class TransmissionService implements Service<Impulse, Potential> {
         }
 
         private String serialize(List<? extends Entity> entities) {
-            return entities.isEmpty() ? "None" : this.serializer.serialize(entities);
+            return entities.isEmpty()
+                ? "None"
+                : this.serializer.serialize(entities);
         }
     }
 
@@ -288,7 +292,9 @@ public class TransmissionService implements Service<Impulse, Potential> {
         }
 
         private Model modelFor(Class<?> caller) {
-            return SONNET_CALLERS.contains(caller) ? Model.CLAUDE_SONNET_4_6 : Model.CLAUDE_HAIKU_4_5_20251001;
+            return SONNET_CALLERS.contains(caller)
+                ? Model.CLAUDE_SONNET_4_6
+                : Model.CLAUDE_HAIKU_4_5_20251001;
         }
     }
 

@@ -110,9 +110,24 @@ public class JavaTranslator<I extends Entity> implements Translator<I, JavaResou
 
     private String fullClasspath() {
         var resolved = stream(this.classpath.split(File.pathSeparator))
+            .filter(x -> !x.isEmpty())
             .map(x -> Path.of(x).toAbsolutePath().toString())
             .collect(joining(File.pathSeparator));
-        return resolved + File.pathSeparator + System.getProperty("java.class.path");
+        var contextual = this.contextClasspath();
+        return Stream.of(resolved, contextual, System.getProperty("java.class.path"))
+            .filter(x -> !x.isEmpty())
+            .collect(joining(File.pathSeparator));
+    }
+
+    private String contextClasspath() {
+        var resource = this.type.getProtectionDomain().getCodeSource();
+        if (resource == null) {
+            return "";
+        }
+        var location = resource.getLocation();
+        return location != null
+            ? Path.of(location.getPath()).toAbsolutePath().toString()
+            : "";
     }
 
     private I instantiate(Class<?> clazz) {

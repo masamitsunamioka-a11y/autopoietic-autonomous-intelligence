@@ -85,7 +85,8 @@ public class ThalamusImpl implements Thalamus {
 
     @Override
     public void relay(Impulse impulse) {
-        var projection = (Projection) this.transmitter.call(new ImpulseImpl(impulse.signal(), this.label(), null));
+        var projection = (Projection) this.transmitter.call(
+            new ImpulseImpl(impulse.signal(), this.label(), null));
         this.nucleus.integrate(projection, x -> {
             try {
                 this.cortex.respond(new ImpulseImpl(impulse.signal(), impulse.afferent(), x.area()));

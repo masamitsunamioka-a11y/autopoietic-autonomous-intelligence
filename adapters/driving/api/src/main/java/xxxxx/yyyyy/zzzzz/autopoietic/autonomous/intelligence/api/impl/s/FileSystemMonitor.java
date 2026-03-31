@@ -15,7 +15,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.api.impl.e.FileSyst
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,7 +36,7 @@ public class FileSystemMonitor implements Monitor {
         this.paths = List.of(
             Path.of("filesystem/eventsourcing/data/neural/areas", ""),
             Path.of("filesystem/eventsourcing/data/neural/neurons", ""),
-            Path.of("adapters/driven/services/src/main/java/xxxxx/yyyyy/zzzzz/autopoietic/autonomous/intelligence/effectors/effector", ""),
+            Path.of("adapters/driven/service/src/main/java/xxxxx/yyyyy/zzzzz/autopoietic/autonomous/intelligence/service", ""),
             Path.of("filesystem/eventsourcing/data/hippocampal/episode", ""),
             Path.of("filesystem/eventsourcing/data/neocortical/knowledge", ""));
         try {
@@ -93,11 +92,9 @@ public class FileSystemMonitor implements Monitor {
 
     @Override
     public List<Snapshot> snapshots() {
-        var list = new ArrayList<Snapshot>();
-        for (var path : this.paths) {
-            list.addAll(this.scan(path));
-        }
-        return list;
+        return this.paths.stream()
+            .flatMap(x -> this.scan(x).stream())
+            .toList();
     }
 
     private List<Snapshot> detect(WatchKey key) {

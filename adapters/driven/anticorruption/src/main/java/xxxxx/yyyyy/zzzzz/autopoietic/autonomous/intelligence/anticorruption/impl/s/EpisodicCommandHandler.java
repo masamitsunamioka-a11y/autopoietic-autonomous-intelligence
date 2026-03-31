@@ -5,7 +5,11 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.*;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.CommandHandler;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Event;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.EventStore;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Serializer;
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.AggregateNotFoundException;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.Configuration;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.LocalFileSystem;
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.impl.e.StrengthDecayed;
@@ -18,7 +22,6 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.runtime.mnemonic.Tr
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.mnemonic.Trace;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -28,17 +31,14 @@ public class EpisodicCommandHandler implements CommandHandler {
     private final Serializer serializer;
     private final double decayFactor;
     private final EventStore eventStore;
-    private final EventPublisher eventPublisher;
 
     @Inject
-    public EpisodicCommandHandler(Serializer serializer, EventStore eventStore,
-                                  EventPublisher eventPublisher) {
+    public EpisodicCommandHandler(Serializer serializer, EventStore eventStore) {
         var configuration = new Configuration().scope("hippocampal").scope("episode");
         this.extern = new LocalFileSystem(Path.of(configuration.get("path"), ""));
         this.serializer = serializer;
         this.decayFactor = Double.parseDouble(configuration.get("decay"));
         this.eventStore = eventStore;
-        this.eventPublisher = eventPublisher;
     }
 
     public void handle(@Observes EncodeEpisode command) {
@@ -50,26 +50,31 @@ public class EpisodicCommandHandler implements CommandHandler {
     }
 
     private void onEncode(Trace trace) {
-        var events = List.of(new TraceEncoded(trace.id(), System.currentTimeMillis(), trace.content()));
-        this.eventStore.save(events);
-        events.forEach(this.eventPublisher::publish);
+        var aggregateId = "hippocampal/episode/" + trace.id();
+        var lastVersion = 0;
+        try {
+            var existing = this.eventStore.eventsForAggregate(aggregateId);
+            lastVersion = existing.getLast().version();
+        } catch (AggregateNotFoundException e) {
+            lastVersion = 0;
+        }
+        var event = new TraceEncoded(trace.id(), System.currentTimeMillis(), lastVersion + 1, trace.content());
+        this.eventStore.save(aggregateId, List.of(event), lastVersion);
     }
 
     private void onDecay() {
-        var events = new ArrayList<Event>();
         var now = System.currentTimeMillis();
-        this.extern.set().forEach(x -> {
-            var resource = (JsonResource) this.extern.get(x);
-            var engram = this.serializer.<EngramImpl>deserialize(resource.content(), EngramImpl.class);
-            var weakened = engram.strength() * this.decayFactor;
-            if (weakened < 0.01) {
-                events.add(new TraceRemoved(engram.trace().id(), now));
-            } else {
-                events.add(new StrengthDecayed(engram.trace().id(), now, weakened));
-            }
-        });
-        this.eventStore.save(events);
-        events.forEach(this.eventPublisher::publish);
+        this.extern.set()
+            .forEach(x -> {
+                var resource = (JsonResource) this.extern.get(x);
+                var engram = this.serializer.<EngramImpl>deserialize(resource.content(), EngramImpl.class);
+                var weakened = engram.strength() * this.decayFactor;
+                var id = engram.trace().id();
+                var event = weakened < 0.01
+                    ? (Event) new TraceRemoved(id, now, 0)
+                    : new StrengthDecayed(id, now, 0, weakened);
+                this.eventStore.save("hippocampal/episode/" + id, List.of(event), -1);
+            });
     }
 
     private record EngramImpl(double strength, TraceImpl trace) {

@@ -55,14 +55,15 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 
 #### No Kandel Equivalent
 
-| #  | Target                                | Description                                       |
-|----|---------------------------------------|---------------------------------------------------|
-| I1 | `Entity`                              | Evans DDD identity                                |
-| I2 | `AggregateRoot`                       | Evans DDD aggregate root. Extends Entity          |
-| I3 | `Repository<T extends AggregateRoot>` | Read-only query SPI (find, findAll, exists). CQRS |
-| I4 | `Service<I, O>`                       | External service call port                        |
-| I5 | `Command`                             | CQRS command marker interface (Greg Young)        |
-| I6 | `CommandPublisher`                    | CQRS command bus - publishes commands to handlers |
+| #  | Target                                | Description                                                         |
+|----|---------------------------------------|---------------------------------------------------------------------|
+| I1 | `Entity`                              | Evans DDD identity                                                  |
+| I2 | `AggregateRoot`                       | Evans DDD aggregate root. Extends Entity                            |
+| I3 | `Repository<T extends AggregateRoot>` | Read-only query SPI (find, findAll, exists). CQRS                   |
+| I4 | `Service<I, O>`                       | External service call port                                          |
+| I5 | `Command`                             | CQRS command marker interface (Greg Young)                          |
+| I6 | `CommandPublisher`                    | CQRS command bus - publishes commands to handlers                   |
+| I7 | `Message`                             | CQRS message root - common parent of Command and Event (Greg Young) |
 
 ---
 
@@ -172,14 +173,15 @@ Kandel deviations justified by Java / software constraints. Resolve to increase 
 
 #### `runtime` (root - SPI)
 
-| Class / Method                            | Rating | Kandel Rationale / Comment             |
-|-------------------------------------------|--------|----------------------------------------|
-| **Repository\<T extends AggregateRoot\>** | I3     | No Kandel equivalent. Read-only (CQRS) |
-| `.find()` / `.findAll()` / `.exists()`    | I3     | Query-side repository operations       |
-| **Command**                               | I5     | CQRS command marker interface          |
-| **CommandPublisher**                      | I6     | CQRS command bus                       |
-| `.publish(T)`                             | I6     | Fire command to CommandHandlers        |
-| **Service\<I, O\>**                       | I4     | External service call port             |
+| Class / Method                            | Rating | Kandel Rationale / Comment                 |
+|-------------------------------------------|--------|--------------------------------------------|
+| **Repository\<T extends AggregateRoot\>** | I3     | No Kandel equivalent. Read-only (CQRS)     |
+| `.find()` / `.findAll()` / `.exists()`    | I3     | Query-side repository operations           |
+| **Command**                               | I5     | CQRS command marker interface              |
+| **CommandPublisher**                      | I6     | CQRS command bus                           |
+| **Message** *(specification)*             | I7     | CQRS message root. Command extends Message |
+| `.publish(T)`                             | I6     | Fire command to CommandHandlers            |
+| **Service\<I, O\>**                       | I4     | External service call port                 |
 
 #### `runtime.autopoietic`
 

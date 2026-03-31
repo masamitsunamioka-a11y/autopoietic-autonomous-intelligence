@@ -5,6 +5,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Even
 public record EffectorCreated(
     String id,
     long occurredOn,
+    int version,
     String program
 ) implements Event {
 }

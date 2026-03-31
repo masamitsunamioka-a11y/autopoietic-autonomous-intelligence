@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
-    <artifactId>services</artifactId>
+    <artifactId>service</artifactId>
     <dependencies>
         <dependency>
             <groupId>jakarta.enterprise</groupId>

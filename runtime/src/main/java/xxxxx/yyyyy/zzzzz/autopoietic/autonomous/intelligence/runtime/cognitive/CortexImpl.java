@@ -72,7 +72,8 @@ public class CortexImpl implements Cortex {
         if (initial) {
             this.encode(impulse.afferent(), impulse.signal());
         }
-        var decision = (Decision) this.transmitter.call(new ImpulseImpl(impulse.signal(), this.label(), impulse.efferent()));
+        var decision = (Decision) this.transmitter.call(
+            new ImpulseImpl(impulse.signal(), this.label(), impulse.efferent()));
         this.nucleus.integrate(decision, x -> {
             try {
                 this.potentialEvent.fire(x);

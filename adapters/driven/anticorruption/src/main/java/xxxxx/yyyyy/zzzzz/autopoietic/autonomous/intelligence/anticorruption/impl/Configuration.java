@@ -61,7 +61,9 @@ public class Configuration {
 
     public long getLong(String key) {
         var v = Integer.parseInt(this.get(key));
+        /// @formatter:off
         return v < 0 ? Long.MAX_VALUE : v;
+        /// @formatter:on
     }
 
     private String loadResource(String name) {

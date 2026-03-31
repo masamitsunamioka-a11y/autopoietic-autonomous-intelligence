@@ -34,7 +34,8 @@ public class AutopoiesisImpl implements Autopoiesis {
 
     @Override
     public void compensate(Impulse impulse) {
-        var compensation = (Compensation) this.transmitter.call(new ImpulseImpl(impulse.signal(), this.label(), impulse.efferent()));
+        var compensation = (Compensation) this.transmitter.call(
+            new ImpulseImpl(impulse.signal(), this.label(), impulse.efferent()));
         this.nucleus.integrate(compensation, x -> {
             try {
                 this.commandPublisher.publish(new CompensateNeural(x));
@@ -46,7 +47,8 @@ public class AutopoiesisImpl implements Autopoiesis {
 
     @Override
     public void conserve() {
-        var conservation = (Conservation) this.transmitter.call(new ImpulseImpl(null, this.label(), null));
+        var conservation = (Conservation) this.transmitter.call(
+            new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(conservation, x -> {
             try {
                 this.commandPublisher.publish(new ConserveNeural(x));

@@ -1,20 +1,20 @@
-package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.effectors.effector;
+package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.service;
 
 import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.neural.Effector;
 
 import java.util.Map;
 
-public class InhibitEffector implements Effector {
+public class VocalizeEffector implements Effector {
     @Override
     public String id() {
-        return "InhibitEffector";
+        return "VocalizeEffector";
     }
 
     @Override
     public String program() {
         return """
-            Prefrontal inhibitory control (Ch.19, 48).
-            Suppresses inappropriate or harmful responses.
+            Broca's area speech output (Ch.60).
+            Transforms internal representations into vocalized responses.
             """;
     }
 

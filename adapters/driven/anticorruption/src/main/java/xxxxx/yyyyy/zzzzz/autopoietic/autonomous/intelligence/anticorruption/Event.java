@@ -1,7 +1,11 @@
 package xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption;
 
-public interface Event {
+import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.specification.Message;
+
+public interface Event extends Message {
     String id();
 
     long occurredOn();
+
+    int version();
 }

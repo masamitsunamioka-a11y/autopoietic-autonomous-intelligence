@@ -7,9 +7,17 @@ import Header from "../../../shared/atoms/Header.vue";
 import Entry from "../atoms/Entry.vue";
 const snapshot = useSnapshotStore();
 const el = ref<HTMLDivElement | null>(null);
+interface Engram {
+  trace: MnemonicEntry;
+  strength: number;
+}
 const episodes = computed(() =>
   snapshot.snapshots.filter((x) => x.name.startsWith("episode/")),
 );
+const traceOf = (ep: unknown): MnemonicEntry => {
+  const engram = ep as Engram | null;
+  return engram?.trace ?? (ep as MnemonicEntry);
+};
 watchEffect(async () => {
   void episodes.value.length;
   await nextTick();
@@ -26,9 +34,9 @@ watchEffect(async () => {
       <TransitionGroup name="highlight">
         <div v-for="ep in episodes" :key="ep.name" class="mnemonic-item">
           <Entry
-            :time="extractTime((ep.content as MnemonicEntry)?.id ?? '')"
-            :cue="extractCue((ep.content as MnemonicEntry)?.id ?? '')"
-            :content="(ep.content as MnemonicEntry)?.content ?? ''"
+            :time="extractTime(traceOf(ep.content)?.id ?? '')"
+            :cue="extractCue(traceOf(ep.content)?.id ?? '')"
+            :content="String(traceOf(ep.content)?.content ?? '')"
           />
         </div>
       </TransitionGroup>

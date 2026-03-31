@@ -99,13 +99,12 @@ A system is autopoietic if it continuously produces and maintains its own compon
 ## Formatting
 
 - **`///` comments** - triple-slash (Java 23+), no Javadoc
-- **Line break rules** (except ACL Producers):
+- **Line break rules**. All formatting rules apply ONLY to code NOT inside `@formatter:off/on` blocks. Code inside `@formatter:off/on` is manually formatted and must NOT be changed:
     - `@Inject` always on its own line (separate from constructor declaration)
-    - `new Xxx(` as method arg -> break before `new`, not after the method's `(`
     - `new Record(fields...)` -> each field on its own line (vertical)
     - `var x = (Cast) this.xxx.call(...)` -> no break after `=`
-    - `.forEach(...)` -> on its own line (like stream chaining)
     - non-`stream()` `.` chains -> horizontal (stay on same line)
+    - Ternary `? :` -> break before `?` and `:` (except inside switch case `->`)
 - **Path construction** - `Path.of(str, "")` with empty string second arg for config values
 
 ## Exception Handling

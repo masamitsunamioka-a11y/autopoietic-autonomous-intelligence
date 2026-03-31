@@ -65,7 +65,8 @@ public class EpisodeImpl implements Episode {
 
     @Override
     public void consolidate() {
-        var consolidation = (Consolidation) this.transmitter.call(new ImpulseImpl(null, this.label(), null));
+        var consolidation = (Consolidation) this.transmitter.call(
+            new ImpulseImpl(null, this.label(), null));
         this.nucleus.integrate(consolidation, x -> {
             try {
                 x.insights().forEach((k, v) -> this.knowledge.encode(new TraceImpl(k, v)));

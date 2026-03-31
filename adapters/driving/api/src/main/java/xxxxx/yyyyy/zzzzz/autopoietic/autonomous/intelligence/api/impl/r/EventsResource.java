@@ -51,33 +51,24 @@ public class EventsResource {
     }
 
     private void replay(SseEventSink sink, Sse sse, String lastEventId) {
-        var traces = this.episode.retrieve();
-        var skip = lastEventId != null;
-        for (var trace : traces) {
-            if (skip) {
-                if (trace.id().equals(lastEventId)) {
-                    skip = false;
-                }
-                continue;
-            }
-            sink.send(sse.newEventBuilder()
-                .id(trace.id())
-                .data(this.toJson(this.toEvent(trace)))
-                .build());
-        }
+        (lastEventId != null
+            ? this.episode.retrieve().stream().dropWhile(x -> !x.id().equals(lastEventId)).skip(1)
+            : this.episode.retrieve().stream())
+            .forEach(x -> sink.send(sse.newEventBuilder().id(x.id()).data(this.toJson(this.toEvent(x))).build()));
     }
 
     private Event toEvent(Trace trace) {
         var location = this.location(trace.id());
-        if (RECEPTOR.equals(location)) {
-            return new StimulusFired(String.valueOf(trace.content()));
-        }
-        return new PerceptGenerated(location, String.valueOf(trace.content()));
+        return RECEPTOR.equals(location)
+            ? new StimulusFired(String.valueOf(trace.content()))
+            : new PerceptGenerated(location, String.valueOf(trace.content()));
     }
 
     private String location(String id) {
         var index = id.indexOf("_");
+        /// @formatter:off
         return index >= 0 ? id.substring(index + 1) : id;
+        /// @formatter:on
     }
 
     private String toJson(Object object) {

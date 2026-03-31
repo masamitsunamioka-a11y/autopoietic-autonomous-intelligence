@@ -60,6 +60,15 @@ adapters/driving/web/dist/
 
 
 # Event sourcing runtime data
-filesystem/eventsourcing/event/*.json
+filesystem/eventsourcing/event/hippocampal/episode/*
+!filesystem/eventsourcing/event/hippocampal/episode/.gitkeep
+filesystem/eventsourcing/event/neocortical/knowledge/*
+!filesystem/eventsourcing/event/neocortical/knowledge/.gitkeep
+filesystem/eventsourcing/event/neural/
 
 node_modules/
+
+# Auto-generated effector implementations
+adapters/driven/service/src/main/java/xxxxx/yyyyy/zzzzz/autopoietic/autonomous/intelligence/service/*.java
+!adapters/driven/service/src/main/java/xxxxx/yyyyy/zzzzz/autopoietic/autonomous/intelligence/service/VocalizeEffector.java
+!adapters/driven/service/src/main/java/xxxxx/yyyyy/zzzzz/autopoietic/autonomous/intelligence/service/InhibitEffector.java

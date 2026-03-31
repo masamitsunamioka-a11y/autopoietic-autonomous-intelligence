@@ -35,6 +35,7 @@ public class AutopoieticEventHandler implements EventHandler {
     public void handle(@Observes Event event) {
         switch (event) {
             case AreaCreated x -> this.areaAdapter.publish(new NewArea(x.id(), x.tuning(), x.neurons()));
+            case AreaUpdated x -> this.areaAdapter.publish(new NewArea(x.id(), x.tuning(), x.neurons()));
             case AreaRemoved x -> this.areaAdapter.revoke(x.id());
             case NeuronCreated x -> this.neuronAdapter.publish(new NewNeuron(x.id(), x.tuning(), x.effectors()));
             case NeuronRemoved x -> this.neuronAdapter.revoke(x.id());

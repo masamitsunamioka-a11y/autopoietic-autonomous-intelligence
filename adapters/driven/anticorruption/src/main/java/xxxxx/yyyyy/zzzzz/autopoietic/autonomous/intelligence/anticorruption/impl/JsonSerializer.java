@@ -47,9 +47,11 @@ public class JsonSerializer implements Serializer {
         var as = string.indexOf('[');
         var os = string.indexOf('{');
         var isArray = as != -1 && (os == -1 || as < os);
+        /// @formatter:off
         var o = isArray ? '[' : '{';
         var c = isArray ? ']' : '}';
         var s = isArray ? as : os;
+        /// @formatter:on
         var e = string.lastIndexOf(c);
         return (s == -1 || e == -1 || s >= e)
             ? "" + o + c

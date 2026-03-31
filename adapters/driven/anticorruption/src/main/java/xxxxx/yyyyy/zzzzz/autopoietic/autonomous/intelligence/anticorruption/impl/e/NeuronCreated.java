@@ -7,6 +7,7 @@ import java.util.List;
 public record NeuronCreated(
     String id,
     long occurredOn,
+    int version,
     String tuning,
     List<String> effectors
 ) implements Event {

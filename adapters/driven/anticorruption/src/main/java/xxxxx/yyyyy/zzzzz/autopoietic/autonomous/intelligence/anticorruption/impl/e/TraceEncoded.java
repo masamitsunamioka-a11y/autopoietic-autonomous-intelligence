@@ -5,6 +5,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Even
 public record TraceEncoded(
     String id,
     long occurredOn,
+    int version,
     Object content
 ) implements Event {
 }

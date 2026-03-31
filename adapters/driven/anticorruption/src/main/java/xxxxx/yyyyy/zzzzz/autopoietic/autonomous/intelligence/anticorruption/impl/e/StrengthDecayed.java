@@ -5,6 +5,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Even
 public record StrengthDecayed(
     String id,
     long occurredOn,
+    int version,
     double newStrength
 ) implements Event {
 }

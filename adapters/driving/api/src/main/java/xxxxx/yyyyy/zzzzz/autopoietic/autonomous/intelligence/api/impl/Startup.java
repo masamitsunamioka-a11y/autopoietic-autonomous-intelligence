@@ -17,6 +17,12 @@ public class Startup {
     private final Sleep sleep;
     private final Monitor monitor;
 
+    public Startup() {
+        this.defaultMode = null;
+        this.sleep = null;
+        this.monitor = null;
+    }
+
     @Inject
     public Startup(Default defaultMode, Sleep sleep, Monitor monitor) {
         this.defaultMode = defaultMode;

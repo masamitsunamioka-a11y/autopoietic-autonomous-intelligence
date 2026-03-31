@@ -4,6 +4,7 @@ import xxxxx.yyyyy.zzzzz.autopoietic.autonomous.intelligence.anticorruption.Even
 
 public record AreaRemoved(
     String id,
-    long occurredOn
+    long occurredOn,
+    int version
 ) implements Event {
 }

@@ -26,18 +26,22 @@ const tree = computed(() => {
   const areas: AreaNode[] = [];
   for (const s of all) {
     const content = s.content as Record<string, unknown> | null;
-    if (!content || !("neurons" in content && "effectors" in content)) {
+    if (!content || !("neurons" in content && "tuning" in content)) {
       continue;
     }
     const neuronIds = (content.neurons ?? []) as string[];
-    const effectorIds = (content.effectors ?? []) as string[];
+    const neurons = neuronIds
+      .map((id) => snapshotMap.get("neurons/" + toSnakeCase(id) + ".json"))
+      .filter((x): x is Snapshot => x != null);
+    const effectorIds = neurons.flatMap((n) => {
+      const nc = n.content as Record<string, unknown> | null;
+      return (nc?.effectors ?? []) as string[];
+    });
     areas.push({
       snapshot: s,
-      neurons: neuronIds
-        .map((id) => snapshotMap.get("neurons/" + toSnakeCase(id) + ".json"))
-        .filter((x): x is Snapshot => x != null),
+      neurons,
       effectors: effectorIds
-        .map((id) => snapshotMap.get("effector/" + id + ".java"))
+        .map((id) => snapshotMap.get("service/" + id + ".java"))
         .filter((x): x is Snapshot => x != null),
     });
   }
