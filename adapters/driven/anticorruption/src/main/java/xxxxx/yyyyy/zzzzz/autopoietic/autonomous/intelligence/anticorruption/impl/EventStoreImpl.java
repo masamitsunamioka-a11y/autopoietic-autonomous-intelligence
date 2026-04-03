@@ -22,7 +22,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 @ApplicationScoped
 public class EventStoreImpl implements EventStore {
     private static final Logger logger = LoggerFactory.getLogger(EventStoreImpl.class);
-    private final Path basePath;
+    private final Path base;
     private final LocalFileSystem extern;
     private final Serializer serializer;
     private final EventPublisher eventPublisher;
@@ -30,8 +30,8 @@ public class EventStoreImpl implements EventStore {
     @Inject
     public EventStoreImpl(Serializer serializer, EventPublisher eventPublisher) {
         var configuration = new Configuration().scope("eventstore");
-        this.basePath = Path.of(configuration.get("path"), "");
-        this.extern = new LocalFileSystem(this.basePath);
+        this.base = Path.of(configuration.get("path"), "");
+        this.extern = new LocalFileSystem(this.base);
         this.serializer = serializer;
         this.eventPublisher = eventPublisher;
     }
@@ -59,7 +59,7 @@ public class EventStoreImpl implements EventStore {
 
     @Override
     public List<Event> eventsForAggregate(String aggregateId) {
-        var directory = this.basePath.resolve(aggregateId);
+        var directory = this.base.resolve(aggregateId);
         if (!Files.exists(directory)) {
             throw new AggregateNotFoundException(aggregateId);
         }
@@ -69,7 +69,7 @@ public class EventStoreImpl implements EventStore {
     }
 
     private List<EventDescriptor> descriptorsFor(String aggregateId) {
-        var directory = this.basePath.resolve(aggregateId);
+        var directory = this.base.resolve(aggregateId);
         if (!Files.exists(directory)) {
             return List.of();
         }

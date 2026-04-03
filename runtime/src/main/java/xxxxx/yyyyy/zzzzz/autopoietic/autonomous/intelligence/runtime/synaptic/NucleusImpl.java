@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
-import static java.util.concurrent.Executors.newCachedThreadPool;
+import static java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor;
 
 /// In the future, scope to per-session, per-caller
 @ApplicationScoped
@@ -29,7 +29,7 @@ public class NucleusImpl implements Nucleus {
     @Inject
     public NucleusImpl(Event<Modulator> event) {
         this.event = event;
-        this.executorService = newCachedThreadPool();
+        this.executorService = newVirtualThreadPerTaskExecutor();
         this.deque = new ConcurrentLinkedDeque<>();
     }
 

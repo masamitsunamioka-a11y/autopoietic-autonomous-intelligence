@@ -17,9 +17,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 @ApplicationScoped
@@ -44,7 +44,7 @@ public class FileSystemMonitor implements Monitor {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        this.executorService = Executors.newSingleThreadExecutor();
+        this.executorService = newVirtualThreadPerTaskExecutor();
     }
 
     @PostConstruct
